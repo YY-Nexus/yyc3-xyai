@@ -1,7 +1,15 @@
+/**
+ * @file VoiceInteraction.tsx
+ * @description YYC³ AI小语智能成长守护系统语音交互组件，提供语音识别和交互功能
+ * @author YYC³团队 <admin@0379.email>
+ * @version 1.0.0
+ */
+
 "use client"
 
 import { useState, useRef, useCallback } from "react"
 import { motion } from "framer-motion"
+import { reportError } from "@/lib/global-error-handler"
 
 interface VoiceInteractionProps {
   onTranscript: (text: string) => void
@@ -9,27 +17,27 @@ interface VoiceInteractionProps {
   className?: string
 }
 
-interface SpeechRecognitionEvent extends Event {
+interface WindowWithSpeechRecognition extends Window {
+  SpeechRecognition?: typeof SpeechRecognition
+  webkitSpeechRecognition?: typeof SpeechRecognition
+}
+
+interface WindowWithAudioContext extends Window {
+  webkitAudioContext?: typeof AudioContext
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean
+  transcript: string
+}
+
+interface SpeechRecognitionEvent {
   resultIndex: number
   results: SpeechRecognitionResultList
 }
 
-interface SpeechRecognitionErrorEvent extends Event {
+interface SpeechRecognitionErrorEvent {
   error: string
-  message: string
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition?: {
-      prototype: SpeechRecognition
-      new (): SpeechRecognition
-    }
-    webkitSpeechRecognition?: {
-      prototype: SpeechRecognition
-      new (): SpeechRecognition
-    }
-  }
 }
 
 export default function VoiceInteraction({
@@ -48,7 +56,7 @@ export default function VoiceInteraction({
 
   // 检查浏览器支持
   const isSupported = () => {
-    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.SpeechRecognition || window.webkitSpeechRecognition)
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.SpeechRecognition || (window as WindowWithSpeechRecognition).webkitSpeechRecognition)
   }
 
   // 语音识别
@@ -58,10 +66,10 @@ export default function VoiceInteraction({
       return
     }
 
-    const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognitionClass) return
+    const SpeechRecognition = (window as WindowWithSpeechRecognition).SpeechRecognition || (window as WindowWithSpeechRecognition).webkitSpeechRecognition
+    if (!SpeechRecognition) return
 
-    const recognition = new SpeechRecognitionClass()
+    const recognition = new SpeechRecognition()
     recognition.continuous = true
     recognition.interimResults = true
     recognition.lang = "zh-CN"
@@ -89,7 +97,7 @@ export default function VoiceInteraction({
     }
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error("语音识别错误:", event.error)
+      reportError(new Error(event.error), { component: 'VoiceInteraction', action: 'speechRecognition', errorType: event.error })
       if (event.error === "no-speech") {
         setIsRecording(false)
       }
@@ -133,8 +141,7 @@ export default function VoiceInteraction({
 
   // 音频可视化
   const startAudioVisualization = useCallback((stream: MediaStream) => {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    audioContextRef.current = new AudioContextClass()
+    audioContextRef.current = new (window.AudioContext || (window as WindowWithAudioContext).webkitAudioContext)()
     analyserRef.current = audioContextRef.current.createAnalyser()
     const source = audioContextRef.current.createMediaStreamSource(stream)
     source.connect(analyserRef.current)
@@ -180,7 +187,7 @@ export default function VoiceInteraction({
       setIsRecording(true)
       setIsProcessing(false)
     } catch (error) {
-      console.error("无法访问麦克风:", error)
+      reportError(error as Error, { component: 'VoiceInteraction', action: 'microphoneAccess' })
       alert("请允许访问麦克风以使用语音功能")
     }
   }

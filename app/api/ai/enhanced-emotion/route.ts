@@ -1,14 +1,91 @@
 import { enhancedEmotionFusion } from "@/lib/ai/enhanced-emotion-fusion"
 
+interface AudioFeatures {
+  pitch: number
+  volume: number
+  energy: number
+  spectralCentroid: number
+  zeroCrossingRate: number
+  speechRate: number
+  pauseRatio: number
+  volumeVariability: number
+  tempo?: number
+}
+
+interface FacialFeatures {
+  valence: number
+  arousal: number
+  expressions: Record<string, number>
+}
+
+interface BodyLanguageFeatures {
+  posture: string
+  movement: string
+  gesture: string
+}
+
+interface BehavioralData {
+  attention: number
+  activity: string
+  context: string
+}
+
+interface ContextData {
+  age?: number
+  previousEmotions?: string[]
+  environment?: string
+}
+
+interface AudioData {
+  features: AudioFeatures
+  duration: number
+}
+
+interface VideoData {
+  facialFeatures: FacialFeatures
+  bodyLanguage: BodyLanguageFeatures
+}
+
+interface MultimodalInput {
+  text: string
+  audioData?: AudioData
+  videoData?: VideoData
+  behavioralData: BehavioralData
+  context: ContextData
+}
+
+interface EmotionResult {
+  primary: string
+  secondary?: string
+  intensity: number
+  confidence: number
+}
+
+interface RequestBody {
+  text: string
+  audioFeatures?: AudioFeatures
+  facialFeatures?: FacialFeatures
+  bodyLanguage?: BodyLanguageFeatures
+  attention?: number
+  activity?: string
+  situation?: string
+  audioDuration?: number
+  context?: {
+    age?: number
+    previousEmotions?: string[]
+    environment?: string
+  }
+}
+
 export async function POST(request: Request) {
   const startTime = Date.now()
 
   try {
-    const body = await request.json()
+    const body: RequestBody = await request.json()
     const { text, audioFeatures, facialFeatures, bodyLanguage, context } = body
 
     // 构建多模态输入
-    const multimodalInput: any = {
+    const multimodalInput: MultimodalInput = {
       text,
       behavioralData: {
         attention: body.attention || 0.5,
@@ -28,8 +105,16 @@ export async function POST(request: Request) {
 
     if (facialFeatures || bodyLanguage) {
       multimodalInput.videoData = {
-        facialFeatures: facialFeatures || {},
-        bodyLanguage: bodyLanguage || {}
+        facialFeatures: facialFeatures || {
+          valence: 0,
+          arousal: 0,
+          expressions: {}
+        },
+        bodyLanguage: bodyLanguage || {
+          posture: 'unknown',
+          movement: 'unknown',
+          gesture: 'unknown'
+        }
       }
     }
 
@@ -62,7 +147,7 @@ export async function POST(request: Request) {
 }
 
 // 基于情感结果生成个性化建议
-function generateEmotionBasedSuggestions(emotion: any, context?: any): string[] {
+function generateEmotionBasedSuggestions(emotion: EmotionResult, context?: ContextData): string[] {
   const suggestions: string[] = []
 
   switch (emotion.primary) {

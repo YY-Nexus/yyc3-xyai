@@ -4,6 +4,7 @@
  */
 
 import { type NextRequest, NextResponse } from "next/server"
+import { info, warn, error, debug } from "@/lib/logger"
 
 interface ErrorReport {
   error: {
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 记录错误到控制台
-    console.error('Error Report:', {
+    error('Error Report:', {
       message: report.error.message,
       stack: report.error.stack,
       timestamp: report.timestamp,
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error("Error in error-report API:", error)
+    error("Error in error-report API:", error)
     return NextResponse.json(
       { error: "Failed to process error report", success: false },
       { status: 500 }
@@ -107,13 +108,13 @@ async function logErrorToExternalService(report: ErrorReport) {
       })
     }
   } catch (error) {
-    console.warn('Failed to send Slack notification:', error)
+    warn('Failed to send Slack notification:', error)
   }
 
   // 邮件通知示例
   if (process.env['ADMIN_EMAIL'] && isCriticalError(report)) {
     // 这里可以集成邮件发送服务
-    console.log('Critical error detected, would send email to', process.env['ADMIN_EMAIL'])
+    debug('Critical error detected, would send email to', process.env['ADMIN_EMAIL'])
   }
 }
 
@@ -145,7 +146,7 @@ async function logErrorToFile(report: ErrorReport) {
   }
 
   // 在实际应用中，这里可以写入文件系统或数据库
-  console.log('Would log to file:', JSON.stringify(logEntry, null, 2))
+  debug('Would log to file:', JSON.stringify(logEntry, null, 2))
 }
 
 // GET 请求 - 获取错误统计（管理员功能）
@@ -157,7 +158,7 @@ export async function GET() {
       // 返回错误统计数据
     })
   } catch (error) {
-    console.error("Error in GET error-report:", error)
+    error("Error in GET error-report:", error)
     return NextResponse.json(
       { error: "Failed to get error statistics", success: false },
       { status: 500 }

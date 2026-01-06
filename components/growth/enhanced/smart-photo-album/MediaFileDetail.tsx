@@ -10,9 +10,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { Video, Heart, Share2, Download, Tag, Camera, Clock, Info, X, PlusCircle } from 'lucide-react';
+import { Video, Heart, Share2, Download, Tag, Camera, Info, X, PlusCircle } from 'lucide-react';
 import { MediaFile } from './types';
-import { formatFileSize, calculateAge } from './utils';
+import { formatFileSize } from './utils';
 
 interface MediaFileDetailProps {
   /** 选中的媒体文件 */
@@ -80,13 +80,13 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
 
   // 获取主色调预览
   const renderColorPalette = () => {
-    if (!file.aiAnalysis?.dominantColors || file.aiAnalysis.dominantColors.length === 0) {
+    if (!file.aiAnalysis?.colorScheme || file.aiAnalysis.colorScheme.length === 0) {
       return null;
     }
 
     return (
       <div className="flex flex-wrap gap-2 mt-2">
-        {file.aiAnalysis.dominantColors.map((color, index) => (
+        {file.aiAnalysis.colorScheme.map((color: string, index: number) => (
           <div
             key={index}
             className="w-6 h-6 rounded-full border border-gray-300 cursor-pointer"
@@ -122,7 +122,7 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
             {/* 顶部控制栏 */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
               <h2 className="text-xl font-semibold text-gray-900 truncate">
-                {file.name}
+                {file.filename}
               </h2>
               <div className="flex items-center gap-2">
                 {/* 收藏按钮 */}
@@ -130,13 +130,13 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
                   <button
                     onClick={() => onToggleFavorite(file.id)}
                     className={`p-2 rounded-full transition-colors ${
-                      file.favorite
+                      file.isFavorite
                         ? 'bg-red-100 text-red-600 hover:bg-red-200'
                         : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                     }`}
-                    title={file.favorite ? '取消收藏' : '收藏'}
+                    title={file.isFavorite ? '取消收藏' : '收藏'}
                   >
-                    <Heart className="w-5 h-5" fill={file.favorite ? 'currentColor' : 'none'} />
+                    <Heart className="w-5 h-5" fill={file.isFavorite ? 'currentColor' : 'none'} />
                   </button>
                 )}
 
@@ -175,10 +175,10 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
 
             {/* 媒体预览 */}
             <div className="relative bg-gray-100">
-              {file.type === 'image' ? (
+              {file.type === 'photo' ? (
                 <Image
                   src={file.url || '/placeholder.png'}
-                  alt={file.name}
+                  alt={file.filename}
                   width={1200}
                   height={800}
                   className="w-full h-auto object-contain max-h-[50vh]"
@@ -191,7 +191,7 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
                 <div className="w-full h-[50vh] flex flex-col items-center justify-center bg-gray-200">
                   <Video className="w-20 h-20 text-red-500 mb-4" />
                   <span className="text-lg text-gray-500">视频预览</span>
-                  <span className="text-sm text-gray-400 mt-2">{file.name}</span>
+                  <span className="text-sm text-gray-400 mt-2">{file.filename}</span>
                 </div>
               )}
             </div>
@@ -221,7 +221,7 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
                   )}
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-gray-500">创建时间:</span>
-                    <span className="font-medium text-gray-900">{new Date(file.createdAt).toLocaleString()}</span>
+                    <span className="font-medium text-gray-900">{new Date(file.date).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -232,18 +232,8 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">人物</h3>
                   <div className="flex flex-wrap gap-3">
                     {file.people.map((person, index) => (
-                      <div key={index} className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                          <span className="text-blue-600 font-medium">
-                            {person.name.charAt(0)}
-                          </span>
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">{person.name}</div>
-                          {person.birthday && (
-                            <div className="text-xs text-gray-500">{calculateAge(person.birthday)}岁</div>
-                          )}
-                        </div>
+                      <div key={index} className="bg-blue-50 px-4 py-2 rounded-full">
+                        <div className="font-medium text-gray-900">{person}</div>
                       </div>
                     ))}
                   </div>
@@ -380,20 +370,12 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
                     {file.aiAnalysis.quality && (
                       <div>
                         <div className="text-sm font-medium text-gray-500 mb-1">质量</div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-green-500 rounded-full"
-                              style={{ width: `${file.aiAnalysis.quality.score * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-gray-900">{file.aiAnalysis.quality.rating}</span>
-                        </div>
+                        <div className="text-gray-900 capitalize">{file.aiAnalysis.quality}</div>
                       </div>
                     )}
 
                     {/* 主色调 */}
-                    {file.aiAnalysis.dominantColors && file.aiAnalysis.dominantColors.length > 0 && (
+                    {file.aiAnalysis.colorScheme && file.aiAnalysis.colorScheme.length > 0 && (
                       <div>
                         <div className="text-sm font-medium text-gray-500 mb-1">主色调</div>
                         {renderColorPalette()}
@@ -401,16 +383,16 @@ export const MediaFileDetail: React.FC<MediaFileDetailProps> = ({
                     )}
 
                     {/* 情绪 */}
-                    {file.aiAnalysis.emotion && (
+                    {file.emotions && file.emotions.length > 0 && (
                       <div>
                         <div className="text-sm font-medium text-gray-500 mb-1">情绪</div>
                         <div className="flex flex-wrap gap-2">
-                          {Object.entries(file.aiAnalysis.emotion).map(([emotion, score]) => (
+                          {file.emotions.map((emotionAnalysis: { emotion: string; confidence: number; person?: string }, index: number) => (
                             <span
-                              key={emotion}
+                              key={index}
                               className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full"
                             >
-                              {emotion}: {Math.round(score * 100)}%
+                              {emotionAnalysis.emotion}: {Math.round(emotionAnalysis.confidence * 100)}%
                             </span>
                           ))}
                         </div>

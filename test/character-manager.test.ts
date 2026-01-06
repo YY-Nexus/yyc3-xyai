@@ -22,20 +22,20 @@ describe('Character Manager Tests', () => {
   test('should get AI avatar path correctly', () => {
     const femaleAvatar = characterManager.getAIAvatarPath('female')
     const maleAvatar = characterManager.getAIAvatarPath('male')
-    
-    expect(femaleAvatar).toBe('/role-photos/girl/ai-avatars/avatar-female-01.png')
-    expect(maleAvatar).toBe('/role-photos/boy/ai-avatars/avatar-male-01.png')
+
+    expect(femaleAvatar).toBe('/role-photos/girl/ai-avatars/girl-xiaoyu-lolita-blue-001.png')
+    expect(maleAvatar).toBe('/role-photos/boy/ai-avatars/boy-xiaoyan-casual-001.png')
   })
 
   test('should get floating avatar path correctly', () => {
     const femaleChar = characterManager.getCharacterByGender('female')
     const maleChar = characterManager.getCharacterByGender('male')
-    
+
     const femaleFloatingAvatar = characterManager.getAIFloatingAvatarPath(femaleChar)
     const maleFloatingAvatar = characterManager.getAIFloatingAvatarPath(maleChar)
-    
-    expect(femaleFloatingAvatar).toBe('/role-photos/girl/ai-avatars/avatar-female-01.png')
-    expect(maleFloatingAvatar).toBe('/role-photos/boy/ai-avatars/avatar-male-01.png')
+
+    expect(femaleFloatingAvatar).toBe('/role-photos/girl/ai-avatars/girl-xiaoyu-lolita-pink-001.png')
+    expect(maleFloatingAvatar).toBe('/role-photos/boy/ai-avatars/boy-xiaoyan-cool-001.png')
   })
 
   test('should get character image path correctly', () => {

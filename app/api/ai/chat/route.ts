@@ -10,6 +10,7 @@
  */
 
 import { selectRoleByContext, type AIRole } from "@/lib/ai_roles"
+import { error as logger } from "@/lib/logger"
 
 // 预设的干净回复集合 - 彻底避免重复
 const CLEAN_RESPONSES = {
@@ -144,7 +145,7 @@ export async function POST(request: Request) {
           controller.enqueue(encoder.encode(`data: [DONE]\n\n`))
           controller.close()
         } catch (error) {
-          console.error("[v0] 流式响应错误:", error)
+          logger.error("[v0] 流式响应错误:", error)
           controller.error(error)
         }
       },
@@ -158,7 +159,7 @@ export async function POST(request: Request) {
       },
     })
   } catch (error) {
-    console.error("[v0] AI API错误:", error)
+    logger.error("[v0] AI API错误:", error)
     return new Response(JSON.stringify({ error: "处理失败，请稍后重试" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

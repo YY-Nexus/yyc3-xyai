@@ -2,52 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  CheckCircle2,
-  Circle,
-  Clock,
-  AlertTriangle,
-  TrendingUp,
-  Target,
-  Calendar,
-  Users,
-  Code,
-  Database,
-  Shield,
-  Zap,
-  Award,
-  BarChart3,
-  Settings,
-  FileText,
-  Download,
-  Upload,
-  RefreshCw,
-  Play,
-  Pause,
-  Square,
-  Eye,
-  Edit,
-  Trash2,
-  Plus,
-  ChevronRight,
-  ChevronDown,
-  Star,
-  Flag,
-  MessageSquare,
-  GitBranch,
-  Activity,
-  Layers,
-  Cpu,
-  Globe,
-  Smartphone,
-  DollarSign,
-  UserPlus,
-  BookOpen,
-  Lightbulb,
-  Rocket,
-  Heart
-} from 'lucide-react'
-
+import { CheckCircle2, BarChart, Target, Rocket, Circle, AlertTriangle, Clock } from 'lucide-react'
 interface Task {
   id: string
   title: string
@@ -426,7 +381,7 @@ export default function ProjectExecutionManager() {
       {/* 整体项目指标 */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <BarChart3 className="w-6 h-6 text-purple-600" />
+          <BarChart className="w-6 h-6 text-purple-600" />
           项目整体指标
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

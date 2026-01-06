@@ -3,6 +3,9 @@
 import React, { useState, useEffect, useCallback } from "react"
 import { db, type Child } from "@/lib/db/client"
 
+// Re-export Child type for use in other modules
+export type { Child }
+
 interface UseChildrenReturn {
   children: Child[]
   currentChild: Child | null

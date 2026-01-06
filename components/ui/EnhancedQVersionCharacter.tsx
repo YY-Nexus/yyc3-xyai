@@ -1,9 +1,8 @@
 /**
- * @file 增强版Q版角色组件
- * @description 支持性别切换、主题变化、表情展示的高级角色组件
- * @author YYC³ Development Team
+ * @file EnhancedQVersionCharacter.tsx
+ * @description YYC³ AI小语智能成长守护系统增强版Q版角色组件，支持性别切换、主题变化、表情展示的高级角色组件
+ * @author YYC³团队 <admin@0379.email>
  * @version 1.0.0
- * @created 2024-12-14
  */
 
 'use client'

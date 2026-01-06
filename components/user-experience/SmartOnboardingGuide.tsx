@@ -3,35 +3,17 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  X,
-  ChevronRight,
-  ChevronLeft,
-  Play,
-  Pause,
-  RotateCcw,
-  ArrowRight,
-  ArrowUp,
-  ArrowDown,
-  Sparkles,
-  Heart,
-  Star,
-  BookOpen,
-  Camera,
-  TrendingUp,
-  Baby,
-  Users,
-  Settings,
   HelpCircle,
+  X,
+  Sparkles,
+  Zap,
   CheckCircle,
-  Circle,
-  MousePointer,
   Hand,
-  Eye,
-  Clock,
-  Target,
-  Zap
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Pause
 } from 'lucide-react'
-
 // 引导步骤接口
 interface GuideStep {
   id: string
@@ -222,9 +204,15 @@ export default function SmartOnboardingGuide() {
   const [isActive, setIsActive] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [showSkipConfirm, setShowSkipConfirm] = useState(false)
-  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set())
   const [targetElement, setTargetElement] = useState<HTMLElement | null>(null)
-  const [highlightPosition, setHighlightPosition] = useState({ top: 0, left: 0, width: 0, height: 0 })
+  const [highlightPosition, setHighlightPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+    height: 0,
+    bottom: 0,
+    right: 0
+  })
   const containerRef = useRef<HTMLDivElement>(null)
 
   const currentStep = guideSteps[currentStepIndex]
@@ -243,7 +231,7 @@ export default function SmartOnboardingGuide() {
 
   // 定位目标元素
   useEffect(() => {
-    if (currentStep.target && isActive && !isPaused) {
+    if (currentStep?.target && isActive && !isPaused) {
       const element = document.querySelector(currentStep.target) as HTMLElement
       if (element) {
         setTargetElement(element)
@@ -252,7 +240,9 @@ export default function SmartOnboardingGuide() {
           top: rect.top,
           left: rect.left,
           width: rect.width,
-          height: rect.height
+          height: rect.height,
+          bottom: rect.bottom,
+          right: rect.right
         })
       } else {
         setTargetElement(null)
@@ -260,11 +250,11 @@ export default function SmartOnboardingGuide() {
     } else {
       setTargetElement(null)
     }
-  }, [currentStep.target, currentStepIndex, isActive, isPaused])
+  }, [currentStep?.target, currentStepIndex, isActive, isPaused])
 
   // 执行引导动作
   const executeStepAction = async () => {
-    if (!currentStep.action) return
+    if (!currentStep?.action) return
 
     const { type, selector } = currentStep.action
     const element = document.querySelector(selector) as HTMLElement
@@ -290,13 +280,11 @@ export default function SmartOnboardingGuide() {
         await new Promise(resolve => setTimeout(resolve, 500))
         break
     }
-
-    setCompletedSteps(prev => new Set([...prev, currentStep.id]))
   }
 
   // 下一步
   const nextStep = async () => {
-    if (currentStep.interactive && currentStep.action) {
+    if (currentStep?.interactive && currentStep?.action) {
       await executeStepAction()
     }
 
@@ -311,13 +299,6 @@ export default function SmartOnboardingGuide() {
   const prevStep = () => {
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1)
-    }
-  }
-
-  // 跳过引导
-  const skipOnboarding = () => {
-    if (currentStep.skippable) {
-      setShowSkipConfirm(true)
     }
   }
 
@@ -339,17 +320,14 @@ export default function SmartOnboardingGuide() {
   const restartOnboarding = () => {
     localStorage.removeItem('yyc3-onboarding-completed')
     setCurrentStepIndex(0)
-    setCompletedSteps(new Set())
     setIsActive(true)
   }
 
   // 获取箭头位置
   const getArrowPosition = () => {
-    if (!targetElement || currentStep.position === 'center') return null
+    if (!targetElement || !currentStep || currentStep.position === 'center') return null
 
     const rect = targetElement.getBoundingClientRect()
-    const guideWidth = 400
-    const guideHeight = 300
 
     switch (currentStep.position) {
       case 'top':
@@ -394,7 +372,7 @@ export default function SmartOnboardingGuide() {
   return (
     <>
       {/* 高亮蒙版 */}
-      {targetElement && currentStep.position !== 'center' && (
+      {targetElement && currentStep && currentStep.position !== 'center' && (
         <div className="fixed inset-0 z-40 pointer-events-none">
           {/* 黑色蒙版 */}
           <div className="absolute inset-0 bg-black bg-opacity-50" />
@@ -424,7 +402,7 @@ export default function SmartOnboardingGuide() {
 
       {/* 引导框 */}
       <AnimatePresence>
-        {isActive && (
+        {isActive && currentStep && (
           <motion.div
             ref={containerRef}
             className={`fixed z-50 ${

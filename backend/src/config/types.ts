@@ -1,6 +1,3 @@
-import type { PoolConfig } from 'pg';
-import type { RedisClientOptions } from 'redis';
-
 export type Environment = 'development' | 'production' | 'test';
 
 export interface PostgresConfig {
@@ -193,6 +190,12 @@ export interface LoggerConfig {
   level: LogLevel;
   environment: Environment;
   service: string;
+  file: {
+    enabled: boolean;
+    path: string;
+    maxSize: number;
+    maxFiles: number;
+  };
   logFile?: string;
   logDir?: string;
   maxFileSize?: number;
@@ -244,6 +247,7 @@ export interface MigratorConfig {
   autoRun?: boolean;
   dryRun?: boolean;
   verbose?: boolean;
+  resetTables: string[];
 }
 
 export interface MigrationResult {
@@ -498,6 +502,7 @@ export interface Config {
   notification: NotificationConfig;
   logger: LoggerConfig;
   monitoring: MonitoringConfig;
+  migrator: MigratorConfig;
 }
 
 export type ConfigKey = keyof Config;

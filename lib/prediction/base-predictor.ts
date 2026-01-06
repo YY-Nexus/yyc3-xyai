@@ -4,76 +4,32 @@
  * 支持特征工程、数据标准化、模型训练和预测
  */
 
-export interface TrainingData {
-  features: Record<string, number | string | boolean>;
-  label?: number | string;
-  timestamp?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface PredictionInput {
-  features: Record<string, number | string | boolean>;
-  timestamp?: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface PredictionOutput {
-  prediction: number | string;
-  confidence?: number;
-  timestamp: string;
-  metadata?: Record<string, unknown>;
-}
-
-export interface ModelEvaluationMetrics {
-  accuracy: number;
-  precision: number;
-  recall: number;
-  f1Score: number;
-}
-
-export interface FeatureData {
-  [key: string]: number | string | boolean | unknown;
-}
-
-export interface HyperparameterConfig {
-  [key: string]: number | string | boolean | number[] | string[];
-}
-
-export interface HyperparameterSearchSpace {
-  [key: string]:
-    | { type: 'range'; min: number; max: number }
-    | { type: 'choice'; values: (number | string)[] }
-    | number[]
-    | string[];
-}
-
 export abstract class BasePredictor {
   /**
    * 训练模型
    * @param trainingData 训练数据
    * @returns Promise<void>
    */
-  abstract train(trainingData: TrainingData[]): Promise<void>;
+  abstract train(trainingData: any[]): Promise<void>;
 
   /**
    * 预测结果
    * @param inputData 输入数据
-   * @returns Promise<PredictionOutput[]>
+   * @returns Promise<any>
    */
-  abstract predict(inputData: PredictionInput[]): Promise<PredictionOutput[]>;
+  abstract predict(inputData: any[]): Promise<any[]>;
 
   /**
    * 评估模型
    * @param testData 测试数据
-   * @returns Promise<ModelEvaluationMetrics>
+   * @returns Promise<{ accuracy: number; precision: number; recall: number; f1Score: number }>
    */
-  abstract evaluate(testData: TrainingData[]): Promise<ModelEvaluationMetrics>;
-
-  /**
-   * 获取超参数搜索空间
-   * @returns HyperparameterSearchSpace
-   */
-  protected abstract getSearchSpace(): HyperparameterSearchSpace;
+  abstract evaluate(testData: any[]): Promise<{
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1Score: number;
+  }>;
 
   /**
    * 保存模型
@@ -113,10 +69,12 @@ export abstract class BasePredictor {
   /**
    * 特征工程
    * @param data 原始数据
-   * @returns Promise<FeatureData[]>
+   * @returns Promise<any[]>
    */
-  protected async featureEngineering(data: FeatureData[]): Promise<FeatureData[]> {
+  protected async featureEngineering(data: any[]): Promise<any[]> {
+    // 基本特征处理逻辑
     return data.map(item => {
+      // 标准化数值特征
       return this.normalizeFeatures(item);
     });
   }
@@ -124,14 +82,17 @@ export abstract class BasePredictor {
   /**
    * 标准化特征
    * @param data 特征数据
-   * @returns FeatureData
+   * @returns any
    */
-  protected normalizeFeatures(data: FeatureData): FeatureData {
+  protected normalizeFeatures(data: any): any {
+    // 简单的特征标准化实现
     const normalized = { ...data };
     
+    // 标准化数值字段
     Object.keys(normalized).forEach(key => {
-      if (typeof normalized[key] === 'number' && !isNaN(normalized[key] as number)) {
-        normalized[key] = (normalized[key] as number - 0) / 100;
+      if (typeof normalized[key] === 'number' && !isNaN(normalized[key])) {
+        // 这里使用简单的min-max标准化，实际应用中应该使用更复杂的方法
+        normalized[key] = (normalized[key] - 0) / 100; // 示例：假设最大值为100
       }
     });
     
@@ -141,11 +102,13 @@ export abstract class BasePredictor {
   /**
    * 数据预处理
    * @param data 原始数据
-   * @returns Promise<FeatureData[]>
+   * @returns Promise<any[]>
    */
-  protected async preprocessData(data: FeatureData[]): Promise<FeatureData[]> {
+  protected async preprocessData(data: any[]): Promise<any[]> {
+    // 过滤无效数据
     const filteredData = data.filter(item => item !== null && item !== undefined);
     
+    // 处理缺失值
     const processedData = filteredData.map(item => {
       return this.handleMissingValues(item);
     });
@@ -156,21 +119,22 @@ export abstract class BasePredictor {
   /**
    * 处理缺失值
    * @param data 数据项
-   * @returns FeatureData
+   * @returns any
    */
-  protected handleMissingValues(data: FeatureData): FeatureData {
+  protected handleMissingValues(data: any): any {
     const processed = { ...data };
     
     Object.keys(processed).forEach(key => {
       if (processed[key] === null || processed[key] === undefined) {
+        // 根据数据类型处理缺失值
         if (typeof processed[key] === 'number') {
-          processed[key] = 0;
+          processed[key] = 0; // 数值类型用0填充
         } else if (typeof processed[key] === 'string') {
-          processed[key] = '';
+          processed[key] = ''; // 字符串类型用空字符串填充
         } else if (Array.isArray(processed[key])) {
-          processed[key] = [];
+          processed[key] = []; // 数组类型用空数组填充
         } else if (typeof processed[key] === 'object') {
-          processed[key] = {};
+          processed[key] = {}; // 对象类型用空对象填充
         }
       }
     });
@@ -181,11 +145,12 @@ export abstract class BasePredictor {
   /**
    * 超参数优化
    * @param params 超参数范围
-   * @returns Promise<HyperparameterConfig>
+   * @returns Promise<any>
    */
-  protected async optimizeHyperparameters(params: HyperparameterConfig): Promise<HyperparameterConfig> {
+  protected async optimizeHyperparameters(params: any): Promise<any> {
+    // 基本的超参数优化逻辑
     console.log('优化超参数:', params);
-    return params;
+    return params; // 返回默认参数，实际应用中应该进行优化
   }
 
   /**
@@ -194,17 +159,21 @@ export abstract class BasePredictor {
    * @param k 折数
    * @returns Promise<number[]>
    */
-  protected async crossValidate(data: TrainingData[], k: number = 5): Promise<number[]> {
+  protected async crossValidate(data: any[], k: number = 5): Promise<number[]> {
+    // 基本的交叉验证逻辑
     const scores: number[] = [];
     
+    // 简单实现：将数据分为k份，每份作为一次测试集
     const foldSize = Math.floor(data.length / k);
     
     for (let i = 0; i < k; i++) {
       const testSet = data.slice(i * foldSize, (i + 1) * foldSize);
       const trainingSet = [...data.slice(0, i * foldSize), ...data.slice((i + 1) * foldSize)];
       
+      // 训练模型
       await this.train(trainingSet);
       
+      // 评估模型
       const result = await this.evaluate(testSet);
       scores.push(result.accuracy);
     }

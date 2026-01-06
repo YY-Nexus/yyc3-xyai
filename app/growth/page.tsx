@@ -11,8 +11,9 @@ import DevelopmentCurveChart from "@/components/growth/DevelopmentCurveChart"
 import GrowthCharts from "@/components/growth/GrowthCharts"
 import AssessmentReport from "@/components/growth/AssessmentReport"
 import ChildSelector from "@/components/ChildSelector"
-import { useGrowthStage } from "@/hooks/useGrowthStage"
+import { useGrowthStage, type UseGrowthStageResult } from "@/hooks/useGrowthStage"
 import { useChildren } from "@/hooks/useChildren"
+import type { Child } from "@/lib/db/client"
 import { ChildQVersionAvatar } from "@/components/ui/QVersionCharacter"
 
 type TabType = "overview" | "timeline" | "records" | "assessment"
@@ -71,7 +72,11 @@ export default function GrowthPage() {
   const childName = currentChild?.name || "小云"
 
   const growthStageData = useGrowthStage(childBirthDate)
-  const { stage, milestoneProgress, stageTransition, recommendations } = growthStageData as any
+  const { currentStage: stage, milestoneProgress, recommendations } = growthStageData
+  const stageTransition = {
+    daysUntilTransition: growthStageData.approachingNextStage.daysUntil,
+    nextStage: growthStageData.approachingNextStage.nextStage ? { name: growthStageData.approachingNextStage.nextStage } : undefined,
+  }
 
   const tabs = [
     { id: "overview" as const, label: "总览", icon: "ri-dashboard-line" },
@@ -91,11 +96,11 @@ export default function GrowthPage() {
       <main className="px-4 py-4 space-y-6">
         {currentChild && (
           <div className="bg-white/70 rounded-2xl p-4 flex items-center gap-4">
-            <ChildQVersionAvatar child={currentChild as any} size="md" />
+            <ChildQVersionAvatar child={currentChild} size="md" />
             <div className="flex-1">
               <h3 className="font-bold text-slate-800">{currentChild.name}的成长记录</h3>
               <p className="text-sm text-slate-500">
-                {stage?.name} · {(currentChild as any).age_years || 0}岁{(currentChild as any).age_months || 0}个月
+                {stage?.name} · {growthStageData.exactAge?.years || 0}岁{growthStageData.exactAge?.months || 0}个月
               </p>
             </div>
             <ChildSelector />
@@ -169,10 +174,13 @@ export default function GrowthPage() {
 }
 
 interface OverviewTabProps {
-  stage: any
-  milestoneProgress: any
-  stageTransition: any
-  recommendations: any
+  stage: UseGrowthStageResult['currentStage']
+  milestoneProgress: UseGrowthStageResult['milestoneProgress']
+  stageTransition: {
+    daysUntilTransition: number
+    nextStage?: { name: string; description?: string }
+  }
+  recommendations: UseGrowthStageResult['recommendations']
   childName: string
   childBirthDate: Date
 }

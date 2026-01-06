@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { motion } from "framer-motion"
+import { error as logger } from "@/lib/client-logger"
 
 export default function Error({
   error,
@@ -11,7 +12,7 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    console.error("[v0] Error:", error)
+    logger.error(error.message, 'Error', { digest: error.digest })
   }, [error])
 
   return (

@@ -7,7 +7,7 @@ const openai = createOpenAI({
   ...(process.env['OPENAI_BASE_URL'] && { baseURL: process.env['OPENAI_BASE_URL'] })
 })
 
-const model = openai("gpt-4o-mini") satisfies any
+const model = openai("gpt-4o-mini")
 
 export async function POST(request: Request) {
   try {
@@ -32,7 +32,6 @@ export async function POST(request: Request) {
         model: model,
         system: getCoordinatedPrompt(message, [role]),
         prompt: message,
-        maxTokens: 500,
       })
 
       return Response.json({
@@ -53,13 +52,11 @@ export async function POST(request: Request) {
           model: model as any,
           system: AI_ROLES[mainRole].systemPrompt,
           prompt: message,
-          maxTokens: 800,
         }),
         generateText({
           model: model as any,
           system: `基于"${AI_ROLES[supportRole].name}"的视角，针对以下问题给出补充建议（50字以内）：`,
           prompt: message,
-          maxTokens: 100,
         }),
       ])
 
@@ -86,7 +83,6 @@ export async function POST(request: Request) {
       model: model as any,
       system: coordinatedPrompt,
       prompt: message,
-      maxTokens: 1000,
     })
 
     const roleInsights = await Promise.all(
@@ -95,7 +91,6 @@ export async function POST(request: Request) {
           model: model as any,
           system: `你是"${AI_ROLES[role].name}"，请从你的专业角度给出一条简短建议（30字以内）：`,
           prompt: message,
-          maxTokens: 80,
         })
         return {
           role,
@@ -110,7 +105,6 @@ export async function POST(request: Request) {
       model: model as any,
       system: "基于上述分析，给出3条具体可行的行动建议，每条15字以内，用|分隔：",
       prompt: `问题：${message}\n分析：${mainText}`,
-      maxTokens: 150,
     })
 
     const suggestedActions = actionsText
@@ -132,26 +126,29 @@ export async function POST(request: Request) {
         icon: AI_ROLES[r].icon,
       })),
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[AI Orchestrate Error]", error)
 
     let errorMessage = "AI协同响应失败，请稍后重试"
     let statusCode = 500
 
-    if (error.message?.includes("API key")) {
+    const errorObj = error as Error | { message?: string; status?: number }
+    const errorMsg = errorObj instanceof Error ? errorObj.message : errorObj.message
+
+    if (errorMsg?.includes("API key")) {
       errorMessage = "API密钥配置错误，请检查环境变量"
       statusCode = 401
-    } else if (error.message?.includes("rate limit")) {
+    } else if (errorMsg?.includes("rate limit")) {
       errorMessage = "请求过于频繁，请稍后再试"
       statusCode = 429
-    } else if (error.message?.includes("timeout")) {
+    } else if (errorMsg?.includes("timeout")) {
       errorMessage = "请求超时，请重试"
       statusCode = 408
     }
 
     return Response.json({
       error: errorMessage,
-      details: process.env.NODE_ENV === "development" ? error.message : undefined,
+      details: process.env.NODE_ENV === "development" ? errorMsg : undefined,
     }, { status: statusCode })
   }
 }

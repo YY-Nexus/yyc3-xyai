@@ -1,5 +1,7 @@
 import type { UUID } from './database'
 
+export type JsonValue = string | number | boolean | null | Record<string, JsonValue> | JsonValue[]
+
 export type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary'
 
 export type AggregationType = 'sum' | 'avg' | 'min' | 'max' | 'count' | 'distinct'
@@ -54,7 +56,7 @@ export interface Dimension {
 export interface Filter {
   dimension: string
   operator: 'eq' | 'ne' | 'gt' | 'lt' | 'gte' | 'lte' | 'in' | 'not_in' | 'contains' | 'starts_with' | 'ends_with'
-  value: any
+  value: string | number | boolean | string[] | number[]
 }
 
 export interface QueryOptions {
@@ -70,7 +72,7 @@ export interface QueryOptions {
 }
 
 export interface QueryResult {
-  data: Record<string, any>[]
+  data: Record<string, JsonValue>[]
   metadata: {
     total: number
     queryTime: number
@@ -174,7 +176,7 @@ export interface Report {
   type: 'dashboard' | 'custom' | 'scheduled'
   format: ReportFormat
   template?: UUID
-  parameters?: Record<string, any>
+  parameters?: Record<string, JsonValue>
   schedule?: Schedule
   recipients: string[]
   created_at: Date
@@ -215,7 +217,7 @@ export interface AlertCondition {
 
 export interface NotificationChannel {
   type: 'email' | 'webhook' | 'slack' | 'sms'
-  config: Record<string, any>
+  config: Record<string, JsonValue>
 }
 
 export interface AlertTrigger {
@@ -299,7 +301,7 @@ export interface Segment {
   criteria: Filter[]
   size: number
   percentage: number
-  characteristics: Record<string, any>
+  characteristics: Record<string, JsonValue>
   created_at: Date
   updated_at: Date
 }
@@ -308,7 +310,7 @@ export interface HeatmapData {
   x: string
   y: string
   value: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, JsonValue>
 }
 
 export interface SankeyData {
@@ -342,7 +344,7 @@ export interface ScatterData {
   y: number
   size?: number
   color?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, JsonValue>
 }
 
 export interface PerformanceMetrics {
@@ -421,7 +423,7 @@ export interface AnalyticsEvent {
   sessionId?: string
   eventType: string
   eventName: string
-  properties: Record<string, any>
+  properties: Record<string, JsonValue>
   timestamp: Date
   platform: 'web' | 'mobile' | 'api'
   device?: {

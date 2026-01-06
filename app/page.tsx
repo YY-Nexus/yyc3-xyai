@@ -20,22 +20,22 @@ import ChildSelector from "@/components/ChildSelector"
 import { useAuth } from "@/hooks/useAuth"
 import { useChildren } from "@/hooks/useChildren"
 import { db } from "@/lib/db/client"
-import { getCharacterForUser, characterManager } from "@/lib/character-manager"
+import { getCharacterForUser, characterManager, type CharacterConfig } from "@/lib/character-manager"
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth()
   const { currentChild } = useChildren()
   const [stats, setStats] = useState({ records: 0, milestones: 0, assessments: 0 })
   const [characterImagePath, setCharacterImagePath] = useState("")
-  const [currentCharacter, setCurrentCharacter] = useState<any>(null)
+  const [currentCharacter, setCurrentCharacter] = useState<CharacterConfig | null>(null)
 
   useEffect(() => {
     const loadStats = async () => {
       if (!currentChild) return
       const [records, milestones, assessments] = await Promise.all([
-        db.count("growth_records", (r: any) => r.child_id === currentChild.id),
-        db.count("milestones", (m: any) => m.child_id === currentChild.id),
-        db.count("growth_assessments", (a: any) => a.child_id === currentChild.id),
+        db.count("growth_records", (r: { child_id: string }) => r.child_id === currentChild.id),
+        db.count("milestones", (m: { child_id: string }) => m.child_id === currentChild.id),
+        db.count("growth_assessments", (a: { child_id: string }) => a.child_id === currentChild.id),
       ])
       setStats({ records, milestones, assessments })
     }

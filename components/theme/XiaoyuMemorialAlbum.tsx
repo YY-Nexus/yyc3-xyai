@@ -2,25 +2,21 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Image from 'next/image'
 import {
-  Heart,
-  Calendar,
   Camera,
   Sparkles,
+  Clock,
+  Play,
   ChevronLeft,
   ChevronRight,
-  Play,
   Pause,
-  Share,
-  Download,
-  Star,
+  Calendar,
   Baby,
-  Clock,
   MapPin,
+  Star,
+  Heart,
   Users
 } from 'lucide-react'
-import { useBirthdayTheme } from './BirthdayThemeProvider'
 
 // 照片接口
 interface Photo {
@@ -116,12 +112,9 @@ const xiaoyuPhotos: Photo[] = [
 ]
 
 export default function XiaoyuMemorialAlbum() {
-  const { theme, isActive } = useBirthdayTheme()
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(false)
   const [viewMode, setViewMode] = useState<'slideshow' | 'grid' | 'timeline'>('slideshow')
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [showDetails, setShowDetails] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const currentPhoto = xiaoyuPhotos[currentPhotoIndex]
@@ -159,30 +152,19 @@ export default function XiaoyuMemorialAlbum() {
     setCurrentPhotoIndex((prev) => (prev - 1 + xiaoyuPhotos.length) % xiaoyuPhotos.length)
   }
 
-  // 筛选标签
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tag)
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    )
-  }
-
-  // 获取所有标签
-  const allTags = Array.from(new Set(xiaoyuPhotos.flatMap(photo => photo.tags)))
-
-  // 过滤照片
-  const filteredPhotos = selectedTags.length > 0
-    ? xiaoyuPhotos.filter(photo => photo.tags.some(tag => selectedTags.includes(tag)))
-    : xiaoyuPhotos
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 p-4">
       <div className="max-w-7xl mx-auto">
-        {/* 标题区域 */}
-        <motion.div
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: -20 }}
+        {!currentPhoto ? (
+          <div className="text-center py-20">
+            <p className="text-gray-500">加载中...</p>
+          </div>
+        ) : (
+          <>
+            {/* 标题区域 */}
+            <motion.div
+              className="text-center mb-8"
+              initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
@@ -407,7 +389,7 @@ export default function XiaoyuMemorialAlbum() {
         {/* 网格视图 */}
         {viewMode === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPhotos.map((photo, index) => (
+            {xiaoyuPhotos.map((photo, index) => (
               <motion.div
                 key={photo.id}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all cursor-pointer"
@@ -500,6 +482,8 @@ export default function XiaoyuMemorialAlbum() {
               ))}
             </div>
           </div>
+        )}
+          </>
         )}
       </div>
     </div>

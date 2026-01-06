@@ -1,47 +1,29 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen,
+  Star,
+  Brain,
+  HelpCircle,
+  Award,
   Search,
+  X,
   Download,
   Share,
   Printer,
-  Bookmark,
-  BookmarkCheck,
   Clock,
-  Users,
-  Baby,
-  Heart,
-  Star,
+  Bookmark,
+  Target,
+  BookmarkCheck,
+  ChevronDown,
+  Lightbulb,
   CheckCircle,
   AlertCircle,
-  Info,
-  ChevronDown,
-  ChevronRight,
-  Play,
-  Pause,
-  Settings,
-  HelpCircle,
   MessageCircle,
   Mail,
-  Phone,
-  Video,
-  FileText,
-  Image,
-  TrendingUp,
-  Brain,
-  Camera,
-  Music,
-  Calendar,
-  Shield,
-  Zap,
-  Target,
-  Award,
-  Lightbulb,
-  Gift,
-  PartyPopper
+  Phone
 } from 'lucide-react'
 
 // 手册章节接口
@@ -567,8 +549,6 @@ export default function ParentUserManual() {
   const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set(['getting-started']))
   const [bookmarkedSections, setBookmarkedSections] = useState<Set<string>>(new Set())
   const [searchQuery, setSearchQuery] = useState('')
-  const [currentChapter, setCurrentChapter] = useState<string | null>(null)
-  const [showSearch, setShowSearch] = useState(false)
 
   // 过滤章节
   const filteredChapters = manualChapters.filter(chapter => {
@@ -676,8 +656,6 @@ export default function ParentUserManual() {
                 placeholder="搜索手册内容..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setShowSearch(true)}
-                onBlur={() => setShowSearch(false)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
               />
               {searchQuery && (
@@ -812,7 +790,7 @@ export default function ParentUserManual() {
                       transition={{ duration: 0.3 }}
                     >
                       <div className="p-6 space-y-8">
-                        {chapter.sections.map((section, sectionIndex) => {
+                        {chapter.sections.map((section) => {
                           const isBookmarked = bookmarkedSections.has(section.id)
 
                           return (

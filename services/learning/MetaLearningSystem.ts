@@ -11,18 +11,13 @@ import type {
   LearningLevel,
   LearningMetrics,
   LearningConfig,
+  KnowledgeGraph,
   ExperienceReplay,
   AdaptationStrategy,
   LearningFeedback,
   ModelEnsemble,
   TransferLearning,
-  CurriculumLearning,
-  Pattern,
-  StrategyCandidate,
-  StrategyEvaluation,
-  EnvironmentAnalysis,
-  EnvironmentDifference,
-  DomainSimilarity
+  CurriculumLearning
 } from '../types/learning/common'
 
 /**
@@ -37,10 +32,8 @@ export class MetaLearningSystem extends EventEmitter {
   private config: LearningConfig
   private isInitialized = false
   private learningMetrics: LearningMetrics
-  private ensembleModels?: Map<string, ModelEnsemble>
-  private learningLoop?: NodeJS.Timeout
 
-  constructor(config: Partial<LearningConfig> = {}) {
+  constructor(config: LearningConfig = {}) {
     super()
     this.config = {
       levels: ['behavioral', 'strategic', 'knowledge'],
@@ -57,7 +50,7 @@ export class MetaLearningSystem extends EventEmitter {
       enableCurriculum: true,
       enableEnsemble: true,
       ...config
-    } as LearningConfig
+    }
 
     this.knowledgeGraph = new KnowledgeGraph()
     this.learningMetrics = this.initializeMetrics()
@@ -116,22 +109,19 @@ export class MetaLearningSystem extends EventEmitter {
         this.experiences.set(experience.taskType, [])
       }
 
-      const taskExperiences = this.experiences.get(experience.taskType)
-      if (taskExperiences) {
-        taskExperiences.push(fullExperience)
+      this.experiences.get(experience.taskType)!.push(fullExperience)
 
-        // 限制经验缓冲区大小
-        if (taskExperiences.length > this.config.experienceBufferSize!) {
-          taskExperiences.shift() // 移除最旧的经验
-        }
+      // 限制经验缓冲区大小
+      const taskExperiences = this.experiences.get(experience.taskType)!
+      if (taskExperiences.length > this.config.experienceBufferSize) {
+        taskExperiences.shift() // 移除最旧的经验
       }
 
       // 更新知识图谱
       await this.updateKnowledgeGraph(fullExperience)
 
       // 触发学习更新
-      const currentExperiences = this.experiences.get(experience.taskType)
-      if (currentExperiences && currentExperiences.length % this.config.updateFrequency! === 0) {
+      if (this.experiences.get(experience.taskType)!.length % this.config.updateFrequency === 0) {
         await this.triggerLearningUpdate(experience.taskType)
       }
 
@@ -149,7 +139,7 @@ export class MetaLearningSystem extends EventEmitter {
    */
   async learnStrategy(
     taskType: string,
-    context: Record<string, unknown>,
+    context: Record<string, any>,
     objectives: string[]
   ): Promise<LearningStrategy> {
     try {
@@ -189,8 +179,8 @@ export class MetaLearningSystem extends EventEmitter {
    * 适应性学习
    */
   async adaptToNewEnvironment(
-    newEnvironment: Record<string, unknown>,
-    previousEnvironment?: Record<string, unknown>
+    newEnvironment: Record<string, any>,
+    previousEnvironment?: Record<string, any>
   ): Promise<AdaptationStrategy> {
     try {
       // 环境差异分析
@@ -230,7 +220,7 @@ export class MetaLearningSystem extends EventEmitter {
   async performTransferLearning(
     sourceDomain: string,
     targetDomain: string,
-    transferData: unknown
+    transferData: any
   ): Promise<TransferLearning> {
     if (!this.config.enableTransfer) {
       throw new Error('迁移学习未启用')
@@ -240,7 +230,7 @@ export class MetaLearningSystem extends EventEmitter {
       // 域相似性分析
       const domainSimilarity = await this.analyzeDomainSimilarity(sourceDomain, targetDomain)
 
-      if (domainSimilarity.score < this.config.transferThreshold!) {
+      if (domainSimilarity.score < this.config.transferThreshold) {
         throw new Error(`域相似度 ${domainSimilarity.score} 低于阈值 ${this.config.transferThreshold}`)
       }
 
@@ -423,7 +413,7 @@ export class MetaLearningSystem extends EventEmitter {
   async getLearningFeedback(
     taskId: string,
     action: string,
-    outcome: unknown
+    outcome: any
   ): Promise<LearningFeedback> {
     try {
       // 分析行动结果
@@ -488,11 +478,10 @@ export class MetaLearningSystem extends EventEmitter {
    * 获取经验回放缓冲区
    */
   getExperienceReplay(): ExperienceReplay {
-    const allExperiences = Array.from(this.experiences.values()).flat()
     return {
-      experiences: allExperiences,
-      bufferSize: this.config.experienceBufferSize!,
-      currentSize: allExperiences.length,
+      experiences: Array.from(this.experiences.values()).flat(),
+      bufferSize: this.config.experienceBufferSize,
+      currentSize: Array.from(this.experiences.values()).flat().length,
       lastUpdated: new Date(),
       priorityScores: new Map()
     }
@@ -542,7 +531,7 @@ export class MetaLearningSystem extends EventEmitter {
       strategiesLearned: 0,
       adaptationsPerformed: 0,
       transferLearningSuccess: 0,
-      averageLearningRate: this.config.learningRate!,
+      averageLearningRate: this.config.learningRate,
       knowledgeGraphNodes: 0,
       knowledgeGraphEdges: 0,
       lastUpdated: new Date(),
@@ -557,13 +546,13 @@ export class MetaLearningSystem extends EventEmitter {
 
   private async initializeMetaLearners(): Promise<void> {
     // 为每个学习层级初始化元学习者
-    for (const level of this.config.levels!) {
+    for (const level of this.config.levels) {
       const learner: MetaLearner = {
         id: `learner-${level}`,
         level: level as LearningLevel,
         strategies: [],
         performance: 0,
-        adaptationRate: this.config.adaptationRate!,
+        adaptationRate: this.config.adaptationRate,
         lastUpdate: new Date()
       }
       this.metaLearners.set(learner.id, learner)
@@ -587,7 +576,7 @@ export class MetaLearningSystem extends EventEmitter {
   private async performPeriodicLearning(): Promise<void> {
     // 定期学习逻辑
     for (const [taskType, experiences] of this.experiences) {
-      if (experiences.length > 0 && experiences.length % this.config.updateFrequency! === 0) {
+      if (experiences.length > 0 && experiences.length % this.config.updateFrequency === 0) {
         await this.triggerLearningUpdate(taskType)
       }
     }
@@ -610,62 +599,48 @@ export class MetaLearningSystem extends EventEmitter {
   }
 
   // 其他私有方法的简化实现...
-  private async updateKnowledgeGraph(_experience: LearningExperience): Promise<void> {
+  private async updateKnowledgeGraph(experience: LearningExperience): Promise<void> {
     // 更新知识图谱
   }
 
-  private async triggerLearningUpdate(_taskType: string): Promise<void> {
-    console.log(`🔄 触发任务类型 ${_taskType} 的学习更新`)
+  private async triggerLearningUpdate(taskType: string): Promise<void> {
+    console.log(`🔄 触发任务类型 ${taskType} 的学习更新`)
   }
 
-  private async getRelevantExperiences(taskType: string, _context: Record<string, unknown>): Promise<LearningExperience[]> {
+  private async getRelevantExperiences(taskType: string, context: Record<string, any>): Promise<LearningExperience[]> {
     const experiences = this.experiences.get(taskType) || []
-    return experiences.filter(() => true)
+    return experiences.filter(exp => this.isContextRelevant(exp.context, context))
   }
 
-  private async analyzePatterns(_experiences: LearningExperience[]): Promise<Pattern[]> {
+  private isContextRelevant(expContext: Record<string, any>, currentContext: Record<string, any>): boolean {
+    // 简化的上下文相关性判断
+    return true
+  }
+
+  private async analyzePatterns(experiences: LearningExperience[]): Promise<any[]> {
     // 模式分析
     return []
   }
 
-  private async generateStrategyCandidates(_patterns: Pattern[], _objectives: string[]): Promise<StrategyCandidate[]> {
+  private async generateStrategyCandidates(patterns: any[], objectives: string[]): Promise<any[]> {
     // 生成策略候选
     return []
   }
 
-  private async evaluateStrategies(candidates: StrategyCandidate[], _context: Record<string, unknown>): Promise<StrategyEvaluation[]> {
+  private async evaluateStrategies(candidates: any[], context: Record<string, any>): Promise<any[]> {
     // 评估策略
-    return candidates.map(candidate => ({
-      strategyId: `strategy_${Date.now()}`,
-      score: 0,
-      metrics: {},
-      strengths: [],
-      weaknesses: [],
-      ...candidate
-    }))
+    return candidates
   }
 
-  private selectBestStrategy(strategies: StrategyEvaluation[]): StrategyEvaluation {
+  private selectBestStrategy(strategies: any[]): any {
     // 选择最佳策略
-    return strategies[0] || {
-      strategyId: 'default',
-      score: 0,
-      metrics: {},
-      strengths: [],
-      weaknesses: []
-    }
+    return strategies[0] || {}
   }
 
-  private async optimizeStrategy(strategy: StrategyEvaluation, _experiences: LearningExperience[]): Promise<LearningStrategy> {
+  private async optimizeStrategy(strategy: any, experiences: LearningExperience[]): Promise<any> {
     return {
       id: this.generateStrategyId(),
-      taskType: 'unknown',
-      name: 'Optimized Strategy',
-      description: 'An optimized learning strategy',
-      parameters: {},
-      performance: strategy.score,
-      lastUpdated: new Date(),
-      version: '1.0',
+      ...strategy,
       optimized: true
     }
   }
@@ -675,17 +650,17 @@ export class MetaLearningSystem extends EventEmitter {
   }
 
   private async analyzeEnvironmentDifference(
-    _previous: Record<string, unknown>,
-    _current: Record<string, unknown>
-  ): Promise<EnvironmentDifference> {
-    return { score: 0.8, differences: [], severity: 'medium' }
+    previous: Record<string, any>,
+    current: Record<string, any>
+  ): Promise<any> {
+    return { score: 0.8, differences: [] }
   }
 
-  private async analyzeEnvironmentFeatures(_environment: Record<string, unknown>): Promise<EnvironmentAnalysis> {
-    return { features: [], complexity: 'medium', stability: 'medium', predictability: 'medium' }
+  private async analyzeEnvironmentFeatures(environment: Record<string, any>): Promise<any> {
+    return { features: [], complexity: 'medium' }
   }
 
-  private async identifyAdaptationNeeds(_environmentDiff: EnvironmentDifference): Promise<string[]> {
+  private async identifyAdaptationNeeds(environmentDiff: any): Promise<string[]> {
     return ['parameter_adjustment', 'strategy_update']
   }
 
@@ -703,46 +678,46 @@ export class MetaLearningSystem extends EventEmitter {
     return `adapt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
-  private async executeAdaptiveLearning(_strategy: AdaptationStrategy): Promise<{ success: boolean; improvements: string[] }> {
+  private async executeAdaptiveLearning(strategy: AdaptationStrategy): Promise<any> {
     return { success: true, improvements: [] }
   }
 
-  private async validateAdaptation(_strategy: AdaptationStrategy): Promise<{ successRate: number; improvement: number }> {
+  private async validateAdaptation(strategy: AdaptationStrategy): Promise<any> {
     return { successRate: 0.85, improvement: 0.15 }
   }
 
-  private async updateMetaLearners(_results: unknown): Promise<void> {
+  private async updateMetaLearners(results: any): Promise<void> {
     // 更新元学习者
   }
 
-  private async analyzeDomainSimilarity(_source: string, _target: string): Promise<DomainSimilarity> {
+  private async analyzeDomainSimilarity(source: string, target: string): Promise<any> {
     return { score: 0.8, sharedFeatures: ['pattern_recognition'] }
   }
 
   private async identifyTransferableKnowledge(
-    _source: string,
-    _target: string,
-    _data: unknown
-  ): Promise<{ knowledge: unknown[]; confidence: number }> {
+    source: string,
+    target: string,
+    data: any
+  ): Promise<any> {
     return { knowledge: [], confidence: 0.8 }
   }
 
-  private async executeKnowledgeTransfer(knowledge: { knowledge: unknown[]; confidence: number }, _target: string): Promise<{ transferred: unknown; adaptation: string }> {
+  private async executeKnowledgeTransfer(knowledge: any, target: string): Promise<any> {
     return { transferred: knowledge, adaptation: 'light' }
   }
 
-  private async fineTuneTransferredKnowledge(knowledge: { transferred: unknown; adaptation: string }, _target: string): Promise<unknown> {
+  private async fineTuneTransferredKnowledge(knowledge: any, target: string): Promise<any> {
     return { ...knowledge, fineTuned: true }
   }
 
-  private async validateTransferLearning(_knowledge: unknown, _target: string): Promise<{ successRate: number; improvementRate: number }> {
+  private async validateTransferLearning(knowledge: any, target: string): Promise<any> {
     return { successRate: 0.82, improvementRate: 0.25 }
   }
 
   private async generateCurriculumSequence(
     objectives: string[],
     levels: number[]
-  ): Promise<Array<{ level: number; objective: string; requiredMastery: number }>> {
+  ): Promise<any[]> {
     return objectives.map((obj, index) => ({
       level: levels[index] || 1,
       objective: obj,
@@ -750,110 +725,113 @@ export class MetaLearningSystem extends EventEmitter {
     }))
   }
 
-  private async getLearningMaterials(_stage: { level: number; objective: string; requiredMastery: number }): Promise<{ materials: unknown[]; difficulty: number }> {
-    return { materials: [], difficulty: _stage.level }
+  private async getLearningMaterials(stage: any): Promise<any> {
+    return { materials: [], difficulty: stage.level }
   }
 
-  private async executeLearningStage(_stage: { level: number; objective: string; requiredMastery: number }, _materials: { materials: unknown[]; difficulty: number }): Promise<{ results: unknown[]; timeSpent: number }> {
+  private async executeLearningStage(stage: any, materials: any): Promise<any> {
     return { results: [], timeSpent: 3600 }
   }
 
-  private async evaluateLearningStage(_stage: { level: number; objective: string; requiredMastery: number }, _results: { results: unknown[]; timeSpent: number }): Promise<{ mastery: number; feedback: string }> {
+  private async evaluateLearningStage(stage: any, results: any): Promise<any> {
     return { mastery: 0.85, feedback: 'good' }
   }
 
-  private async repeatLearningStage(_stage: { level: number; objective: string; requiredMastery: number }, _feedback: string): Promise<void> {
-    console.log(`🔄 重复学习阶段: ${_stage.objective}`)
+  private async repeatLearningStage(stage: any, feedback: any): Promise<void> {
+    console.log(`🔄 重复学习阶段: ${stage.objective}`)
   }
 
   private async evaluateCurriculumLearning(
-    _objectives: string[],
+    objectives: string[],
     progress: Map<string, number>
-  ): Promise<{ overallMastery: number; stageResults: Record<string, number> }> {
+  ): Promise<any> {
     const mastery = Array.from(progress.values()).reduce((a, b) => a + b, 0) / progress.size
     return { overallMastery: mastery, stageResults: Object.fromEntries(progress) }
   }
 
-  private async assessModelDiversity(_models: Array<{ id: string; type: string; performance: number }>): Promise<{ diversity: number; correlations: unknown[] }> {
+  private async assessModelDiversity(models: any[]): Promise<any> {
     return { diversity: 0.7, correlations: [] }
   }
 
-  private async selectEnsembleStrategy(_models: Array<{ id: string; type: string; performance: number }>, _diversity: { diversity: number; correlations: unknown[] }): Promise<string> {
+  private async selectEnsembleStrategy(models: any[], diversity: any): Promise<string> {
     return 'weighted_average'
   }
 
-  private async trainEnsembleModel(models: Array<{ id: string; type: string; performance: number }>, strategy: string): Promise<{ weights: number[]; strategy: string }> {
+  private async trainEnsembleModel(models: any[], strategy: string): Promise<any> {
     return { weights: models.map(() => 1 / models.length), strategy }
   }
 
-  private async optimizeEnsembleWeights(model: { weights: number[]; strategy: string }, _taskType: string): Promise<{ weights: number[]; strategy: string }> {
-    return { ...model, weights: model.weights.map(weight => weight * 1.1) }
+  private async optimizeEnsembleWeights(model: any, taskType: string): Promise<any> {
+    return { ...model, weights: model.weights.map(w => w * 1.1) }
   }
 
-  private async validateEnsemblePerformance(_ensemble: { weights: number[]; strategy: string }): Promise<{ improvement: number; accuracy: number }> {
+  private async validateEnsemblePerformance(ensemble: any): Promise<any> {
     return { improvement: 0.15, accuracy: 0.92 }
   }
 
-  private async analyzeActionOutcome(_taskId: string, _action: string, _outcome: unknown): Promise<{ success: boolean; efficiency: number; quality: number }> {
+  private async analyzeActionOutcome(taskId: string, action: string, outcome: any): Promise<any> {
     return { success: true, efficiency: 0.8, quality: 0.9 }
   }
 
-  private async calculateImmediateReward(analysis: { success: boolean; efficiency: number; quality: number }): Promise<number> {
+  private async calculateImmediateReward(analysis: any): Promise<number> {
     return analysis.success ? 1.0 : -0.5
   }
 
-  private async assessLongTermValue(_taskId: string, _action: string, _analysis: { success: boolean; efficiency: number; quality: number }): Promise<number> {
+  private async assessLongTermValue(taskId: string, action: string, analysis: any): Promise<number> {
     return 0.7
   }
 
-  private async generateImprovementSuggestions(analysis: { success: boolean; efficiency: number; quality: number }): Promise<string[]> {
+  private async generateImprovementSuggestions(analysis: any): Promise<string[]> {
     return analysis.success ? [] : ['优化策略', '增加经验']
   }
 
   private async updateLearningStrategies(
-    _taskId: string,
-    _action: string,
-    _reward: number,
-    _improvements: string[]
+    taskId: string,
+    action: string,
+    reward: number,
+    improvements: string[]
   ): Promise<void> {
     // 更新学习策略
   }
 
-  private calculateFeedbackConfidence(_analysis: { success: boolean; efficiency: number; quality: number }): number {
+  private calculateFeedbackConfidence(analysis: any): number {
     return 0.85
   }
 
-  private async generateActionRecommendations(_analysis: { success: boolean; efficiency: number; quality: number }): Promise<string[]> {
+  private async generateActionRecommendations(analysis: any): Promise<string[]> {
     return ['继续当前策略', '监控性能']
   }
 
   private async saveLearningState(): Promise<void> {
     console.log('💾 保存学习状态...')
   }
+
+  private ensembleModels?: Map<string, ModelEnsemble>
+  private learningLoop?: NodeJS.Timeout
 }
 
 // 辅助类实现
 class KnowledgeGraph {
-  nodes: Map<string, unknown> = new Map()
-  edges: Map<string, unknown> = new Map()
+  nodes: Map<string, any> = new Map()
+  edges: Map<string, any> = new Map()
 
   constructor() {
     console.log('🕸️ 知识图谱初始化')
   }
 
-  addNode(id: string, node: unknown): void {
+  addNode(id: string, node: any): void {
     this.nodes.set(id, node)
   }
 
-  addEdge(from: string, to: string, edge: unknown): void {
+  addEdge(from: string, to: string, edge: any): void {
     this.edges.set(`${from}-${to}`, edge)
   }
 
-  getRelatedNodes(_id: string): unknown[] {
+  getRelatedNodes(id: string): any[] {
     return []
   }
 
-  findPath(_from: string, _to: string): unknown[] {
+  findPath(from: string, to: string): any[] {
     return []
   }
 }

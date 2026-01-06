@@ -3,7 +3,7 @@
  * 包含时间序列、异常检测、因果推断等专用预测引擎
  */
 
-import { BasePredictor, HyperparameterSearchSpace } from './base-predictor'
+import { BasePredictor } from './base-predictor'
 import type {
   PredictionData,
   TrainingResult,
@@ -19,12 +19,6 @@ import type {
   Intervention,
   DataPoint
 } from '@/types/prediction/common'
-
-export interface AnomalyContext {
-  surroundingValues: number[];
-  statisticalBaseline: Record<string, number>;
-  timeContext: string;
-}
 
 /**
  * 时间序列预测引擎
@@ -42,7 +36,7 @@ export class TimeSeriesEngine extends BasePredictor {
     return new TimeSeriesEngine(config)
   }
 
-  protected getSearchSpace(): HyperparameterSearchSpace {
+  protected getSearchSpace(): Record<string, any> {
     return {
       windowSize: { type: 'range', min: 5, max: 50 },
       alpha: { type: 'range', min: 0.1, max: 0.9 },
@@ -352,7 +346,7 @@ export class AnomalyDetectionEngine extends BasePredictor {
     return new AnomalyDetectionEngine(config)
   }
 
-  protected getSearchSpace(): HyperparameterSearchSpace {
+  protected getSearchSpace(): Record<string, any> {
     return {
       threshold: { type: 'range', min: 1.5, max: 4.0 },
       windowSize: { type: 'range', min: 10, max: 100 },
@@ -591,7 +585,7 @@ export class AnomalyDetectionEngine extends BasePredictor {
     }
   }
 
-  private getAnomalyContext(anomaly: Anomaly): AnomalyContext {
+  private getAnomalyContext(anomaly: Anomaly): Record<string, any> {
     return {
       surroundingValues: this.baseline.slice(
         Math.max(0, anomaly.index - 5),

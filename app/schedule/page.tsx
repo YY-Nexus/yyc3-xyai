@@ -197,7 +197,6 @@ export default function SchedulePage() {
           <TimelineView
             schedules={todaySchedules}
             onEdit={handleEditSchedule}
-            onDelete={deleteSchedule}
           />
         ) : (
           <DayView

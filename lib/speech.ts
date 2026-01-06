@@ -1,5 +1,7 @@
 // 语音服务工具类
 
+import { log as logger } from './logger'
+
 export class SpeechService {
   private recognition: any = null
   private synthesis: SpeechSynthesis | null = null
@@ -32,20 +34,20 @@ export class SpeechService {
   // 语音识别
   async startListening(onResult: (transcript: string) => void, onError?: (error: any) => void): Promise<void> {
     if (!this.recognition) {
-      console.warn("[v0] 浏览器不支持语音识别")
+      logger.warn("[v0] 浏览器不支持语音识别")
       return
     }
 
     return new Promise((resolve, reject) => {
       this.recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript
-        console.log("[v0] 语音识别结果:", transcript)
+        logger.info("[v0] 语音识别结果:", transcript)
         onResult(transcript)
         resolve()
       }
 
       this.recognition.onerror = (event: any) => {
-        console.error("[v0] 语音识别错误:", event.error)
+        logger.error("[v0] 语音识别错误:", event.error)
         if (onError) onError(event.error)
         reject(event.error)
       }
@@ -63,7 +65,7 @@ export class SpeechService {
   // 语音合成
   speak(text: string, options?: { rate?: number; pitch?: number; volume?: number }): void {
     if (!this.synthesis) {
-      console.warn("[v0] 浏览器不支持语音合成")
+      logger.warn("[v0] 浏览器不支持语音合成")
       return
     }
 
@@ -83,7 +85,7 @@ export class SpeechService {
       utterance.voice = chineseVoice
     }
 
-    console.log("[v0] 语音播放:", text)
+    logger.info("[v0] 语音播放:", text)
     this.synthesis.speak(utterance)
   }
 

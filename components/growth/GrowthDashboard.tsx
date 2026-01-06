@@ -13,12 +13,12 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState, AppDispatch } from '@/lib/store'
-import { milestoneTracker, GrowthAssessment, MilestoneCategory, DevelopmentLevel } from '@/lib/growth/milestone-tracker'
-import { emotionEngine, EmotionType } from '@/lib/ai/emotion-engine'
-import { voiceController } from '@/lib/ai/voice-interaction'
-import { addGrowthRecord, updateSettings } from '@/lib/store'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '@/lib/store'
+import { milestoneTracker, GrowthAssessment, DevelopmentLevel } from '@/lib/growth/milestone-tracker'
+import { emotionEngine } from '@/lib/ai/emotion-engine'
+import { voiceController, EmotionType } from '@/lib/ai/voice-interaction'
+import { addGrowthRecord } from '@/lib/store'
 import { Child } from '@/lib/store'
 import { characterManager } from '@/lib/character-manager'
 
@@ -28,7 +28,6 @@ interface GrowthDashboardProps {
 
 export default function GrowthDashboard({ child }: GrowthDashboardProps) {
   const dispatch = useDispatch<AppDispatch>()
-  const growthRecords = useSelector((state: RootState) => state.growthRecords)
   const [assessment, setAssessment] = useState<GrowthAssessment | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'milestones' | 'emotions' | 'recommendations'>('overview')
@@ -174,7 +173,7 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
   }
 
   // 获取角色配置
-  const character = characterManager.getCharacterForUser(child)
+  const character = characterManager.getCharacterForUser(child as any)
   const characterAvatar = characterManager.getCharacterImagePath(character, 'happy')
 
   return (
@@ -245,7 +244,7 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
         >
           {activeTab === 'overview' && <OverviewTab assessment={assessment} />}
           {activeTab === 'milestones' && <MilestonesTab child={child} onMilestoneAchievement={handleMilestoneAchievement} />}
-          {activeTab === 'emotions' && <EmotionsTab child={child} isRecording={isRecording} onStartRecording={handleEmotionAnalysis} />}
+          {activeTab === 'emotions' && <EmotionsTab isRecording={isRecording} onStartRecording={handleEmotionAnalysis} />}
           {activeTab === 'recommendations' && <RecommendationsTab assessment={assessment} />}
         </motion.div>
       </AnimatePresence>
@@ -327,7 +326,7 @@ function OverviewTab({ assessment }: { assessment: GrowthAssessment | null }) {
 
 // 里程碑标签页
 function MilestonesTab({ child, onMilestoneAchievement }: { child: Child; onMilestoneAchievement: (id: string, achieved: boolean) => void }) {
-  const [milestones, setMilestones] = useState([])
+  const [milestones, setMilestones] = useState<any[]>([])
 
   useEffect(() => {
     const ageAppropriate = milestoneTracker.getAgeAppropriateMilestones(child.age)
@@ -377,7 +376,7 @@ function MilestonesTab({ child, onMilestoneAchievement }: { child: Child; onMile
 }
 
 // 情感记录标签页
-function EmotionsTab({ child, isRecording, onStartRecording }: { child: Child; isRecording: boolean; onStartRecording: () => void }) {
+function EmotionsTab({ isRecording, onStartRecording }: { isRecording: boolean; onStartRecording: () => void }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6">
       <h2 className="text-xl font-bold text-gray-800 mb-4">情感互动记录</h2>

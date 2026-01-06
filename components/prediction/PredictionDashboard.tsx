@@ -3,14 +3,12 @@
  * 提供预测结果可视化、性能监控和交互式分析功能
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, ScatterPlot, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import React, { useState, useCallback, useMemo } from 'react'
+import { LineChart, Line, AreaChart, Area, ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
@@ -22,7 +20,6 @@ import type {
   QualityMetrics,
   BiasReport,
   CalibrationResult,
-  DataPoint,
   StreamingPrediction
 } from '@/types/prediction/common'
 
@@ -58,7 +55,6 @@ const PredictionDashboard: React.FC<PredictionDashboardProps> = ({
   insights,
   qualityMetrics,
   biasReport,
-  calibrationResult,
   streamingData = [],
   onPredictionRequest,
   onModelUpdate,
@@ -91,10 +87,10 @@ const PredictionDashboard: React.FC<PredictionDashboardProps> = ({
       timestamp: new Date(p.timestamp).toLocaleString(),
       value: Array.isArray(p.prediction) ? p.prediction[0] : p.prediction,
       confidence: p.confidence,
-      lower: p.confidenceInterval?.lower ? (Array.isArray(p.confidenceInterval.lower) ? p.confidenceInterval.lower[0] : p.confidenceInterval.lower) : null,
-      upper: p.confidenceInterval?.upper ? (Array.isArray(p.confidenceInterval.upper) ? p.confidenceInterval.upper[0] : p.confidenceInterval.upper) : null,
-      modelId: p.modelId,
-      horizon: p.horizon
+      lower: (p.metadata?.['confidenceInterval'] as { lower: number })?.lower ?? null,
+      upper: (p.metadata?.['confidenceInterval'] as { upper: number })?.upper ?? null,
+      modelId: (p.metadata?.['modelId'] as string) ?? '',
+      horizon: (p.metadata?.['horizon'] as number) ?? 1
     }))
 
     // 添加流式数据
@@ -104,9 +100,8 @@ const PredictionDashboard: React.FC<PredictionDashboardProps> = ({
         value: s.prediction,
         confidence: s.confidence,
         modelId: s.modelVersion,
-        horizon: 1,
-        isStreaming: true
-      })
+        horizon: 1
+      } as any)
     })
 
     return data.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
@@ -126,7 +121,7 @@ const PredictionDashboard: React.FC<PredictionDashboardProps> = ({
 
   // 处理预测请求
   const handlePredictionRequest = useCallback(async () => {
-    if (!onPredictionRequest) return
+    if (!onPredictionRequest || predictionHorizon[0] === undefined) return
 
     setIsUpdating(true)
     try {
@@ -364,14 +359,14 @@ const PredictionDashboard: React.FC<PredictionDashboardProps> = ({
                 )}
               </AreaChart>
             ) : (
-              <ScatterPlot data={chartData}>
+              <ScatterChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="timestamp" />
                 <YAxis dataKey="value" />
                 <Tooltip />
                 <Legend />
                 <Scatter dataKey="value" fill="#8884d8" name="预测值" />
-              </ScatterPlot>
+              </ScatterChart>
             )}
           </ResponsiveContainer>
         </CardContent>
@@ -436,7 +431,7 @@ const PredictionDashboard: React.FC<PredictionDashboardProps> = ({
                     <div className="flex-1">
                       <p className="text-sm">{insight.description}</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        置信度: {(insight.confidence * 100).toFixed(1)}% |
+                        置信度: {insight.confidence !== undefined ? (insight.confidence * 100).toFixed(1) : 'N/A'}% |
                         可操作性: {insight.actionability}
                       </p>
                     </div>

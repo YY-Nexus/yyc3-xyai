@@ -9,6 +9,21 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { TouchBackend } from 'react-dnd-touch-backend'
 import { useSelector } from 'react-redux'
+import {
+  MessageCircle,
+  BarChart3,
+  Settings2,
+  Maximize2,
+  Minimize2,
+  X,
+  RefreshCw,
+  Info,
+  TrendingUp,
+  Zap,
+  Activity,
+  AlertTriangle,
+  CheckCircle
+} from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -21,22 +36,6 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 
 // 图标组件
-import {
-  MessageCircle,
-  BarChart3,
-  Settings2,
-  Minimize2,
-  Maximize2,
-  X,
-  Zap,
-  Activity,
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle,
-  Info,
-  RefreshCw
-} from 'lucide-react'
-
 import AgenticCore from '../../core/AgenticCore'
 import type { UserInput, AgentResponse, AgentTask, SystemStatus } from '../../core/AgenticCore'
 import { characterManager } from '@/lib/character-manager'
@@ -140,12 +139,8 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
   const addNotificationRef = useRef<((message: string, type: 'info' | 'success' | 'error' | 'warning') => void) | null>(null)
 
   // 检测设备类型（预留用于响应式布局优化）
-  const _isMobile = useMemo(() => {
-    if (typeof window === 'undefined') return false
-    return window.innerWidth < 768 || 'ontouchstart' in window
-  }, [])
-
   const isTouchDevice = useMemo(() => {
+    if (typeof window === 'undefined') return false
     return 'ontouchstart' in window
   }, [])
 
@@ -990,6 +985,7 @@ const ResizeHandles: React.FC<{
         document.removeEventListener('mouseup', handleMouseUp)
       }
     }
+    return undefined
   }, [resizing, handleMouseMove, handleMouseUp])
 
   return (

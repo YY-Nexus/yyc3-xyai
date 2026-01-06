@@ -1,12 +1,9 @@
 /**
  * @file 主题化组件类型定义
  * @description 统一的类型定义和接口
- * @module components/ui/character-themed
- * @author YYC³
+ * @author YYC³ Development Team
  * @version 1.0.0
  * @created 2024-12-14
- * @copyright Copyright (c) 2025 YYC³
- * @license MIT
  */
 
 // 基础类型定义

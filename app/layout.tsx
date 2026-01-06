@@ -17,6 +17,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { AuthProvider } from "@/hooks/useAuth"
 import ReduxProvider from "@/components/ReduxProvider"
 import DndProvider from "@/components/DndProvider"
+import { MuiThemeProvider } from "@/components/material/MuiThemeProvider"
 // import { DatabaseInitializer } from "@/components/DatabaseInitializer"
 import "./globals.css"
 
@@ -110,10 +111,12 @@ export default function RootLayout({
         <ErrorBoundary>
           <DndProvider>
             <ReduxProvider>
-              <AuthProvider>
-                {children}
-                <ClientWrapper />
-              </AuthProvider>
+              <MuiThemeProvider>
+                <AuthProvider>
+                  {children}
+                  <ClientWrapper />
+                </AuthProvider>
+              </MuiThemeProvider>
             </ReduxProvider>
           </DndProvider>
         </ErrorBoundary>

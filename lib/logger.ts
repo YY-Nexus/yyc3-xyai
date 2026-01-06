@@ -1,210 +1,245 @@
-/**
- * @fileoverview YYC³ AI小语智能成长守护系统 - 前端日志系统
- * @description 提供统一的日志记录接口，支持多级别日志输出和环境配置
- * @author YYC³
- * @version 1.0.0
- * @created 2025-01-30
- * @modified 2025-01-30
- * @copyright Copyright (c) 2025 YYC³
- * @license MIT
- */
+import winston from 'winston';
+import path from 'path';
+import { config } from './config';
 
-import { LogLevel, LogEntry, LoggerConfig } from '@/types/logger';
+// 日志级别定义
+export enum LogLevel {
+  ERROR = 'error',
+  WARN = 'warn',
+  INFO = 'info',
+  HTTP = 'http',
+  VERBOSE = 'verbose',
+  DEBUG = 'debug',
+  SILLY = 'silly'
+}
 
-class Logger {
-  private config: LoggerConfig;
-  private storage: LogEntry[] = [];
+// 日志格式
+const logFormat = winston.format.combine(
+  winston.format.timestamp({
+    format: 'YYYY-MM-DD HH:mm:ss'
+  }),
+  winston.format.errors({ stack: true }),
+  winston.format.json(),
+  winston.format.prettyPrint()
+);
 
-  constructor(config?: Partial<LoggerConfig>) {
-    this.config = {
-      level: config?.level || (process.env.NODE_ENV === 'production' ? LogLevel.INFO : LogLevel.DEBUG),
-      enableConsole: config?.enableConsole ?? true,
-      enableStorage: config?.enableStorage ?? false,
-      storageKey: config?.storageKey || 'yyc3-logs',
-      maxStorageEntries: config?.maxStorageEntries || 1000
-    };
+// 控制台输出格式
+const consoleFormat = winston.format.combine(
+  winston.format.colorize(),
+  winston.format.timestamp({
+    format: 'HH:mm:ss'
+  }),
+  winston.format.printf(({ timestamp, level, message, stack, ...meta }: any) => {
+    let msg = `${timestamp} [${level}]: ${message}`;
 
-    this.loadFromStorage();
-  }
-
-  private shouldLog(level: LogLevel): boolean {
-    const levels = [LogLevel.ERROR, LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG, LogLevel.TRACE];
-    return levels.indexOf(level) <= levels.indexOf(this.config.level);
-  }
-
-  private formatMessage(entry: LogEntry): string {
-    const timestamp = entry.timestamp;
-    const level = entry.level.toUpperCase().padEnd(5);
-    const context = entry.context ? `[${entry.context}] ` : '';
-    return `${timestamp} ${level} ${context}${entry.message}`;
-  }
-
-  private log(entry: LogEntry): void {
-    if (!this.shouldLog(entry.level)) {
-      return;
+    if (stack) {
+      msg += `\n${stack}`;
     }
 
-    const formattedMessage = this.formatMessage(entry);
-
-    if (this.config.enableConsole) {
-      switch (entry.level) {
-        case LogLevel.ERROR:
-          console.error(formattedMessage, entry.data);
-          break;
-        case LogLevel.WARN:
-          console.warn(formattedMessage, entry.data);
-          break;
-        case LogLevel.INFO:
-          console.info(formattedMessage, entry.data);
-          break;
-        case LogLevel.DEBUG:
-          console.debug(formattedMessage, entry.data);
-          break;
-        case LogLevel.TRACE:
-          console.trace(formattedMessage, entry.data);
-          break;
-      }
+    if (Object.keys(meta).length > 0) {
+      msg += `\n${JSON.stringify(meta, null, 2)}`;
     }
 
-    if (this.config.enableStorage) {
-      this.addToStorage(entry);
-    }
-  }
+    return msg;
+  })
+);
 
-  private addToStorage(entry: LogEntry): void {
-    this.storage.push(entry);
+// 从统一配置获取日志配置
+const loggerConfig = config.getLoggerConfig();
 
-    if (this.storage.length > this.config.maxStorageEntries) {
-      this.storage.shift();
-    }
+// 创建传输器
+const transports: winston.transport[] = [
+  // 控制台输出
+  new winston.transports.Console({
+    level: loggerConfig.level,
+    format: consoleFormat,
+    handleExceptions: true,
+    handleRejections: true
+  }),
+];
 
-    try {
-      localStorage.setItem(this.config.storageKey, JSON.stringify(this.storage));
-    } catch (error) {
-      console.error('Failed to save logs to storage:', error);
-    }
-  }
+// 生产环境添加文件输出
+if (config.getNodeEnv() === 'production') {
+  // 确保日志目录存在
+  const logDir = path.dirname(loggerConfig.file);
 
-  private loadFromStorage(): void {
-    if (!this.config.enableStorage) {
-      return;
-    }
-
-    try {
-      const stored = localStorage.getItem(this.config.storageKey);
-      if (stored) {
-        this.storage = JSON.parse(stored);
-      }
-    } catch (error) {
-      console.error('Failed to load logs from storage:', error);
-    }
-  }
-
-  public error(message: string, data?: any, context?: string): void {
-    this.log({
+  transports.push(
+    // 错误日志文件
+    new winston.transports.File({
+      filename: path.join(logDir, 'error.log'),
       level: LogLevel.ERROR,
-      message,
-      timestamp: new Date().toISOString(),
-      context,
-      data
-    });
+      format: logFormat,
+      handleExceptions: true,
+      handleRejections: true,
+      maxsize: loggerConfig.maxSize * 1024 * 1024, // 转换为字节
+      maxFiles: loggerConfig.maxFiles,
+    }),
+
+    // 综合日志文件
+    new winston.transports.File({
+      filename: loggerConfig.file,
+      format: logFormat,
+      maxsize: loggerConfig.maxSize * 1024 * 1024, // 转换为字节
+      maxFiles: loggerConfig.maxFiles,
+    })
+  );
+}
+
+// 创建logger实例
+export const logger = winston.createLogger({
+  level: loggerConfig.level,
+  format: logFormat,
+  defaultMeta: { service: loggerConfig.service },
+  transports,
+  // 不退出进程
+  exitOnError: false,
+});
+
+// 开发环境下的额外配置
+if (config.getNodeEnv() === 'development') {
+  logger.debug('Logger initialized in development mode');
+}
+
+// 扩展logger功能
+export class Logger {
+  private static instance: Logger;
+  private baseLogger: winston.Logger;
+
+  private constructor() {
+    this.baseLogger = logger;
   }
 
-  public warn(message: string, data?: any, context?: string): void {
-    this.log({
-      level: LogLevel.WARN,
-      message,
-      timestamp: new Date().toISOString(),
-      context,
-      data
-    });
-  }
-
-  public info(message: string, data?: any, context?: string): void {
-    this.log({
-      level: LogLevel.INFO,
-      message,
-      timestamp: new Date().toISOString(),
-      context,
-      data
-    });
-  }
-
-  public debug(message: string, data?: any, context?: string): void {
-    this.log({
-      level: LogLevel.DEBUG,
-      message,
-      timestamp: new Date().toISOString(),
-      context,
-      data
-    });
-  }
-
-  public trace(message: string, data?: any, context?: string): void {
-    this.log({
-      level: LogLevel.TRACE,
-      message,
-      timestamp: new Date().toISOString(),
-      context,
-      data
-    });
-  }
-
-  public performance(operation: string, duration: number, data?: any, context?: string): void {
-    this.log({
-      level: LogLevel.INFO,
-      message: `Performance: ${operation} completed in ${duration}ms`,
-      timestamp: new Date().toISOString(),
-      context,
-      data: { ...data, duration }
-    });
-  }
-
-  public security(event: string, data?: any, context?: string): void {
-    this.log({
-      level: LogLevel.WARN,
-      message: `Security: ${event}`,
-      timestamp: new Date().toISOString(),
-      context,
-      data
-    });
-  }
-
-  public business(action: string, userId?: string, data?: any, context?: string): void {
-    this.log({
-      level: LogLevel.INFO,
-      message: `Business: ${action}`,
-      timestamp: new Date().toISOString(),
-      context,
-      data: { ...data, userId }
-    });
-  }
-
-  public getLogs(level?: LogLevel): LogEntry[] {
-    if (level) {
-      return this.storage.filter(entry => entry.level === level);
+  public static getInstance(): Logger {
+    if (!Logger.instance) {
+      Logger.instance = new Logger();
     }
-    return [...this.storage];
+    return Logger.instance;
   }
 
-  public clearLogs(): void {
-    this.storage = [];
-    try {
-      localStorage.removeItem(this.config.storageKey);
-    } catch (error) {
-      console.error('Failed to clear logs from storage:', error);
-    }
+  // 基础日志方法
+  public error(message: string, meta?: any): void {
+    this.baseLogger.error(message, meta);
   }
 
-  public setLevel(level: LogLevel): void {
-    this.config.level = level;
+  public warn(message: string, meta?: any): void {
+    this.baseLogger.warn(message, meta);
   }
 
-  public getConfig(): LoggerConfig {
-    return { ...this.config };
+  public info(message: string, meta?: any): void {
+    this.baseLogger.info(message, meta);
+  }
+
+  public debug(message: string, meta?: any): void {
+    this.baseLogger.debug(message, meta);
+  }
+
+  public verbose(message: string, meta?: any): void {
+    this.baseLogger.verbose(message, meta);
+  }
+
+  // HTTP请求日志
+  public http(message: string, meta?: any): void {
+    this.baseLogger.http(message, meta);
+  }
+
+  // 性能监控日志
+  public performance(operation: string, duration: number, meta?: any): void {
+    this.baseLogger.info(`Performance: ${operation}`, {
+      operation,
+      duration: `${duration}ms`,
+      ...meta
+    });
+  }
+
+  // 安全相关日志
+  public security(event: string, meta?: any): void {
+    this.baseLogger.warn(`Security: ${event}`, {
+      event,
+      timestamp: new Date().toISOString(),
+      ...meta
+    });
+  }
+
+  // 业务日志
+  public business(action: string, userId?: string, meta?: any): void {
+    this.baseLogger.info(`Business: ${action}`, {
+      action,
+      userId,
+      timestamp: new Date().toISOString(),
+      ...meta
+    });
+  }
+
+  // API调用日志
+  public api(method: string, url: string, statusCode: number, duration: number, meta?: any): void {
+    this.baseLogger.http(`API: ${method} ${url}`, {
+      method,
+      url,
+      statusCode,
+      duration: `${duration}ms`,
+      ...meta
+    });
+  }
+
+  // 数据库操作日志
+  public database(operation: string, table: string, duration: number, meta?: any): void {
+    this.baseLogger.debug(`Database: ${operation} on ${table}`, {
+      operation,
+      table,
+      duration: `${duration}ms`,
+      ...meta
+    });
+  }
+
+  // 缓存操作日志
+  public cache(operation: string, key: string, hit?: boolean, meta?: any): void {
+    this.baseLogger.debug(`Cache: ${operation} ${key}`, {
+      operation,
+      key,
+      hit,
+      ...meta
+    });
+  }
+
+  // 用户活动日志
+  public userActivity(userId: string, activity: string, meta?: any): void {
+    this.baseLogger.info(`User Activity: ${activity}`, {
+      userId,
+      activity,
+      timestamp: new Date().toISOString(),
+      ...meta
+    });
+  }
+
+  // 系统事件日志
+  public system(event: string, meta?: any): void {
+    this.baseLogger.info(`System: ${event}`, {
+      event,
+      timestamp: new Date().toISOString(),
+      ...meta
+    });
+  }
+
+  // 错误详情日志
+  public errorDetail(error: Error, context?: string, meta?: any): void {
+    this.baseLogger.error(`Error Detail: ${context || 'Unknown context'}`, {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      context,
+      timestamp: new Date().toISOString(),
+      ...meta
+    });
+  }
+
+  // 获取原始logger实例
+  public getRawLogger(): winston.Logger {
+    return this.baseLogger;
   }
 }
 
-const logger = new Logger();
+// 导出单例实例
+export const log = Logger.getInstance();
 
+// 默认导出logger
 export default logger;

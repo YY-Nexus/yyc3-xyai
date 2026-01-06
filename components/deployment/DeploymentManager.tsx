@@ -1,50 +1,21 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
-  Rocket,
   CheckCircle,
   XCircle,
-  Clock,
-  Server,
-  Cloud,
-  Shield,
-  Database,
-  Globe,
-  Zap,
-  Monitor,
-  Smartphone,
-  Settings,
-  Upload,
-  Download,
-  RefreshCw,
   AlertTriangle,
-  Info,
-  Activity,
-  Wifi,
-  HardDrive,
-  Cpu,
-  BarChart3,
-  FileCheck,
-  Users,
-  Link,
-  Eye,
-  EyeOff,
-  Copy,
-  Share,
-  Printer,
-  Mail,
+  Clock,
+  Globe,
   Calendar,
-  Target,
-  Award,
-  Sparkles,
-  Star,
-  CheckSquare,
+  Rocket,
   Square,
-  Package,
-  GitBranch,
-  Play
+  Settings,
+  FileCheck,
+  RefreshCw,
+  Eye,
+  Loader2
 } from 'lucide-react'
 
 // 部署状态接口
@@ -57,6 +28,9 @@ interface DeploymentStatus {
   error?: string
   completedAt?: Date
   logs?: string[]
+  duration?: number
+  description?: string
+  checks?: string[]
 }
 
 // 环境配置接口
@@ -115,7 +89,7 @@ const deploymentSteps = [
   }
 ]
 
-const environments: Environment[] = [
+const defaultEnvironments: Environment[] = [
   {
     id: 'dev',
     name: '开发环境',
@@ -141,9 +115,9 @@ const environments: Environment[] = [
 
 export default function DeploymentManager() {
   const [deploymentStatus, setDeploymentStatus] = useState<DeploymentStatus[]>([])
+  const [environments, setEnvironments] = useState<Environment[]>(defaultEnvironments)
   const [selectedEnvironment, setSelectedEnvironment] = useState<string>('prod')
   const [isDeploying, setIsDeploying] = useState(false)
-  const [showLogs, setShowLogs] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [deployStartTime, setDeployStartTime] = useState<Date | null>(null)
   const [overallProgress, setOverallProgress] = useState(0)
@@ -171,7 +145,7 @@ export default function DeploymentManager() {
   }
 
   // 模拟部署执行
-  const executeStep = async (step: typeof deploymentSteps[0], index: number): Promise<boolean> => {
+  const executeStep = async (step: typeof deploymentSteps[0]): Promise<boolean> => {
     updateStepStatus(step.id, { status: 'running', details: '正在执行...' })
 
     // 模拟检查项执行
@@ -211,22 +185,24 @@ export default function DeploymentManager() {
     setDeployStartTime(new Date())
 
     // 重置状态
-    setDeploymentStatus(prev => prev.map(step => ({
-      ...step,
-      status: 'pending' as const,
-      progress: 0,
-      details: '',
-      error: undefined,
-      completedAt: undefined
-    })))
+    setDeploymentStatus(prev => prev.map(step => {
+      const updatedStep = { ...step }
+      ;(updatedStep as any).status = 'pending' as const
+      ;(updatedStep as any).progress = 0
+      ;(updatedStep as any).details = ''
+      ;(updatedStep as any).error = undefined
+      ;(updatedStep as any).completedAt = undefined
+      return updatedStep
+    }))
 
     try {
       // 依次执行所有步骤
       for (let i = 0; i < deploymentSteps.length; i++) {
         const step = deploymentSteps[i]
+        if (!step) continue
         setOverallProgress((i / deploymentSteps.length) * 100)
 
-        const success = await executeStep(step, i)
+        const success = await executeStep(step)
         if (!success) {
           throw new Error(`步骤失败: ${step.name}`)
         }
@@ -280,7 +256,7 @@ export default function DeploymentManager() {
     switch (status) {
       case 'completed': return <CheckCircle className="w-5 h-5 text-green-500" />
       case 'failed': return <XCircle className="w-5 h-5 text-red-500" />
-      case 'running': return <Loader className="w-5 h-5 text-blue-500 animate-spin" />
+      case 'running': return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
       case 'warning': return <AlertTriangle className="w-5 h-5 text-yellow-500" />
       case 'pending': return <Clock className="w-5 h-5 text-gray-400" />
     }
@@ -334,7 +310,7 @@ export default function DeploymentManager() {
     URL.revokeObjectURL(url)
   }
 
-  const Loader = () => (
+  const Spinner = () => (
     <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
   )
 
@@ -527,26 +503,29 @@ export default function DeploymentManager() {
                   <div className="mt-4 pt-4 border-t border-gray-200">
                     <div className="text-sm text-gray-600 mb-2">检查项:</div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {step.checks.map((check, checkIndex) => (
-                        <div
-                          key={checkIndex}
-                          className={`flex items-center gap-2 text-xs p-2 rounded ${
-                            step.status === 'completed' ? 'bg-green-100 text-green-700' :
-                            step.status === 'running' && checkIndex < Math.floor(step.progress / 100 * step.checks.length)
-                              ? 'bg-blue-100 text-blue-700' :
-                            'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          {step.status === 'completed' ? (
-                            <CheckCircle className="w-3 h-3" />
-                          ) : step.status === 'running' && checkIndex < Math.floor(step.progress / 100 * step.checks.length) ? (
-                            <Loader />
+                      {step.checks.map((check, checkIndex) => {
+                        const checks = step.checks || []
+                        return (
+                          <div
+                            key={checkIndex}
+                            className={`flex items-center gap-2 text-xs p-2 rounded ${
+                              step.status === 'completed' ? 'bg-green-100 text-green-700' :
+                              step.status === 'running' && checkIndex < Math.floor(step.progress / 100 * checks.length)
+                                ? 'bg-blue-100 text-blue-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}
+                          >
+                            {step.status === 'completed' ? (
+                              <CheckCircle className="w-3 h-3" />
+                            ) : step.status === 'running' && checkIndex < Math.floor(step.progress / 100 * checks.length) ? (
+                              <Spinner />
                           ) : (
                             <Square className="w-3 h-3" />
                           )}
                           {check}
                         </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
                 )}

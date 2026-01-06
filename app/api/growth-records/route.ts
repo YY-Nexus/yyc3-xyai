@@ -1,6 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db/client"
 
+interface GrowthRecord {
+  id: string
+  child_id: string
+  type: 'milestone' | 'observation' | 'emotion'
+  title: string
+  content: string
+  recorded_at: string
+  tags?: string[]
+  media_urls?: string[]
+}
+
 export async function GET(request: NextRequest) {
   try {
     await db.seedMockData()
@@ -12,15 +23,25 @@ export async function GET(request: NextRequest) {
     let records = await db.findMany("growth_records")
 
     if (childId) {
-      records = records.filter((record: any) => record.child_id === childId)
+      records = records.filter((record: unknown) => {
+        const r = record as GrowthRecord
+        return r.child_id === childId
+      })
     }
 
     if (type) {
-      records = records.filter((record: any) => record.type === type)
+      records = records.filter((record: unknown) => {
+        const r = record as GrowthRecord
+        return r.type === type
+      })
     }
 
     // 按时间倒序排列
-    records.sort((a: any, b: any) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())
+    records.sort((a: unknown, b: unknown) => {
+      const ra = a as GrowthRecord
+      const rb = b as GrowthRecord
+      return new Date(rb.recorded_at).getTime() - new Date(ra.recorded_at).getTime()
+    })
 
     return NextResponse.json({ data: records, success: true })
   } catch (error) {

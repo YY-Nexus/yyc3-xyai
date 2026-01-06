@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEmotionMonitor } from '@/hooks/useEmotionMonitor'
-import { EmotionType } from '@/lib/ai/emotion-engine'
+import { EmotionType } from '@/lib/ai/voice-interaction'
 
 interface EmotionMonitorProps {
   compact?: boolean
@@ -23,6 +23,7 @@ interface EmotionAlert {
   message: string
   emotion: EmotionType
   timestamp: number
+  suggestions?: string[]
 }
 
 interface EmotionInsight {
@@ -41,44 +42,47 @@ interface EmotionEvent {
 
 interface DetailedReport {
   summary: string
-  dominantEmotion: EmotionType
-  emotionDistribution: Record<EmotionType, number>
-  trends: Array<{
+  dominantEmotion?: EmotionType
+  emotionDistribution?: Record<EmotionType, number>
+  emotions?: Record<string, number>
+  trends?: Array<string | {
     emotion: EmotionType
     change: number
   }>
-  recommendations: string[]
-  sessionDuration: number
+  recommendations?: string[]
+  sessionDuration?: number
 }
 
-const emotionEmojis: { [key in EmotionType]: string } = {
-  [EmotionType.HAPPINESS]: '😊',
-  [EmotionType.SADNESS]: '😢',
-  [EmotionType.FEAR]: '😨',
-  [EmotionType.ANGER]: '😠',
-  [EmotionType.SURPRISE]: '😲',
-  [EmotionType.DISGUST]: '😒',
-  [EmotionType.CURIOSITY]: '🤔',
-  [EmotionType.COMFORT]: '😌',
-  [EmotionType.HUNGER]: '😋',
-  [EmotionType.DISCOMFORT]: '😣',
-  [EmotionType.ATTENTION]: '👀',
-  [EmotionType.NEUTRAL]: '😐'
+const emotionEmojis: Record<string, string> = {
+  happiness: '😊',
+  sadness: '😢',
+  fear: '😨',
+  anger: '😠',
+  surprise: '😲',
+  disgust: '😒',
+  curiosity: '🤔',
+  comfort: '😌',
+  hunger: '😋',
+  discomfort: '😣',
+  attention: '👀',
+  colic: '😭',
+  neutral: '😐'
 }
 
-const emotionColors: { [key in EmotionType]: string } = {
-  [EmotionType.HAPPINESS]: 'text-yellow-500 bg-yellow-50',
-  [EmotionType.SADNESS]: 'text-blue-500 bg-blue-50',
-  [EmotionType.FEAR]: 'text-purple-500 bg-purple-50',
-  [EmotionType.ANGER]: 'text-red-500 bg-red-50',
-  [EmotionType.SURPRISE]: 'text-orange-500 bg-orange-50',
-  [EmotionType.DISGUST]: 'text-teal-500 bg-teal-50',
-  [EmotionType.CURIOSITY]: 'text-green-500 bg-green-50',
-  [EmotionType.COMFORT]: 'text-pink-500 bg-pink-50',
-  [EmotionType.HUNGER]: 'text-amber-500 bg-amber-50',
-  [EmotionType.DISCOMFORT]: 'text-gray-500 bg-gray-50',
-  [EmotionType.ATTENTION]: 'text-indigo-500 bg-indigo-50',
-  [EmotionType.NEUTRAL]: 'text-gray-400 bg-gray-50'
+const emotionColors: Record<string, string> = {
+  happiness: 'text-yellow-500 bg-yellow-50',
+  sadness: 'text-blue-500 bg-blue-50',
+  fear: 'text-purple-500 bg-purple-50',
+  anger: 'text-red-500 bg-red-50',
+  surprise: 'text-orange-500 bg-orange-50',
+  disgust: 'text-teal-500 bg-teal-50',
+  curiosity: 'text-green-500 bg-green-50',
+  comfort: 'text-pink-500 bg-pink-50',
+  hunger: 'text-amber-500 bg-amber-50',
+  discomfort: 'text-gray-500 bg-gray-50',
+  attention: 'text-indigo-500 bg-indigo-50',
+  colic: 'text-red-600 bg-red-50',
+  neutral: 'text-gray-400 bg-gray-50'
 }
 
 export default function EmotionMonitor({
@@ -109,7 +113,16 @@ export default function EmotionMonitor({
   useEffect(() => {
     if (showDetailedReport) {
       const report = getEmotionReport?.('hour')
-      setDetailedReport(report)
+      if (report) {
+        setDetailedReport({
+          summary: report.summary || '',
+          emotions: Object.fromEntries(
+            Object.entries(report.emotions || {}).filter(([_, v]) => v !== undefined)
+          ) as Record<string, number>,
+          trends: report.trends,
+          recommendations: report.recommendations
+        })
+      }
     }
   }, [showDetailedReport, getEmotionReport])
 
@@ -135,9 +148,9 @@ export default function EmotionMonitor({
       >
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-2xl ${
-            currentEmotionState ? emotionColors[currentEmotionState.currentEmotion] : 'bg-gray-100'
+            currentEmotionState ? emotionColors[String(currentEmotionState.currentEmotion).toLowerCase()] : 'bg-gray-100'
           }`}>
-            {currentEmotionState ? emotionEmojis[currentEmotionState.currentEmotion] : '😊'}
+            {currentEmotionState ? emotionEmojis[String(currentEmotionState.currentEmotion).toLowerCase()] : '😊'}
           </div>
           <div className="flex-1">
             <div className="font-medium text-gray-800">
@@ -161,7 +174,7 @@ export default function EmotionMonitor({
               transition={{ duration: 0.3 }}
               className="mt-3 pt-3 border-t border-gray-100"
             >
-              <EmotionAlerts alerts={recentAlerts} onClear={clearAlerts} />
+              <EmotionAlerts alerts={recentAlerts as any} onClear={clearAlerts} />
               {showInsights && <EmotionInsights insights={emotionInsights} />}
             </motion.div>
           )}
@@ -201,10 +214,10 @@ export default function EmotionMonitor({
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <div className={`p-4 rounded-xl ${emotionColors[currentEmotionState.currentEmotion]}`}>
+          <div className={`p-4 rounded-xl ${emotionColors[String(currentEmotionState.currentEmotion).toLowerCase()]}`}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
-                <span className="text-3xl">{emotionEmojis[currentEmotionState.currentEmotion]}</span>
+                <span className="text-3xl">{emotionEmojis[String(currentEmotionState.currentEmotion).toLowerCase()]}</span>
                 <div>
                   <h4 className="font-bold text-gray-800">
                     {getEmotionName(currentEmotionState.currentEmotion)}
@@ -243,7 +256,7 @@ export default function EmotionMonitor({
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <EmotionAlerts alerts={recentAlerts} onClear={clearAlerts} />
+          <EmotionAlerts alerts={recentAlerts as any} onClear={clearAlerts} />
         </motion.div>
       )}
 
@@ -264,7 +277,7 @@ export default function EmotionMonitor({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <EmotionHistory history={emotionHistory.slice(0, 5)} />
+          <EmotionHistory history={emotionHistory.slice(0, 5) as any} />
         </motion.div>
       )}
 
@@ -321,7 +334,7 @@ function EmotionAlerts({ alerts, onClear }: { alerts: EmotionAlert[], onClear: (
             } mt-0.5`} />
             <div className="flex-1">
               <p className="text-sm font-medium text-gray-800">{alert.message}</p>
-              {alert.suggestions.length > 0 && (
+              {alert.suggestions && alert.suggestions.length > 0 && (
                 <div className="mt-1">
                   <p className="text-xs text-gray-600">建议:</p>
                   <ul className="text-xs text-gray-500 ml-2">
@@ -378,13 +391,13 @@ function EmotionHistory({ history }: { history: EmotionEvent[] }) {
     <div>
       <h5 className="text-sm font-medium text-gray-700 mb-2">最近情感变化</h5>
       <div className="flex gap-2 overflow-x-auto pb-2">
-        {history.map((event, index) => (
+        {history.map((event) => (
           <div
             key={event.id}
-            className={`flex-shrink-0 w-12 h-12 rounded-lg ${emotionColors[event.emotion]} flex items-center justify-center text-lg border border-gray-200`}
+            className={`flex-shrink-0 w-12 h-12 rounded-lg ${emotionColors[String(event.emotion).toLowerCase()]} flex items-center justify-center text-lg border border-gray-200`}
             title={`${getEmotionName(event.emotion)} - ${event.context}`}
           >
-            {emotionEmojis[event.emotion]}
+            {emotionEmojis[String(event.emotion).toLowerCase()]}
           </div>
         ))}
       </div>
@@ -414,7 +427,7 @@ function DetailedEmotionReport({ report }: { report: DetailedReport }) {
                 <div className="flex-1 bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: `${(count as number / Math.max(...ObjectValues(report.emotions))) * 100}%` }}
+                    style={{ width: `${(count as number / maxObjectValues(report.emotions || {})) * 100}%` }}
                   />
                 </div>
                 <span className="text-sm font-medium">{count}</span>
@@ -429,10 +442,10 @@ function DetailedEmotionReport({ report }: { report: DetailedReport }) {
         <div className="mb-4">
           <h6 className="text-sm font-medium text-gray-700 mb-2">趋势分析</h6>
           <ul className="space-y-1">
-            {report.trends.map((trend: string, index: number) => (
+            {report.trends.map((trend: string | { emotion: EmotionType; change: number }, index: number) => (
               <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
                 <i className="ri-arrow-right-s-line text-blue-500 mt-0.5" />
-                {trend}
+                {typeof trend === 'string' ? trend : `${trend.emotion}: ${trend.change > 0 ? '+' : ''}${trend.change}`}
               </li>
             ))}
           </ul>
@@ -459,23 +472,25 @@ function DetailedEmotionReport({ report }: { report: DetailedReport }) {
 
 // 工具函数
 function getEmotionName(emotion: EmotionType): string {
-  const names: { [key in EmotionType]: string } = {
-    [EmotionType.HAPPINESS]: '开心',
-    [EmotionType.SADNESS]: '难过',
-    [EmotionType.FEAR]: '害怕',
-    [EmotionType.ANGER]: '生气',
-    [EmotionType.SURPRISE]: '惊讶',
-    [EmotionType.DISGUST]: '厌恶',
-    [EmotionType.CURIOSITY]: '好奇',
-    [EmotionType.COMFORT]: '舒服',
-    [EmotionType.HUNGER]: '饥饿',
-    [EmotionType.DISCOMFORT]: '不舒服',
-    [EmotionType.ATTENTION]: '需要关注',
-    [EmotionType.NEUTRAL]: '中性'
+  const names: Record<string, string> = {
+    happiness: '开心',
+    sadness: '难过',
+    fear: '害怕',
+    anger: '生气',
+    surprise: '惊讶',
+    disgust: '厌恶',
+    curiosity: '好奇',
+    comfort: '舒服',
+    hunger: '饥饿',
+    discomfort: '不舒服',
+    attention: '需要关注',
+    colic: '肠绞痛',
+    neutral: '中性'
   }
-  return names[emotion] || '未知'
+  return names[String(emotion).toLowerCase()] || '未知'
 }
 
 function maxObjectValues(obj: { [key: string]: number }): number {
-  return Math.max(...Object.values(obj))
+  const values = Object.values(obj)
+  return values.length > 0 ? Math.max(...values) : 0
 }

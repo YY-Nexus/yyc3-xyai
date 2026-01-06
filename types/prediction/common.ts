@@ -112,21 +112,32 @@ export interface PredictionData {
  * 预测配置
  */
 export interface PredictionConfig {
-  name?: string
-  parameters?: Record<string, unknown>
-  preprocessing?: Record<string, unknown>
-  validation?: Record<string, unknown>
-  constraints?: {
-    maxModels?: number
-    minAccuracy?: number
-    maxLatency?: number
+  name: string
+  algorithm: string
+  parameters: Record<string, unknown>
+  preprocessing: {
+    normalize: boolean
+    handleMissing: 'interpolate' | 'mean' | 'median' | 'drop'
+    featureEngineering: boolean
+    outlierRemoval: boolean
   }
-  requirements?: {
-    realTime?: boolean
-    explainability?: boolean
-    fairness?: boolean
+  validation: {
+    method: string
+    folds: number
+    testSize: number
   }
-  priority?: 'low' | 'medium' | 'high'
+  constraints: {
+    maxTrainingTime: number
+    memoryLimit: number
+    accuracyThreshold: number
+    realTimeCapability: boolean
+  }
+  requirements: {
+    accuracy: 'high' | 'medium' | 'low'
+    speed: 'high' | 'medium' | 'low'
+    interpretability: 'high' | 'medium' | 'low'
+    scalability: 'high' | 'medium' | 'low'
+  }
 }
 
 /**
@@ -138,15 +149,17 @@ export interface PredictionTask {
   type: 'regression' | 'classification' | 'forecasting' | 'anomaly_detection'
   description: string
   priority: 'low' | 'medium' | 'high'
-  constraints?: {
-    maxModels?: number
-    minAccuracy?: number
-    maxLatency?: number
+  constraints: {
+    maxTrainingTime: number
+    memoryLimit: number
+    accuracyThreshold: number
+    realTimeCapability: boolean
   }
-  requirements?: {
-    realTime?: boolean
-    explainability?: boolean
-    fairness?: boolean
+  requirements: {
+    accuracy: 'high' | 'medium' | 'low'
+    speed: 'high' | 'medium' | 'low'
+    interpretability: 'high' | 'medium' | 'low'
+    scalability: 'high' | 'medium' | 'low'
   }
 }
 

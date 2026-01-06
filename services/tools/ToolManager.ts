@@ -1,12 +1,6 @@
 /**
- * @file YYC³ 智能预测系统 - 工具管理器
- * @description 统一管理工具注册、发现、执行和编排
- * @module services/tools
- * @author YYC³
- * @version 1.0.0
- * @created 2025-12-28
- * @copyright Copyright (c) 2025 YYC³
- * @license MIT
+ * YYC³ 智能预测系统 - 工具管理器
+ * 统一管理工具注册、发现、执行和编排
  */
 
 import { ToolRegistry } from './ToolRegistry'
@@ -17,9 +11,10 @@ import type {
   ToolExecutionRequest,
   ToolExecutionResult,
   ToolOrchestrationRequest,
+  ToolOrchestrationPlan,
+  ToolStatus,
   ToolRegistryConfig
 } from '../types/tools/common'
-import { ToolStatus } from '../types/tools/common'
 
 /**
  * 工具管理器
@@ -29,7 +24,6 @@ export class ToolManager extends EventEmitter {
   private toolRegistry: ToolRegistry
   private toolOrchestrator: ToolOrchestrator
   private builtinTools: ToolDefinition[] = []
-  private activeExecutions: Set<string> = new Set()
   private isInitialized = false
 
   constructor(config: ToolRegistryConfig = {}) {
@@ -235,7 +229,7 @@ export class ToolManager extends EventEmitter {
    */
   async recommendTools(
     goal: string,
-    context?: Record<string, unknown>
+    context?: Record<string, any>
   ): Promise<{
     primary: ToolDefinition[]
     secondary: ToolDefinition[]
@@ -424,19 +418,21 @@ export class ToolManager extends EventEmitter {
           {
             name: 'process_text',
             description: '处理文本内容',
-            parameters: {
-              text: {
+            parameters: [
+              {
+                name: 'text',
                 type: 'string',
                 required: true,
                 description: '要处理的文本'
               },
-              operation: {
+              {
+                name: 'operation',
                 type: 'string',
                 required: true,
                 description: '处理操作类型',
                 enum: ['summarize', 'analyze', 'translate', 'extract']
               }
-            },
+            ],
             returnType: 'object'
           }
         ],
@@ -457,19 +453,21 @@ export class ToolManager extends EventEmitter {
           {
             name: 'analyze_data',
             description: '分析数据集',
-            parameters: {
-              data: {
+            parameters: [
+              {
+                name: 'data',
                 type: 'array',
                 required: true,
                 description: '要分析的数据'
               },
-              analysis_type: {
+              {
+                name: 'analysis_type',
                 type: 'string',
                 required: true,
                 description: '分析类型',
                 enum: ['statistical', 'trend', 'correlation', 'prediction']
               }
-            },
+            ],
             returnType: 'object'
           }
         ],
@@ -490,24 +488,27 @@ export class ToolManager extends EventEmitter {
           {
             name: 'predict',
             description: '执行预测',
-            parameters: {
-              data: {
+            parameters: [
+              {
+                name: 'data',
                 type: 'array',
                 required: true,
                 description: '预测数据'
               },
-              model: {
+              {
+                name: 'model',
                 type: 'string',
                 required: true,
                 description: '预测模型'
               },
-              horizon: {
+              {
+                name: 'horizon',
                 type: 'number',
                 required: false,
                 description: '预测时间范围',
                 defaultValue: 1
               }
-            },
+            ],
             returnType: 'object'
           }
         ],
@@ -528,24 +529,27 @@ export class ToolManager extends EventEmitter {
           {
             name: 'send_notification',
             description: '发送通知',
-            parameters: {
-              recipient: {
+            parameters: [
+              {
+                name: 'recipient',
                 type: 'string',
                 required: true,
                 description: '接收者'
               },
-              message: {
+              {
+                name: 'message',
                 type: 'string',
                 required: true,
                 description: '通知内容'
               },
-              channel: {
+              {
+                name: 'channel',
                 type: 'string',
                 required: true,
                 description: '通知渠道',
                 enum: ['email', 'sms', 'webhook', 'push']
               }
-            },
+            ],
             returnType: 'boolean'
           }
         ],
@@ -558,15 +562,17 @@ export class ToolManager extends EventEmitter {
   private calculateRelevanceScore(
     tool: ToolDefinition,
     goal: string,
-    _context?: Record<string, unknown>
+    context?: Record<string, any>
   ): number {
     let score = 0
 
+    // 基础相关性分数
     const goalLower = goal.toLowerCase()
     const searchText = `${tool.name} ${tool.description} ${tool.tags?.join(' ')}`.toLowerCase()
     const textMatch = searchText.includes(goalLower)
     score += textMatch ? 40 : 0
 
+    // 能力匹配
     if (tool.capabilities) {
       const capabilityMatch = tool.capabilities.some(cap =>
         cap.name.toLowerCase().includes(goalLower) ||
@@ -575,11 +581,13 @@ export class ToolManager extends EventEmitter {
       score += capabilityMatch ? 30 : 0
     }
 
+    // 质量分数
     const metrics = this.toolRegistry.getToolMetrics(tool.name)
     if (metrics) {
       score += metrics.qualityScore * 20
     }
 
+    // 使用频率
     if (metrics && metrics.executionCount > 0) {
       score += Math.min(metrics.executionCount / 10, 10)
     }

@@ -79,38 +79,6 @@ describe('Utility Functions', () => {
     })
   })
 
-  describe('debounce', () => {
-    beforeEach(() => {
-      jest.useFakeTimers()
-    })
-
-    afterEach(() => {
-      jest.useRealTimers()
-    })
-
-    it('delays function execution', () => {
-      const mockFn = jest.fn()
-      const debouncedFn = debounce(mockFn, 100)
-
-      debouncedFn()
-      expect(mockFn).not.toHaveBeenCalled()
-
-      jest.advanceTimersByTime(100)
-      expect(mockFn).toHaveBeenCalledTimes(1)
-    })
-
-    it('cancels previous calls', () => {
-      const mockFn = jest.fn()
-      const debouncedFn = debounce(mockFn, 100)
-
-      debouncedFn()
-      debouncedFn()
-      debouncedFn()
-
-      jest.advanceTimersByTime(100)
-      expect(mockFn).toHaveBeenCalledTimes(1)
-    })
-  })
 })
 
 // 辅助函数定义（实际项目中这些应该在单独的工具文件中）

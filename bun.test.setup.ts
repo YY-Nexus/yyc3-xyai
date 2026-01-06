@@ -4,9 +4,22 @@
  */
 
 import { expect, beforeEach, afterEach, describe, it } from 'bun:test'
+import { GlobalWindow, GlobalDocument, GlobalNode } from 'happy-dom'
 
 // 设置测试环境
 global.expect = expect
+
+// 初始化 happy-dom
+const window = new GlobalWindow()
+const document = new GlobalDocument()
+
+// 全局对象设置
+global.window = window as any
+global.document = document as any
+global.HTMLElement = window.HTMLElement
+global.Element = window.Element
+global.Node = window.Node
+global.navigator = window.navigator
 
 // Mock localStorage
 const localStorageMock = {
@@ -16,7 +29,7 @@ const localStorageMock = {
   clear: () => {},
 }
 
-global.localStorage = localStorageMock
+global.localStorage = localStorageMock as any
 
 // Mock sessionStorage
 const sessionStorageMock = {
@@ -77,6 +90,49 @@ Object.defineProperty(global, 'matchMedia', {
     dispatchEvent: () => {},
   }),
 })
+
+// Mock document
+const documentMock = {
+  createElement: () => ({
+    style: {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    setAttribute: () => {},
+    getAttribute: () => null,
+  }),
+  documentElement: {
+    style: {},
+    classList: {
+      add: () => {},
+      remove: () => {},
+    },
+    setAttribute: () => {},
+  },
+  body: {
+    appendChild: () => {},
+    removeChild: () => {},
+  },
+  head: {
+    appendChild: () => {},
+  },
+  querySelector: () => null,
+  querySelectorAll: () => [],
+}
+
+global.document = documentMock
+
+// Mock window
+global.window = {
+  ...global.window,
+  document: documentMock,
+  localStorage,
+  sessionStorage,
+  fetch: global.fetch,
+  WebSocket: global.WebSocket,
+  matchMedia: global.matchMedia,
+  ResizeObserver: global.ResizeObserver,
+  IntersectionObserver: global.IntersectionObserver,
+} as any
 
 // 全局测试工具函数
 global.createMockUser = (overrides = {}) => ({

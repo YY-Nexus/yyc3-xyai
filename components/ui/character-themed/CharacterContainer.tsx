@@ -1,18 +1,7 @@
 'use client'
 
-/**
- * @file YYC³ 角色主题容器组件
- * @description 提供角色主题化的容器组件，支持多种变体、尺寸和动画效果
- * @module components/ui/character-themed
- * @author YYC³
- * @version 1.0.0
- * @created 2024-12-14
- * @copyright Copyright (c) 2025 YYC³
- * @license MIT
- */
-
 import React, { ReactNode, useEffect } from 'react'
-import { motion, MotionProps } from 'framer-motion'
+import { motion, HTMLMotionProps } from 'framer-motion'
 import { useCharacterTheme } from '../CharacterThemeContext'
 
 export interface CharacterContainerProps {
@@ -43,6 +32,9 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
   as: Component = 'div'
 }) => {
   const { themeColors, selectedTheme } = useCharacterTheme()
+
+  // Inject CSS styles
+  useCharacterContainerStyles()
 
   // 尺寸配置
   const sizeClasses = {
@@ -126,7 +118,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
   const variantStyles = getVariantStyles()
 
   // 动画配置
-  const motionProps: MotionProps = animate ? {
+  const motionProps: HTMLMotionProps<'div'> = animate ? {
     initial: {
       opacity: 0,
       y: 20,
@@ -172,7 +164,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
     />
   ) : null
 
-  const MotionComponent = motion[Component as unknown as keyof typeof motion] as React.ComponentType<React.PropsWithChildren<React.HTMLAttributes<HTMLElement>>>
+  const MotionComponent = motion[Component as keyof typeof motion] as React.ComponentType<React.HTMLAttributes<HTMLElement>>
 
   return (
     <MotionComponent
@@ -229,19 +221,21 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
 }
 
 // 添加 CSS 动画 (仅在客户端)
-useEffect(() => {
-  if (typeof window === 'undefined' || typeof document === 'undefined') return
+export const useCharacterContainerStyles = () => {
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return
 
-  if (!document.head.querySelector('style[data-character-container]')) {
-    const style = document.createElement('style')
-    style.setAttribute('data-character-container', 'true')
-    style.textContent = `
-      @keyframes gradient-border {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-    `
-    document.head.appendChild(style)
-  }
-}, [])
+    if (!document.head.querySelector('style[data-character-container]')) {
+      const style = document.createElement('style')
+      style.setAttribute('data-character-container', 'true')
+      style.textContent = `
+        @keyframes gradient-border {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `
+      document.head.appendChild(style)
+    }
+  }, [])
+}

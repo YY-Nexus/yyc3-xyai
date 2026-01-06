@@ -12,23 +12,21 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Video, Image as ImageIcon, FileText, Check, Eye, Share2, Download } from 'lucide-react';
 import { MediaFile, ViewMode } from './types';
-import { formatFileSize, calculateAge } from './utils';
+import { formatFileSize } from './utils';
 
 interface MediaFileListProps {
   /** 媒体文件列表 */
   files: MediaFile[];
-  /** 选中的文件ID */
-  selectedFileId: string | null;
+  /** 选中的文件 */
+  selectedFile: MediaFile | null;
   /** 视图模式 */
   viewMode: ViewMode;
   /** 选择文件回调 */
-  onFileSelect: (fileId: string | null) => void;
-  /** 查看文件回调 */
-  onViewFile: (file: MediaFile) => void;
-  /** 分享文件回调 */
-  onShareFile?: (file: MediaFile) => void;
-  /** 下载文件回调 */
-  onDownloadFile?: (file: MediaFile) => void;
+  onFileSelect: (file: MediaFile) => void;
+  /** 切换收藏回调 */
+  onToggleFavorite: (fileId: string) => void;
+  /** 删除文件回调 */
+  onDelete: (fileId: string) => void;
   /** 加载状态 */
   isLoading?: boolean;
 }
@@ -40,12 +38,11 @@ interface MediaFileListProps {
  */
 export const MediaFileList: React.FC<MediaFileListProps> = ({
   files,
-  selectedFileId,
+  selectedFile,
   viewMode,
   onFileSelect,
-  onViewFile,
-  onShareFile,
-  onDownloadFile,
+  onToggleFavorite,
+  onDelete,
   isLoading = false
 }) => {
   // 根据视图模式确定网格类名
@@ -57,7 +54,7 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
   // 获取媒体类型图标
   const getMediaIcon = (file: MediaFile) => {
     switch (file.type) {
-      case 'image':
+      case 'photo':
         return <ImageIcon className="w-4 h-4 text-blue-500" />;
       case 'video':
         return <Video className="w-4 h-4 text-red-500" />;
@@ -95,22 +92,22 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.2 }}
           className={`cursor-pointer transition-all hover:shadow-lg ${
-            selectedFileId === file.id
+            selectedFile?.id === file.id
               ? 'ring-2 ring-purple-500 rounded-lg overflow-hidden'
               : viewMode === 'grid' ? 'rounded-lg overflow-hidden bg-white shadow-sm'
               : 'flex items-center p-3 bg-white rounded-lg shadow-sm'
           }`}
-          onClick={() => onFileSelect(file.id)}
+          onClick={() => onFileSelect(file)}
         >
           {/* 网格视图 */}
           {viewMode === 'grid' && (
             <div className="relative">
               {/* 媒体预览 */}
               <div className="aspect-square overflow-hidden bg-gray-100">
-                {file.type === 'image' ? (
+                {file.type === 'photo' ? (
                   <Image
                     src={file.url || '/placeholder.png'}
-                    alt={file.name}
+                    alt={file.filename}
                     fill
                     className="object-cover"
                     onError={(e) => {
@@ -127,7 +124,7 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
               </div>
 
               {/* 选择标记 */}
-              {selectedFileId === file.id && (
+              {selectedFile?.id === file.id && (
                 <div className="absolute top-2 right-2 bg-purple-600 text-white p-1 rounded-full">
                   <Check className="w-4 h-4" />
                 </div>
@@ -137,7 +134,7 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
               <div className="p-2">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium text-gray-900 truncate">
-                    {file.name}
+                    {file.filename}
                   </span>
                   <span className="text-xs text-gray-500">
                     {formatFileSize(file.size)}
@@ -147,7 +144,7 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
                   <span className="mr-2">
                     {getMediaIcon(file)} {file.type}
                   </span>
-                  <span>{new Date(file.createdAt).toLocaleDateString()}</span>
+                  <span>{new Date(file.date).toLocaleDateString()}</span>
                 </div>
 
                 {/* 人物标签 */}
@@ -156,12 +153,9 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
                     {file.people.map((person, index) => (
                       <span
                         key={index}
-                        className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full flex items-center gap-1"
+                        className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full"
                       >
-                        <span>{person.name}</span>
-                        {person.birthday && (
-                          <span className="text-blue-600">({calculateAge(person.birthday)})</span>
-                        )}
+                        {person}
                       </span>
                     ))}
                   </div>
@@ -172,37 +166,21 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      onViewFile(file);
+                      onToggleFavorite(file.id);
                     }}
                     className="text-xs text-purple-600 hover:text-purple-800 flex items-center gap-1"
                   >
-                    <Eye className="w-3 h-3" />
-                    查看
+                    {file.isFavorite ? '取消收藏' : '收藏'}
                   </button>
-                  <div className="flex gap-2">
-                    {onShareFile && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onShareFile(file);
-                        }}
-                        className="text-xs text-green-600 hover:text-green-800"
-                      >
-                        <Share2 className="w-3 h-3" />
-                      </button>
-                    )}
-                    {onDownloadFile && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDownloadFile(file);
-                        }}
-                        className="text-xs text-blue-600 hover:text-blue-800"
-                      >
-                        <Download className="w-3 h-3" />
-                      </button>
-                    )}
-                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(file.id);
+                    }}
+                    className="text-xs text-red-600 hover:text-red-800"
+                  >
+                    删除
+                  </button>
                 </div>
               </div>
             </div>
@@ -213,10 +191,10 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
             <div className="flex items-center w-full">
               {/* 媒体预览 */}
               <div className="w-20 h-16 overflow-hidden bg-gray-100 rounded-md mr-4 flex-shrink-0">
-                {file.type === 'image' ? (
+                {file.type === 'photo' ? (
                   <Image
                     src={file.url || '/placeholder.png'}
-                    alt={file.name}
+                    alt={file.filename}
                     width={80}
                     height={64}
                     className="object-cover"
@@ -237,7 +215,7 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-gray-900 truncate">
-                      {file.name}
+                      {file.filename}
                     </span>
                     {getMediaIcon(file)}
                   </div>
@@ -247,7 +225,7 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
                 </div>
                 <div className="flex items-center text-xs text-gray-500">
                   <span className="mr-4">
-                    {new Date(file.createdAt).toLocaleString()}
+                    {new Date(file.date).toLocaleString()}
                   </span>
                   {file.location && (
                     <span className="mr-4">📍 {file.location}</span>
@@ -275,37 +253,23 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onViewFile(file);
+                    onToggleFavorite(file.id);
                   }}
                   className="p-1 text-purple-600 hover:text-purple-800"
-                  title="查看"
+                  title={file.isFavorite ? "取消收藏" : "收藏"}
                 >
-                  <Eye className="w-4 h-4" />
+                  {file.isFavorite ? <Check className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
-                {onShareFile && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onShareFile(file);
-                    }}
-                    className="p-1 text-green-600 hover:text-green-800"
-                    title="分享"
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                )}
-                {onDownloadFile && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDownloadFile(file);
-                    }}
-                    className="p-1 text-blue-600 hover:text-blue-800"
-                    title="下载"
-                  >
-                    <Download className="w-4 h-4" />
-                  </button>
-                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(file.id);
+                  }}
+                  className="p-1 text-red-600 hover:text-red-800"
+                  title="删除"
+                >
+                  <FileText className="w-4 h-4" />
+                </button>
               </div>
             </div>
           )}

@@ -2,16 +2,19 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import dynamic from "next/dynamic"
 
 interface PDFGeneratorClass {
+  new(): PDFGeneratorInstance
+}
+
+interface PDFGeneratorInstance {
   downloadReport(data: ReportData): Promise<void>
 }
 
 // 动态导入PDFGenerator以避免SSR错误
-let PDFGenerator: PDFGeneratorClass | null = null
+let PDFGeneratorClass: PDFGeneratorClass | null = null
 import("@/lib/pdf_generator").then(mod => {
-  PDFGenerator = mod.PDFGenerator
+  PDFGeneratorClass = mod.PDFGenerator as PDFGeneratorClass
 })
 
 interface ReportData {
@@ -65,7 +68,7 @@ interface AssessmentReportProps {
 }
 
 export default function AssessmentReport({ result, report, onClose }: AssessmentReportProps) {
-  const reportData = result || report
+  const currentReport = result || report
   const [activeTab, setActiveTab] = useState<"overview" | "dimensions" | "suggestions">("overview")
   const [isExporting, setIsExporting] = useState(false)
 
@@ -84,31 +87,36 @@ export default function AssessmentReport({ result, report, onClose }: Assessment
   }
 
   const handleExportPDF = async () => {
+    if (!currentReport) {
+      console.error("No report data available")
+      return
+    }
+
     setIsExporting(true)
 
     try {
-      if (!PDFGenerator) {
+      if (!PDFGeneratorClass) {
         // 如果PDFGenerator尚未加载完成，则动态加载
         const mod = await import("@/lib/pdf_generator")
-        PDFGenerator = mod.PDFGenerator
+        PDFGeneratorClass = mod.PDFGenerator as PDFGeneratorClass
       }
-      
-      const pdfGenerator = new PDFGenerator()
+
+      const pdfGenerator = new PDFGeneratorClass()
 
       const reportData: ReportData = {
-        childName: report.childName,
-        childAge: report.childAge,
-        stageName: report.stageName,
-        assessmentDate: report.assessmentDate,
-        overallLevel: report.overallLevel,
-        aiAnalysis: report.aiAnalysis,
+        childName: currentReport.childName,
+        childAge: currentReport.childAge,
+        stageName: currentReport.stageName,
+        assessmentDate: currentReport.assessmentDate,
+        overallLevel: currentReport.overallLevel,
+        aiAnalysis: currentReport.aiAnalysis,
         dimensionScores: Object.fromEntries(
-          Object.entries(report.dimensionScores).map(([key, value]) => [
+          Object.entries(currentReport.dimensionScores).map(([key, value]) => [
             key,
             { score: value.score, level: value.level, description: value.description },
           ]),
         ),
-        recommendations: report.recommendations,
+        recommendations: currentReport.recommendations,
       }
 
       await pdfGenerator.downloadReport(reportData)
@@ -147,12 +155,12 @@ export default function AssessmentReport({ result, report, onClose }: Assessment
               <i className="ri-user-smile-line text-3xl" />
             </div>
             <div>
-              <h3 className="text-lg font-medium">{report.childName}</h3>
+              <h3 className="text-lg font-medium">{currentReport?.childName}</h3>
               <p className="text-white/80">
-                {report.childAge}个月龄 · {report.stageName}
+                {currentReport?.childAge}个月龄 · {currentReport?.stageName}
               </p>
               <p className="text-sm text-white/60">
-                评估日期：{new Date(report.assessmentDate).toLocaleDateString("zh-CN")}
+                评估日期：{new Date(currentReport?.assessmentDate || '').toLocaleDateString("zh-CN")}
               </p>
             </div>
           </div>
@@ -160,7 +168,7 @@ export default function AssessmentReport({ result, report, onClose }: Assessment
             <i className="ri-award-line text-2xl" />
             <div>
               <p className="text-sm text-white/80">总体发展水平</p>
-              <p className="font-bold text-lg">{report.overallLevel}</p>
+              <p className="font-bold text-lg">{currentReport?.overallLevel}</p>
             </div>
           </div>
         </div>
@@ -200,7 +208,7 @@ export default function AssessmentReport({ result, report, onClose }: Assessment
                 className="space-y-4"
               >
                 <div className="prose prose-sm max-w-none">
-                  {report.aiAnalysis.split("\n").map((paragraph, i) => (
+                  {currentReport?.aiAnalysis.split("\n").map((paragraph, i) => (
                     <p key={i} className="text-slate-600 leading-relaxed">
                       {paragraph}
                     </p>
@@ -217,7 +225,7 @@ export default function AssessmentReport({ result, report, onClose }: Assessment
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-4"
               >
-                {Object.entries(report.dimensionScores).map(([dimension, data]) => (
+                {Object.entries(currentReport?.dimensionScores || {}).map(([dimension, data]) => (
                   <div key={dimension} className="bg-slate-50 rounded-xl p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-slate-800">{dimension}</h4>
@@ -256,7 +264,7 @@ export default function AssessmentReport({ result, report, onClose }: Assessment
                     专家建议
                   </h4>
                   <ul className="space-y-2">
-                    {report.recommendations.map((rec, i) => (
+                    {currentReport?.recommendations.map((rec, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                         <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs shrink-0 mt-0.5">
                           {i + 1}
@@ -273,7 +281,7 @@ export default function AssessmentReport({ result, report, onClose }: Assessment
                     下一步行动
                   </h4>
                   <ul className="space-y-2">
-                    {report.nextSteps.map((step, i) => (
+                    {currentReport?.nextSteps.map((step, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                         <i className="ri-checkbox-circle-line text-green-500 mt-0.5" />
                         {step}

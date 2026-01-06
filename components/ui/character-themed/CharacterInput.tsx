@@ -1,16 +1,5 @@
 'use client'
 
-/**
- * @file YYC³ 角色主题输入框组件
- * @description 提供角色主题化的输入框组件，支持多种变体、状态和动画效果
- * @module components/ui/character-themed
- * @author YYC³
- * @version 1.0.0
- * @created 2024-12-14
- * @copyright Copyright (c) 2025 YYC³
- * @license MIT
- */
-
 import React, { forwardRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCharacterTheme } from '../CharacterThemeContext'

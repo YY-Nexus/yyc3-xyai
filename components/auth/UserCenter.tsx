@@ -2,11 +2,11 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useAuth } from "@/hooks/useAuth.tsx"
+import { useAuth } from '@/hooks/useAuth'
 import LoginModal from "./LoginModal"
 
 export default function UserCenter() {
-  const { user, isLoading, signOut } = useAuth()
+  const { user, isLoading, logout } = useAuth()
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
 

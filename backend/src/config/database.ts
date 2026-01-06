@@ -30,7 +30,7 @@ const redisClientConfig = {
   },
   password: redisConfig.password,
   database: redisConfig.database,
-};
+} as any;
 
 export const redisClient = createClient(redisClientConfig);
 

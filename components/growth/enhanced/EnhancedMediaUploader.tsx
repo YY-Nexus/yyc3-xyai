@@ -1,25 +1,16 @@
 'use client'
 
-import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { motion, AnimatePresence, useDragControls } from 'framer-motion'
+import React, { useState, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Upload,
   X,
   Camera,
   Video,
   Image,
-  FileImage,
   Film,
-  Play,
-  Pause,
-  Download,
   Trash2,
-  RotateCw,
-  Plus,
-  FolderOpen,
   Check,
-  AlertCircle,
-  Sparkles,
   Heart,
   Star
 } from 'lucide-react'
@@ -55,10 +46,8 @@ interface EnhancedMediaUploaderProps {
   enableDragDrop?: boolean
   enableBatchUpload?: boolean
   enableAutoTagging?: boolean
-  enablePreview?: boolean
   uploadToCloud?: boolean
   onUploadStart?: (files: EnhancedMediaFile[]) => void
-  onUploadComplete?: (files: EnhancedMediaFile[]) => void
   onUploadError?: (error: string) => void
 }
 
@@ -160,10 +149,8 @@ export default function EnhancedMediaUploader({
   enableDragDrop = true,
   enableBatchUpload = true,
   enableAutoTagging = true,
-  enablePreview = true,
   uploadToCloud = false,
   onUploadStart,
-  onUploadComplete,
   onUploadError
 }: EnhancedMediaUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -172,7 +159,6 @@ export default function EnhancedMediaUploader({
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'size'>('date')
-  const dragControls = useDragControls()
 
   // 文件验证
   const validateFile = (file: File): { isValid: boolean; error?: string } => {
@@ -230,7 +216,7 @@ export default function EnhancedMediaUploader({
 
         // 获取图片/视频尺寸
         if (fileType === 'image') {
-          const img = new Image()
+          const img = document.createElement('img')
           img.onload = () => {
             dimensions = { width: img.width, height: img.height }
           }
@@ -240,7 +226,7 @@ export default function EnhancedMediaUploader({
         console.error('文件处理失败:', error)
       }
 
-      const enhancedFile: EnhancedMediaFile = {
+      const enhancedFile = {
         file,
         id: fileId,
         type: fileType,
@@ -260,7 +246,7 @@ export default function EnhancedMediaUploader({
         processingStatus: 'pending'
       }
 
-      newFiles.push(enhancedFile)
+      newFiles.push(enhancedFile as EnhancedMediaFile)
     }
 
     if (errors.length > 0 && onUploadError) {
@@ -297,13 +283,13 @@ export default function EnhancedMediaUploader({
           return newSet
         })
 
-        onChange(prev => prev.map(file =>
+        onChange(files.map((file: EnhancedMediaFile) =>
           file.id === fileId
             ? { ...file, isUploading: false, uploadProgress: 100, processingStatus: 'completed' as const }
             : file
         ))
       } else {
-        onChange(prev => prev.map(file =>
+        onChange(files.map((file: EnhancedMediaFile) =>
           file.id === fileId
             ? { ...file, uploadProgress: progress, isUploading: true }
             : file
@@ -546,7 +532,7 @@ export default function EnhancedMediaUploader({
                     onToggleSelect={() => toggleFileSelection(file.id)}
                     onRemove={() => removeFile(file.id)}
                     onUpdate={(updatedFile) => {
-                      onChange(prev => prev.map(f => f.id === file.id ? updatedFile : f))
+                      onChange(files.map((f: EnhancedMediaFile) => f.id === file.id ? updatedFile : f))
                     }}
                   />
                 ))}
@@ -562,7 +548,7 @@ export default function EnhancedMediaUploader({
                     onToggleSelect={() => toggleFileSelection(file.id)}
                     onRemove={() => removeFile(file.id)}
                     onUpdate={(updatedFile) => {
-                      onChange(prev => prev.map(f => f.id === file.id ? updatedFile : f))
+                      onChange(files.map((f: EnhancedMediaFile) => f.id === file.id ? updatedFile : f))
                     }}
                   />
                 ))}
@@ -621,7 +607,7 @@ function MediaCard({
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: index * 0.05 }}
-      whileHover={{ y: -4, shadow: '0 10px 25px rgba(0,0,0,0.1)' }}
+      whileHover={{ y: -4, boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onToggleSelect}

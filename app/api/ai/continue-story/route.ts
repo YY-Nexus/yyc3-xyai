@@ -62,10 +62,7 @@ ${userInput ? `孩子新写的内容：${userInput}` : "请开始故事"}
         model,
         system: systemPrompt,
         prompt: userPrompt,
-        settings: {
-          maxTokens: 1000,
-          temperature: 0.8,
-        },
+        temperature: 0.8,
       })
 
       // 解析AI响应

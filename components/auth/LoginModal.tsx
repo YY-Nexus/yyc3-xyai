@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useAuth } from "@/hooks/useAuth.tsx"
+import { useAuth } from '@/hooks/useAuth'
 
 interface LoginModalProps {
   isOpen: boolean

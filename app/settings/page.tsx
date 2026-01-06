@@ -7,14 +7,14 @@ import { motion } from "framer-motion"
 import Navigation from "@/components/Navigation"
 import PageHeader from "@/components/headers/PageHeader"
 import UserCenter from "@/components/auth/UserCenter"
-import { useAuth } from "@/hooks/useAuth.tsx"
+import { useAuth } from "@/hooks/useAuth"
 import { useChildrenMock } from "@/hooks/useChildren-mock"
 import { characterManager } from "@/lib/character-manager"
 
 export default function SettingsPage() {
   const [eyeMode, setEyeMode] = useState(true)
   const [reminder, setReminder] = useState(false)
-  const { user, signOut } = useAuth()
+  const { user, logout } = useAuth()
   const { currentChild } = useChildrenMock()
 
   return (
@@ -42,11 +42,11 @@ export default function SettingsPage() {
                     </div>
                   ) : (
                     <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
-                      {user ? user.name?.charAt(0) || user.email?.charAt(0) || "U" : "?"}
+                      {user ? (user.firstName || user.lastName || user.email?.charAt(0) || "U") : "?"}
                     </div>
                   )}
                   <div>
-                    <h3 className="text-xl font-bold">{user ? user.name || user.email?.split("@")[0] : "未登录"}</h3>
+                    <h3 className="text-xl font-bold">{user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email?.split("@")[0] : "未登录"}</h3>
                     <p className="text-white/80 text-sm">{user ? user.email : "登录后享受完整功能"}</p>
                   </div>
                 </div>
@@ -78,7 +78,7 @@ export default function SettingsPage() {
               icon="ri-account-circle-fill"
               iconColor="text-blue-400"
               title="修改资料/昵称"
-              subtitle={user ? `当前昵称：${user.name || "未设置"}` : "请先登录"}
+              subtitle={user ? `当前昵称：${user.firstName || "未设置"}` : "请先登录"}
               hasArrow
             />
             <SettingsItem
@@ -150,7 +150,7 @@ export default function SettingsPage() {
                   bgColor="bg-red-100 hover:bg-red-200"
                   label="退出登录"
                   textColor="text-red-600"
-                  onClick={signOut}
+                  onClick={logout}
                 />
               ) : (
                 <ActionCard

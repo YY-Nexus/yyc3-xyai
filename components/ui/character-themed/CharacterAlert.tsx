@@ -1,16 +1,5 @@
 'use client'
 
-/**
- * @file YYC³ 角色主题提示框组件
- * @description 提供角色主题化的提示框组件，支持多种类型、尺寸和动画效果
- * @module components/ui/character-themed
- * @author YYC³
- * @version 1.0.0
- * @created 2024-12-14
- * @copyright Copyright (c) 2025 YYC³
- * @license MIT
- */
-
 import React, { ReactNode, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCharacterTheme } from '../CharacterThemeContext'

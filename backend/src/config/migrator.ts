@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { db } from './database';
+import { db, pool } from './database';
 import { Logger } from './logger';
 import { getConfig } from './index';
 import type { MigratorConfig } from './types';

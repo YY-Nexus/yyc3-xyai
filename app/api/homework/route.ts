@@ -1,6 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db/client"
 
+interface HomeworkTask {
+  id: string
+  child_id: string
+  title: string
+  subject: string
+  description: string
+  status: 'pending' | 'in_progress' | 'completed' | 'reviewed'
+  due_date: string
+  created_at: string
+  updated_at: string
+}
+
 export async function GET(request: NextRequest) {
   try {
     await db.seedMockData()
@@ -12,11 +24,17 @@ export async function GET(request: NextRequest) {
     let homework = await db.findMany("homework_tasks")
 
     if (childId) {
-      homework = homework.filter((hw: any) => hw.child_id === childId)
+      homework = homework.filter((hw: unknown) => {
+        const h = hw as HomeworkTask
+        return h.child_id === childId
+      })
     }
 
     if (status) {
-      homework = homework.filter((hw: any) => hw.status === status)
+      homework = homework.filter((hw: unknown) => {
+        const h = hw as HomeworkTask
+        return h.status === status
+      })
     }
 
     return NextResponse.json({ data: homework, success: true })

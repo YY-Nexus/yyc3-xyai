@@ -4,29 +4,23 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { Zap, Brain, AlertTriangle, CheckCircle } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-
-import { ChevronDown, ChevronUp, Plus, Settings, Zap, Brain, AlertTriangle, CheckCircle } from 'lucide-react'
 
 import type {
   PredictionConfig,
   PredictionTask,
-  ModelConstraints,
-  PredictionData,
-  ModelSelection
+  ModelConstraints
 } from '@/types/prediction/common'
 
 interface IntelligentConfigPanelProps {
@@ -88,7 +82,6 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
     }
   })
 
-  const [selectedModel, setSelectedModel] = useState<string>('')
   const [autoOptimization, setAutoOptimization] = useState<boolean>(true)
   const [advancedMode, setAdvancedMode] = useState<boolean>(false)
   const [validationStatus, setValidationStatus] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle')
@@ -210,9 +203,13 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
       algorithm: template.id,
       name: `${template.name}预测任务`,
       parameters: { ...template.parameters },
-      constraints: { ...template.constraints }
+      constraints: {
+        maxTrainingTime: template.constraints.maxTrainingTime || prev.constraints.maxTrainingTime,
+        memoryLimit: template.constraints.memoryLimit || prev.constraints.memoryLimit,
+        accuracyThreshold: template.constraints.accuracyThreshold || prev.constraints.accuracyThreshold,
+        realTimeCapability: template.constraints.realTimeCapability ?? prev.constraints.realTimeCapability
+      }
     }))
-    setSelectedModel(template.id)
   }, [])
 
   // 自动优化参数
@@ -221,13 +218,13 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
     const optimizedParams = { ...config.parameters }
 
     if (config.requirements.accuracy === 'high') {
-      optimizedParams.ensembleSize = Math.max(optimizedParams.ensembleSize || 5, 10)
-      optimizedParams.maxDepth = Math.max(optimizedParams.maxDepth || 5, 10)
+      optimizedParams['ensembleSize'] = Math.max((optimizedParams['ensembleSize'] as number) || 5, 10)
+      optimizedParams['maxDepth'] = Math.max((optimizedParams['maxDepth'] as number) || 5, 10)
     }
 
     if (config.requirements.speed === 'high') {
-      optimizedParams.maxIterations = Math.min(optimizedParams.maxIterations || 100, 50)
-      optimizedParams.batchSize = Math.max(optimizedParams.batchSize || 32, 128)
+      optimizedParams['maxIterations'] = Math.min((optimizedParams['maxIterations'] as number) || 100, 50)
+      optimizedParams['batchSize'] = Math.max((optimizedParams['batchSize'] as number) || 32, 128)
     }
 
     setConfig(prev => ({
@@ -277,6 +274,12 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
       parameters: { ...prev.parameters, [key]: value }
     }))
   }, [])
+
+  // Helper function to safely access parameter values
+  const getParam = useCallback(<T extends unknown>(key: string, defaultValue: T): T => {
+    const value = config.parameters[key]
+    return value !== undefined ? (value as T) : defaultValue
+  }, [config.parameters])
 
   return (
     <div className="space-y-6 p-6">
@@ -473,9 +476,9 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="normalize"
-                    checked={config.preprocessing?.normalize}
+                    checked={config.preprocessing.normalize}
                     onCheckedChange={(checked) => updateConfig({
-                      preprocessing: { ...config.preprocessing!, normalize: checked }
+                      preprocessing: { ...config.preprocessing, normalize: checked }
                     })}
                   />
                   <Label htmlFor="normalize">数据标准化</Label>
@@ -483,9 +486,9 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="feature-engineering"
-                    checked={config.preprocessing?.featureEngineering}
+                    checked={config.preprocessing.featureEngineering}
                     onCheckedChange={(checked) => updateConfig({
-                      preprocessing: { ...config.preprocessing!, featureEngineering: checked }
+                      preprocessing: { ...config.preprocessing, featureEngineering: checked }
                     })}
                   />
                   <Label htmlFor="feature-engineering">自动特征工程</Label>
@@ -493,17 +496,17 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="outlier-removal"
-                    checked={config.preprocessing?.outlierRemoval}
+                    checked={config.preprocessing.outlierRemoval}
                     onCheckedChange={(checked) => updateConfig({
-                      preprocessing: { ...config.preprocessing!, outlierRemoval: checked }
+                      preprocessing: { ...config.preprocessing, outlierRemoval: checked }
                     })}
                   />
                   <Label htmlFor="outlier-removal">异常值处理</Label>
                 </div>
                 <div className="space-y-2">
                   <Label>缺失值处理</Label>
-                  <Select value={config.preprocessing?.handleMissing} onValueChange={(value: 'interpolate' | 'mean' | 'median' | 'drop') =>
-                    updateConfig({ preprocessing: { ...config.preprocessing!, handleMissing: value } })}>
+                  <Select value={config.preprocessing.handleMissing} onValueChange={(value: 'interpolate' | 'mean' | 'median' | 'drop') =>
+                    updateConfig({ preprocessing: { ...config.preprocessing, handleMissing: value } })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -538,8 +541,8 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                       <h4 className="font-medium">集成参数</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>集成方法: {config.parameters.method || 'weighted'}</Label>
-                          <Select value={config.parameters.method} onValueChange={(value) => updateParameters('method', value)}>
+                          <Label>集成方法: {getParam<string>('method', 'weighted')}</Label>
+                          <Select value={getParam<string>('method', 'weighted')} onValueChange={(value) => updateParameters('method', value)}>
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
@@ -552,9 +555,9 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label>最大预测器数量: {config.parameters.maxPredictors || 10}</Label>
+                          <Label>最大预测器数量: {getParam<number>('maxPredictors', 10)}</Label>
                           <Slider
-                            value={[config.parameters.maxPredictors || 10]}
+                            value={[getParam<number>('maxPredictors', 10)]}
                             onValueChange={([value]) => updateParameters('maxPredictors', value)}
                             max={20}
                             min={2}
@@ -570,9 +573,9 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                       <h4 className="font-medium">指数平滑参数</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>Alpha (水平): {(config.parameters.alpha || 0.3).toFixed(2)}</Label>
+                          <Label>Alpha (水平): {getParam<number>('alpha', 0.3).toFixed(2)}</Label>
                           <Slider
-                            value={[config.parameters.alpha || 0.3]}
+                            value={[getParam<number>('alpha', 0.3)]}
                             onValueChange={([value]) => updateParameters('alpha', value)}
                             max={1}
                             min={0}
@@ -580,9 +583,9 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label>Beta (趋势): {(config.parameters.beta || 0.1).toFixed(2)}</Label>
+                          <Label>Beta (趋势): {getParam<number>('beta', 0.1).toFixed(2)}</Label>
                           <Slider
-                            value={[config.parameters.beta || 0.1]}
+                            value={[getParam<number>('beta', 0.1)]}
                             onValueChange={([value]) => updateParameters('beta', value)}
                             max={1}
                             min={0}
@@ -599,7 +602,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>检测方法</Label>
-                          <Select value={config.parameters.method} onValueChange={(value) => updateParameters('method', value)}>
+                          <Select value={getParam<string>('method', 'zscore')} onValueChange={(value) => updateParameters('method', value)}>
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
@@ -611,9 +614,9 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label>阈值: {config.parameters.threshold || 2.5}</Label>
+                          <Label>阈值: {getParam<number>('threshold', 2.5)}</Label>
                           <Slider
-                            value={[config.parameters.threshold || 2.5]}
+                            value={[getParam<number>('threshold', 2.5)]}
                             onValueChange={([value]) => updateParameters('threshold', value)}
                             max={4}
                             min={1}
@@ -632,14 +635,14 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                         <Label>随机种子</Label>
                         <Input
                           type="number"
-                          value={config.parameters.randomSeed || 42}
+                          value={getParam<number>('randomSeed', 42)}
                           onChange={(e) => updateParameters('randomSeed', parseInt(e.target.value))}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>最大迭代次数: {config.parameters.maxIterations || 100}</Label>
+                        <Label>最大迭代次数: {getParam<number>('maxIterations', 100)}</Label>
                         <Slider
-                          value={[config.parameters.maxIterations || 100]}
+                          value={[getParam<number>('maxIterations', 100)]}
                           onValueChange={([value]) => updateParameters('maxIterations', value)}
                           max={1000}
                           min={10}
@@ -666,11 +669,11 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>最大训练时间: {((config.constraints?.maxTrainingTime || 300000) / 1000).toFixed(0)}秒</Label>
+                  <Label>最大训练时间: {(config.constraints.maxTrainingTime / 1000).toFixed(0)}秒</Label>
                   <Slider
-                    value={[config.constraints?.maxTrainingTime || 300000]}
-                    onValueChange={([value]) => updateConfig({
-                      constraints: { ...config.constraints!, maxTrainingTime: value }
+                    value={[config.constraints.maxTrainingTime]}
+                    onValueChange={([value]) => value !== undefined && updateConfig({
+                      constraints: { ...config.constraints, maxTrainingTime: value }
                     })}
                     max={600000}
                     min={10000}
@@ -678,11 +681,11 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>内存限制: {config.constraints?.memoryLimit || 1024}MB</Label>
+                  <Label>内存限制: {config.constraints.memoryLimit}MB</Label>
                   <Slider
-                    value={[config.constraints?.memoryLimit || 1024]}
-                    onValueChange={([value]) => updateConfig({
-                      constraints: { ...config.constraints!, memoryLimit: value }
+                    value={[config.constraints.memoryLimit]}
+                    onValueChange={([value]) => value !== undefined && updateConfig({
+                      constraints: { ...config.constraints, memoryLimit: value }
                     })}
                     max={8192}
                     min={128}
@@ -690,11 +693,11 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>准确度阈值: {((config.constraints?.accuracyThreshold || 0.8) * 100).toFixed(0)}%</Label>
+                  <Label>准确度阈值: {(config.constraints.accuracyThreshold * 100).toFixed(0)}%</Label>
                   <Slider
-                    value={[(config.constraints?.accuracyThreshold || 0.8) * 100]}
-                    onValueChange={([value]) => updateConfig({
-                      constraints: { ...config.constraints!, accuracyThreshold: value / 100 }
+                    value={[config.constraints.accuracyThreshold * 100]}
+                    onValueChange={([value]) => value !== undefined && updateConfig({
+                      constraints: { ...config.constraints, accuracyThreshold: value / 100 }
                     })}
                     max={100}
                     min={50}
@@ -704,9 +707,9 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="realtime-capability"
-                    checked={config.constraints?.realTimeCapability}
+                    checked={config.constraints.realTimeCapability}
                     onCheckedChange={(checked) => updateConfig({
-                      constraints: { ...config.constraints!, realTimeCapability: checked }
+                      constraints: { ...config.constraints, realTimeCapability: checked }
                     })}
                   />
                   <Label htmlFor="realtime-capability">实时预测能力</Label>

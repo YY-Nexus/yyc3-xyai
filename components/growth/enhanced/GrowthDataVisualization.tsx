@@ -12,13 +12,10 @@ import {
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  TooltipProps,
   Legend,
   ResponsiveContainer,
   PieChart,
@@ -27,33 +24,15 @@ import {
 } from 'recharts'
 import {
   TrendingUp,
-  Activity,
-  Calendar,
-  Award,
-  Target,
   Brain,
-  Heart,
-  Eye,
-  Ear,
-  Hand,
-  Foot,
-  Star,
-  Clock,
-  Filter,
+  Activity,
+  Award,
   Download,
   Share,
   Settings,
-  Zap,
   Sparkles,
-  Baby,
-  Camera,
-  BookOpen,
-  Music,
-  Gamepad2,
-  Users,
-  RefreshCw
+  Star
 } from 'lucide-react'
-
 // 成长数据接口
 interface GrowthData {
   date: string
@@ -392,7 +371,13 @@ export default function GrowthDataVisualization() {
     color: string
   }
 
-  const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+  interface CustomTooltipProps {
+    active?: boolean
+    payload?: TooltipEntry[]
+    label?: string | number
+  }
+
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
@@ -854,7 +839,7 @@ export default function GrowthDataVisualization() {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={({ name, value }) => `${name}: ${value}%`}
+                          label={(entry: { name: string; value: number }) => `${entry.name}: ${entry.value}%`}
                           outerRadius={100}
                           fill="#8884d8"
                           dataKey="value"

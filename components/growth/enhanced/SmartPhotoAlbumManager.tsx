@@ -169,8 +169,8 @@ export const SmartPhotoAlbumManager: React.FC<SmartPhotoAlbumManagerProps> = ({
               isLoading={isLoading}
               selectedFile={selectedFile}
               onFileSelect={handleFileSelect}
-              onToggleFavorite={toggleFavorite}
-              onDelete={deleteMediaFile}
+              onToggleFavorite={(fileId: string) => toggleFavorite(fileId)}
+              onDelete={(fileId: string) => deleteMediaFile(fileId)}
             />
           </div>
 
@@ -179,7 +179,13 @@ export const SmartPhotoAlbumManager: React.FC<SmartPhotoAlbumManagerProps> = ({
             {selectedFile ? (
               <MediaFileDetail
                 file={selectedFile}
-                onUpdate={handleFileUpdate}
+                onUpdateTags={(fileId: string, tags: string[]) => {
+                  // Update tags logic
+                }}
+                onUpdateDescription={(fileId: string, description: string) => {
+                  // Update description logic
+                }}
+                onToggleFavorite={toggleFavorite}
                 onClose={handleCloseDetail}
               />
             ) : (

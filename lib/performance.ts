@@ -1,4 +1,7 @@
 // Web Vitals 监控
+
+import { log as logger } from './logger'
+
 export interface WebVitalsMetric {
   name: "CLS" | "FCP" | "FID" | "INP" | "LCP" | "TTFB"
   value: number
@@ -28,7 +31,7 @@ export function reportWebVitals(metric: WebVitalsMetric) {
 
   if (process.env.NODE_ENV === "development") {
     const color = rating === "good" ? "32" : rating === "needs-improvement" ? "33" : "31"
-    console.log(`\x1b[${color}m[WebVitals] ${metric.name}: ${metric.value.toFixed(2)} (${rating})\x1b[0m`)
+    logger.info(`\x1b[${color}m[WebVitals] ${metric.name}: ${metric.value.toFixed(2)} (${rating})\x1b[0m`)
   }
 
   // 生产环境发送到分析服务
@@ -282,7 +285,7 @@ export const perfMarker = {
     this.mark(`${label}_end`)
     const duration = this.measure(label, startMark, `${label}_end`)
     if (duration !== null && process.env.NODE_ENV === "development") {
-      console.log(`[Perf] ${label}: ${duration.toFixed(2)}ms`)
+      logger.info(`[Perf] ${label}: ${duration.toFixed(2)}ms`)
     }
     return duration
   },

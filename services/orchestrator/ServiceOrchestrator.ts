@@ -1,12 +1,6 @@
 /**
- * @file YYC³ 智能预测系统 - 服务编排器
- * @description 统一协调和管理所有微服务组件，包括工具管理、知识管理、目标管理和学习系统
- * @module services/orchestrator
- * @author YYC³
- * @version 1.0.0
- * @created 2024-12-14
- * @copyright Copyright (c) 2025 YYC³
- * @license MIT
+ * YYC³ 智能预测系统 - 服务编排器
+ * 统一协调和管理所有微服务组件
  */
 
 import { EventEmitter } from 'events'
@@ -18,144 +12,15 @@ import { MetaLearningSystem } from '../learning/MetaLearningSystem'
 import { APIGateway } from '../gateway/APIGateway'
 import { ToolAPIService } from '../api/ToolAPIService'
 import { KnowledgeAPIService } from '../api/KnowledgeAPIService'
-
-interface Service {
-  id?: string
-  version?: string
-  host?: string
-  port?: number
-  protocol?: string
-  metadata?: Record<string, unknown>
-  initialize?(): Promise<void>
-  start?(): Promise<void>
-  stop?(): Promise<void>
-  shutdown?(): Promise<void>
-  getStatus?(): string
-  uptime?: number
-  getMetrics?(): Record<string, unknown>
-}
-
-interface ServiceMetrics {
-  [key: string]: unknown
-}
-
-interface OrchestrationConfig {
-  enableAutoScaling?: boolean
-  enableHealthChecks?: boolean
-  enableMetrics?: boolean
-  enableServiceDiscovery?: boolean
-  healthCheckInterval?: number
-  metricsInterval?: number
-  scalingCooldown?: number
-  maxReplicas?: number
-  minReplicas?: number
-  loadBalancingStrategy?: 'round_robin' | 'least_connections' | 'random'
-  serviceRegistry?: 'consul' | 'etcd' | 'zookeeper'
-  gatewayPort?: number
-}
-
-interface ServiceHealth {
-  status: 'healthy' | 'unhealthy' | 'degraded'
-  uptime: number
-  lastCheck: Date
-  details?: string
-  error?: string
-  metrics?: Record<string, unknown>
-}
-
-interface SystemMetrics {
-  timestamp: Date
-  uptime: number
-  memory: {
-    used: number
-    total: number
-    external: number
-    rss: number
-  }
-  cpu: {
-    user: number
-    system: number
-  }
-  services: {
-    total: number
-    healthy: number
-    unhealthy: number
-    degraded: number
-  }
-  requests: {
-    total: number
-    successful: number
-    failed: number
-    averageResponseTime: number
-  }
-  collectionTime: number
-  serviceMetrics: Map<string, ServiceMetrics>
-  apiMetrics: Map<string, ServiceMetrics>
-}
-
-interface DeploymentStatus {
-  environment: string
-  version: string
-  deployedAt: Date
-  services: {
-    total: number
-    healthy: number
-    unhealthy: number
-    degraded: number
-  }
-  health: 'healthy' | 'degraded'
-  uptime: number
-  memory: {
-    used: number
-    total: number
-    external: number
-    rss: number
-  }
-  cpu: {
-    user: number
-    system: number
-  }
-  lastHealthCheck: Date
-}
-
-interface ServiceRegistry {
-  services: Array<{
-    name: string
-    id: string
-    version: string
-    host: string
-    port: number
-    protocol: string
-    status: string
-    health: string
-    metadata: Record<string, unknown>
-  }>
-  lastUpdated: Date
-  totalServices: number
-}
-
-interface ScalingPolicy {
-  enabled: boolean
-  minReplicas: number
-  maxReplicas: number
-  cooldown: number
-  metrics: string[]
-  thresholds: {
-    cpu: number
-    memory: number
-    requests: number
-  }
-}
-
-interface LoadBalancingConfig {
-  strategy: 'round_robin' | 'least_connections' | 'random'
-  healthCheck: boolean
-  circuitBreaker: boolean
-  retryPolicy: {
-    maxAttempts: number
-    backoffMs: number
-  }
-}
+import type {
+  OrchestrationConfig,
+  ServiceHealth,
+  SystemMetrics,
+  DeploymentStatus,
+  ServiceRegistry,
+  ScalingPolicy,
+  LoadBalancingConfig
+} from '../types/orchestrator/common'
 
 /**
  * 服务编排器
@@ -163,8 +28,8 @@ interface LoadBalancingConfig {
  */
 export class ServiceOrchestrator extends EventEmitter {
   private config: OrchestrationConfig
-  private services: Map<string, Service> = new Map()
-  private apiServices: Map<string, Service> = new Map()
+  private services: Map<string, any> = new Map()
+  private apiServices: Map<string, any> = new Map()
   private isInitialized = false
   private healthCheckInterval?: NodeJS.Timeout
 

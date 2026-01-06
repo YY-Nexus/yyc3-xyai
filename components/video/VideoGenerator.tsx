@@ -3,32 +3,67 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import {
-  type VideoType,
   type VideoStyle,
-  type VideoTemplate,
-  type MusicStyle,
-  VIDEO_STYLE_CONFIG,
-  MUSIC_STYLE_CONFIG,
-  VOICE_CONFIG,
-  VIDEO_TEMPLATES,
 } from "@/types/ai-video"
 import { useAIVideo } from "@/hooks/useAIVideo"
 
+// 本地类型定义
+type VideoType = "slideshow" | "story-animation" | "cinema" | "image-to-video" | "memory-recap"
+type VideoTemplate = {
+  id: string
+  name: string
+  description: string
+  thumbnail: string
+  duration: number
+  suitableFor: string[]
+}
+type MusicStyle = "happy" | "gentle" | "energetic" | "calm"
+
+// 配置常量
+const VIDEO_STYLE_CONFIG: Record<VideoStyle, { name: string; description: string; thumbnail: string; icon: string; color: string }> = {
+  cartoon: { name: "卡通", description: "可爱卡通效果", thumbnail: "/placeholder.svg", icon: "🎨", color: "text-pink-500" },
+  realistic: { name: "写实", description: "真实质感风格", thumbnail: "/placeholder.svg", icon: "📷", color: "text-blue-500" },
+  anime: { name: "动漫", description: "动漫风格效果", thumbnail: "/placeholder.svg", icon: "⭐", color: "text-purple-500" },
+  watercolor: { name: "水彩", description: "水彩画风效果", thumbnail: "/placeholder.svg", icon: "🎭", color: "text-cyan-500" },
+  '3d-animation': { name: "3D动画", description: "三维立体动画", thumbnail: "/placeholder.svg", icon: "🎬", color: "text-orange-500" },
+  'clay-animation': { name: "黏土动画", description: "黏土动画风格", thumbnail: "/placeholder.svg", icon: "🧱", color: "text-yellow-500" },
+}
+
+const MUSIC_STYLE_CONFIG: Record<MusicStyle, { name: string; description: string; icon: string }> = {
+  happy: { name: "欢快", description: "愉悦欢快的旋律", icon: "🎵" },
+  gentle: { name: "温柔", description: "轻柔舒缓的音乐", icon: "🎶" },
+  energetic: { name: "活力", description: "充满活力的节奏", icon: "🎸" },
+  calm: { name: "宁静", description: "安静平和的氛围", icon: "🎹" },
+}
+
+const VOICE_CONFIG = {
+  xiaoyu: { name: "小语", description: "可爱童声" },
+  xiaoming: { name: "小明", description: "活泼男孩" },
+  narrator: { name: "旁白", description: "专业旁白" },
+  child: { name: "儿童", description: "自然童声" },
+}
+
+const VIDEO_TEMPLATES: VideoTemplate[] = [
+  { id: "template1", name: "成长记录", description: "记录宝宝的成长点滴", thumbnail: "/placeholder.svg", duration: 30, suitableFor: ["all"] },
+  { id: "template2", name: "生日庆典", description: "欢乐生日派对", thumbnail: "/placeholder.svg", duration: 45, suitableFor: ["birthday"] },
+  { id: "template3", name: "日常生活", description: "日常生活剪影", thumbnail: "/placeholder.svg", duration: 30, suitableFor: ["daily"] },
+]
+
 interface VideoGeneratorProps {
-  childId: string
+  childId?: string
   onComplete: () => void
   onCancel: () => void
 }
 
 type GeneratorStep = "type" | "content" | "style" | "options" | "generating"
 
-export default function VideoGenerator({ childId, onComplete, onCancel }: VideoGeneratorProps) {
+export default function VideoGenerator({ childId: _childId, onComplete, onCancel }: VideoGeneratorProps) {
   const [step, setStep] = useState<GeneratorStep>("type")
   const [videoType, setVideoType] = useState<VideoType>("slideshow")
   const [title, setTitle] = useState("")
   const [selectedImages, setSelectedImages] = useState<string[]>([])
   const [storyText, setStoryText] = useState("")
-  const [selectedStyle, setSelectedStyle] = useState<VideoStyle>("warm")
+  const [selectedStyle, setSelectedStyle] = useState<VideoStyle>("cartoon")
   const [selectedTemplate, setSelectedTemplate] = useState<VideoTemplate | null>(null)
   const [duration, setDuration] = useState(30)
   const [enableVoiceover, setEnableVoiceover] = useState(true)
@@ -37,7 +72,7 @@ export default function VideoGenerator({ childId, onComplete, onCancel }: VideoG
   const [musicStyle, setMusicStyle] = useState<MusicStyle>("happy")
   const [musicVolume, setMusicVolume] = useState(40)
 
-  const { generateVideo, isGenerating, generationProgress, currentTask } = useAIVideo()
+  const { generateVideo, generationProgress, currentTask } = useAIVideo()
 
   // 模拟图片库
   const imageLibrary = [
@@ -64,8 +99,7 @@ export default function VideoGenerator({ childId, onComplete, onCancel }: VideoG
 
     try {
       await generateVideo({
-        childId,
-        type: videoType,
+        type: videoType as any,
         title: title || "我的精彩视频",
         sourceImages: selectedImages,
         storyText: videoType === "story-animation" ? storyText : undefined,
@@ -92,7 +126,7 @@ export default function VideoGenerator({ childId, onComplete, onCancel }: VideoG
             }
           : undefined,
         captions: true,
-      })
+      } as any)
 
       onComplete()
     } catch (error) {
@@ -258,7 +292,7 @@ export default function VideoGenerator({ childId, onComplete, onCancel }: VideoG
                     }`}
                   >
                     <img
-                      src={template.thumbnailUrl || "/placeholder.svg"}
+                      src={template.thumbnail || "/placeholder.svg"}
                       alt={template.name}
                       className="w-full h-20 object-cover rounded-lg mb-2"
                     />

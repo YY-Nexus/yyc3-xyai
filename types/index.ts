@@ -285,3 +285,22 @@ export type {
   ScheduleConflict,
   ScheduleReminder
 } from './schedule'
+
+// Export Badge types from ui.ts
+export type {
+  Badge,
+  BadgeSeries,
+  BadgeLevel,
+  BadgeCategory,
+  BadgeRarity,
+  UnlockCondition,
+  ConditionType,
+  ShareContent,
+  BadgeMetadata,
+  SeriesProgress,
+  SeriesMilestone,
+  BadgeReward,
+  BadgeGroup,
+  BadgeStats,
+  BadgeService
+} from './ui'

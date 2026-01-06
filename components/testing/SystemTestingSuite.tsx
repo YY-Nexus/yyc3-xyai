@@ -1,42 +1,22 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import {
+  CheckCircle,
+  Zap,
+  Globe,
+  Shield,
+  Database,
+  XCircle,
+  Loader,
+  Clock,
+  Square,
   Play,
   Pause,
   RefreshCw,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Clock,
-  Zap,
-  Shield,
-  Monitor,
-  Database,
-  Smartphone,
-  Globe,
-  Code,
-  Bug,
-  Activity,
-  TrendingUp,
-  Cpu,
-  HardDrive,
-  Wifi,
-  Battery,
-  Users,
-  Settings,
-  TestTube,
-  BarChart3,
-  FileCheck,
-  Loader,
-  CheckSquare,
-  Square,
   Info,
-  Download,
-  Share,
-  Printer,
-  Mail
+  Download
 } from 'lucide-react'
 
 // 测试结果接口
@@ -212,10 +192,8 @@ const testSuites = [
 export default function SystemTestingSuite() {
   const [testResults, setTestResults] = useState<TestResult[]>([])
   const [isRunning, setIsRunning] = useState(false)
-  const [currentTestIndex, setCurrentTestIndex] = useState(0)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [showDetails, setShowDetails] = useState(false)
-  const [testStartTime, setTestStartTime] = useState<number | null>(null)
   const [overallProgress, setOverallProgress] = useState(0)
 
   // 初始化测试结果
@@ -266,21 +244,21 @@ export default function SystemTestingSuite() {
     // 更新测试结果
     setTestResults(prev => prev.map(t => {
       if (t.id === test.id) {
-        const result: TestResult = {
-          ...t,
-          status: success ? 'passed' : 'failed',
-          duration,
-          details: success
-            ? '测试通过，所有功能正常运行'
-            : '测试失败，发现需要修复的问题',
-          metrics: t.metrics ? {
+        const updatedTest = { ...t }
+        ;(updatedTest as any).status = success ? 'passed' : 'failed'
+        ;(updatedTest as any).duration = duration
+        ;(updatedTest as any).details = success
+          ? '测试通过，所有功能正常运行'
+          : '测试失败，发现需要修复的问题'
+        if (t.metrics) {
+          ;(updatedTest as any).metrics = {
             ...t.metrics,
             actual: success
-              ? Math.random() * parseFloat(t.metrics.target) * 0.8
-              : parseFloat(t.metrics.target) * 1.2
-          } : undefined
+              ? Math.random() * parseFloat(String(t.metrics['target'])) * 0.8
+              : parseFloat(String(t.metrics['target'])) * 1.2
+          }
         }
-        return result
+        return updatedTest
       }
       return t
     }))
@@ -291,11 +269,10 @@ export default function SystemTestingSuite() {
     if (isRunning) return
 
     setIsRunning(true)
-    setTestStartTime(Date.now())
 
     for (let i = 0; i < testResults.length; i++) {
       const test = testResults[i]
-      setCurrentTestIndex(i)
+      if (!test) continue
       setOverallProgress((i / testResults.length) * 100)
 
       await runSingleTest(test)
@@ -305,7 +282,6 @@ export default function SystemTestingSuite() {
     }
 
     setIsRunning(false)
-    setCurrentTestIndex(0)
     setOverallProgress(100)
   }
 
@@ -512,7 +488,7 @@ export default function SystemTestingSuite() {
 
         {/* 测试结果列表 */}
         <div className="space-y-6">
-          {testSuites.map((suite, suiteIndex) => (
+          {testSuites.map((suite) => (
             <div key={suite.category} className="bg-white rounded-xl shadow-lg overflow-hidden">
               {/* 套件头部 */}
               <div className="p-6 border-b bg-gradient-to-r from-white to-gray-50">
@@ -568,15 +544,15 @@ export default function SystemTestingSuite() {
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
-                          {test.metrics && test.metrics.actual && (
+                          {test.metrics && test.metrics['actual'] !== undefined && (
                             <div className="text-right">
                               <div className="text-xs text-gray-500">实际值</div>
                               <div className={`text-sm font-medium ${
-                                parseFloat(test.metrics.actual) < parseFloat(test.metrics.target)
+                                parseFloat(String(test.metrics['actual'])) < parseFloat(String(test.metrics['target']))
                                   ? 'text-green-600'
                                   : 'text-red-600'
                               }`}>
-                                {test.metrics.actual} / {test.metrics.target}
+                                {String(test.metrics['actual'])} / {String(test.metrics['target'])}
                               </div>
                             </div>
                           )}
