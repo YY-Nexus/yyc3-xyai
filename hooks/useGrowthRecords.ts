@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useCallback, useEffect } from 'react';
 import { apiClient } from '@/lib/api/client';
@@ -10,7 +10,13 @@ interface GrowthRecord {
   childName: string;
   title: string;
   description: string;
-  category: 'milestone' | 'daily' | 'achievement' | 'health' | 'education' | 'social';
+  category:
+    | 'milestone'
+    | 'daily'
+    | 'achievement'
+    | 'health'
+    | 'education'
+    | 'social';
   mediaUrls: string[];
   tags: string[];
   location: string;
@@ -73,47 +79,65 @@ interface UseGrowthRecordsReturn {
     childId: string;
     title: string;
     description?: string;
-    category: 'milestone' | 'daily' | 'achievement' | 'health' | 'education' | 'social';
+    category:
+      | 'milestone'
+      | 'daily'
+      | 'achievement'
+      | 'health'
+      | 'education'
+      | 'social';
     mediaUrls?: string[];
     tags?: string[];
     location?: string;
     isPublic?: boolean;
   }) => Promise<boolean>;
-  updateRecord: (recordId: string, data: Partial<{
-    title: string;
-    description: string;
-    category: string;
-    mediaUrls: string[];
-    tags: string[];
-    location: string;
-    isPublic: boolean;
-  }>) => Promise<boolean>;
+  updateRecord: (
+    recordId: string,
+    data: Partial<{
+      title: string;
+      description: string;
+      category: string;
+      mediaUrls: string[];
+      tags: string[];
+      location: string;
+      isPublic: boolean;
+    }>
+  ) => Promise<boolean>;
   deleteRecord: (recordId: string) => Promise<boolean>;
-  loadRecords: (childId: string, options?: {
-    page?: number;
-    limit?: number;
-    category?: string;
-    tags?: string[];
-    startDate?: string;
-    endDate?: string;
-    sortBy?: string;
-    sortOrder?: string;
-  }) => Promise<void>;
+  loadRecords: (
+    childId: string,
+    options?: {
+      page?: number;
+      limit?: number;
+      category?: string;
+      tags?: string[];
+      startDate?: string;
+      endDate?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    }
+  ) => Promise<void>;
   loadRecord: (recordId: string) => Promise<GrowthRecord | null>;
-  searchRecords: (childId: string, query: string, options?: {
-    page?: number;
-    limit?: number;
-    category?: string;
-  }) => Promise<void>;
+  searchRecords: (
+    childId: string,
+    query: string,
+    options?: {
+      page?: number;
+      limit?: number;
+      category?: string;
+    }
+  ) => Promise<void>;
   loadStats: (childId: string, period?: string) => Promise<void>;
-  setFilters: (filters: Partial<{
-    category: string;
-    tags: string[];
-    startDate: string;
-    endDate: string;
-    sortBy: string;
-    sortOrder: string;
-  }>) => void;
+  setFilters: (
+    filters: Partial<{
+      category: string;
+      tags: string[];
+      startDate: string;
+      endDate: string;
+      sortBy: string;
+      sortOrder: string;
+    }>
+  ) => void;
   clearError: () => void;
   resetFilters: () => void;
 }
@@ -155,249 +179,290 @@ export function useGrowthRecords(childId?: string): UseGrowthRecordsReturn {
   }, [childId]);
 
   // Load records
-  const loadRecords = useCallback(async (
-    targetChildId: string,
-    options: {
-      page?: number;
-      limit?: number;
-      category?: string;
-      tags?: string[];
-      startDate?: string;
-      endDate?: string;
-      sortBy?: string;
-      sortOrder?: string;
-    } = {}
-  ) => {
-    if (!targetChildId) return;
+  const loadRecords = useCallback(
+    async (
+      targetChildId: string,
+      options: {
+        page?: number;
+        limit?: number;
+        category?: string;
+        tags?: string[];
+        startDate?: string;
+        endDate?: string;
+        sortBy?: string;
+        sortOrder?: string;
+      } = {}
+    ) => {
+      if (!targetChildId) return;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await apiClient.getGrowthRecords(targetChildId, options);
+      try {
+        const result = await apiClient.getGrowthRecords(targetChildId, options);
 
-      if (result.success && result.data) {
-        setRecords(result.data.growthRecords);
-        setPagination(result.data.pagination);
-        setFiltersState({
-          category: options.category,
-          tags: options.tags,
-          startDate: options.startDate,
-          endDate: options.endDate,
-          sortBy: options.sortBy,
-          sortOrder: options.sortOrder,
-        });
+        if (result.success && result.data) {
+          setRecords(result.data.growthRecords);
+          setPagination(result.data.pagination);
+          setFiltersState({
+            category: options.category,
+            tags: options.tags,
+            startDate: options.startDate,
+            endDate: options.endDate,
+            sortBy: options.sortBy,
+            sortOrder: options.sortOrder,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load growth records:', err);
+        setError('加载成长记录失败');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error('Failed to load growth records:', err);
-      setError('加载成长记录失败');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Load single record
-  const loadRecord = useCallback(async (recordId: string): Promise<GrowthRecord | null> => {
-    if (!recordId) return null;
+  const loadRecord = useCallback(
+    async (recordId: string): Promise<GrowthRecord | null> => {
+      if (!recordId) return null;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await apiClient.getGrowthRecord(recordId);
+      try {
+        const result = await apiClient.getGrowthRecord(recordId);
 
-      if (result.success && result.data) {
-        return result.data.growthRecord;
+        if (result.success && result.data) {
+          return result.data.growthRecord;
+        }
+        return null;
+      } catch (err) {
+        console.error('Failed to load growth record:', err);
+        setError('加载成长记录详情失败');
+        return null;
+      } finally {
+        setIsLoading(false);
       }
-      return null;
-    } catch (err) {
-      console.error('Failed to load growth record:', err);
-      setError('加载成长记录详情失败');
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Create record
-  const createRecord = useCallback(async (data: {
-    childId: string;
-    title: string;
-    description?: string;
-    category: 'milestone' | 'daily' | 'achievement' | 'health' | 'education' | 'social';
-    mediaUrls?: string[];
-    tags?: string[];
-    location?: string;
-    isPublic?: boolean;
-  }): Promise<boolean> => {
-    if (!data.childId || !data.title.trim()) return false;
+  const createRecord = useCallback(
+    async (data: {
+      childId: string;
+      title: string;
+      description?: string;
+      category:
+        | 'milestone'
+        | 'daily'
+        | 'achievement'
+        | 'health'
+        | 'education'
+        | 'social';
+      mediaUrls?: string[];
+      tags?: string[];
+      location?: string;
+      isPublic?: boolean;
+    }): Promise<boolean> => {
+      if (!data.childId || !data.title.trim()) return false;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await apiClient.createGrowthRecord({
-        ...data,
-        title: data.title.trim(),
-      });
+      try {
+        const result = await apiClient.createGrowthRecord({
+          ...data,
+          title: data.title.trim(),
+        });
 
-      if (result.success) {
-        // Reload records to include the new one
-        if (childId) {
-          await loadRecords(childId, { ...filters, page: 1 });
+        if (result.success) {
+          // Reload records to include the new one
+          if (childId) {
+            await loadRecords(childId, { ...filters, page: 1 });
+          }
+          return true;
+        } else {
+          setError(result.error || '创建成长记录失败');
+          return false;
         }
-        return true;
-      } else {
-        setError(result.error || '创建成长记录失败');
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : '创建成长记录时发生错误';
+        setError(errorMessage);
         return false;
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '创建成长记录时发生错误';
-      setError(errorMessage);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [childId, filters, loadRecords]);
+    },
+    [childId, filters, loadRecords]
+  );
 
   // Update record
-  const updateRecord = useCallback(async (
-    recordId: string,
-    data: Partial<{
-      title: string;
-      description: string;
-      category: string;
-      mediaUrls: string[];
-      tags: string[];
-      location: string;
-      isPublic: boolean;
-    }>
-  ): Promise<boolean> => {
-    if (!recordId) return false;
+  const updateRecord = useCallback(
+    async (
+      recordId: string,
+      data: Partial<{
+        title: string;
+        description: string;
+        category: string;
+        mediaUrls: string[];
+        tags: string[];
+        location: string;
+        isPublic: boolean;
+      }>
+    ): Promise<boolean> => {
+      if (!recordId) return false;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await apiClient.updateGrowthRecord(recordId, data);
+      try {
+        const result = await apiClient.updateGrowthRecord(recordId, data);
 
-      if (result.success) {
-        // Update the record in the local state
-        if (result.data) {
-          setRecords(prev => prev.map(record =>
-            record.id === recordId
-              ? { ...record, ...result.data.growthRecord }
-              : record
-          ));
+        if (result.success) {
+          // Update the record in the local state
+          if (result.data) {
+            setRecords(prev =>
+              prev.map(record =>
+                record.id === recordId
+                  ? { ...record, ...result.data.growthRecord }
+                  : record
+              )
+            );
+          }
+          return true;
+        } else {
+          setError(result.error || '更新成长记录失败');
+          return false;
         }
-        return true;
-      } else {
-        setError(result.error || '更新成长记录失败');
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : '更新成长记录时发生错误';
+        setError(errorMessage);
         return false;
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '更新成长记录时发生错误';
-      setError(errorMessage);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Delete record
-  const deleteRecord = useCallback(async (recordId: string): Promise<boolean> => {
-    if (!recordId) return false;
+  const deleteRecord = useCallback(
+    async (recordId: string): Promise<boolean> => {
+      if (!recordId) return false;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await apiClient.deleteGrowthRecord(recordId);
+      try {
+        const result = await apiClient.deleteGrowthRecord(recordId);
 
-      if (result.success) {
-        // Remove the record from the local state
-        setRecords(prev => prev.filter(record => record.id !== recordId));
-        return true;
-      } else {
-        setError(result.error || '删除成长记录失败');
+        if (result.success) {
+          // Remove the record from the local state
+          setRecords(prev => prev.filter(record => record.id !== recordId));
+          return true;
+        } else {
+          setError(result.error || '删除成长记录失败');
+          return false;
+        }
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : '删除成长记录时发生错误';
+        setError(errorMessage);
         return false;
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '删除成长记录时发生错误';
-      setError(errorMessage);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Search records
-  const searchRecords = useCallback(async (
-    targetChildId: string,
-    query: string,
-    options: {
-      page?: number;
-      limit?: number;
-      category?: string;
-    } = {}
-  ) => {
-    if (!targetChildId || !query.trim()) return;
+  const searchRecords = useCallback(
+    async (
+      targetChildId: string,
+      query: string,
+      options: {
+        page?: number;
+        limit?: number;
+        category?: string;
+      } = {}
+    ) => {
+      if (!targetChildId || !query.trim()) return;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await apiClient.searchGrowthRecords(targetChildId, query.trim(), options);
+      try {
+        const result = await apiClient.searchGrowthRecords(
+          targetChildId,
+          query.trim(),
+          options
+        );
 
-      if (result.success && result.data) {
-        setRecords(result.data.growthRecords);
-        setPagination(result.data.pagination);
+        if (result.success && result.data) {
+          setRecords(result.data.growthRecords);
+          setPagination(result.data.pagination);
+        }
+      } catch (err) {
+        console.error('Failed to search growth records:', err);
+        setError('搜索成长记录失败');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error('Failed to search growth records:', err);
-      setError('搜索成长记录失败');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Load statistics
-  const loadStats = useCallback(async (targetChildId: string, period: string = '12m') => {
-    if (!targetChildId) return;
+  const loadStats = useCallback(
+    async (targetChildId: string, period: string = '12m') => {
+      if (!targetChildId) return;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await apiClient.getGrowthStats(targetChildId, period);
+      try {
+        const result = await apiClient.getGrowthStats(targetChildId, period);
 
-      if (result.success && result.data) {
-        setStats(result.data);
+        if (result.success && result.data) {
+          setStats(result.data);
+        }
+      } catch (err) {
+        console.error('Failed to load growth stats:', err);
+        setError('加载统计信息失败');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error('Failed to load growth stats:', err);
-      setError('加载统计信息失败');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   // Set filters
-  const setFilters = useCallback((newFilters: Partial<{
-    category: string;
-    tags: string[];
-    startDate: string;
-    endDate: string;
-    sortBy: string;
-    sortOrder: string;
-  }>) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    setFiltersState(updatedFilters);
+  const setFilters = useCallback(
+    (
+      newFilters: Partial<{
+        category: string;
+        tags: string[];
+        startDate: string;
+        endDate: string;
+        sortBy: string;
+        sortOrder: string;
+      }>
+    ) => {
+      const updatedFilters = { ...filters, ...newFilters };
+      setFiltersState(updatedFilters);
 
-    if (childId) {
-      loadRecords(childId, { ...updatedFilters, page: 1 });
-    }
-  }, [filters, childId, loadRecords]);
+      if (childId) {
+        loadRecords(childId, { ...updatedFilters, page: 1 });
+      }
+    },
+    [filters, childId, loadRecords]
+  );
 
   // Reset filters
   const resetFilters = useCallback(() => {
@@ -443,24 +508,27 @@ export function useGrowthRecordStats(childId?: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadStats = useCallback(async (targetChildId?: string, period: string = '12m') => {
-    if (!targetChildId) return;
+  const loadStats = useCallback(
+    async (targetChildId?: string, period: string = '12m') => {
+      if (!targetChildId) return;
 
-    setIsLoading(true);
-    setError(null);
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const result = await apiClient.getGrowthStats(targetChildId, period);
-      if (result.success && result.data) {
-        setStats(result.data);
+      try {
+        const result = await apiClient.getGrowthStats(targetChildId, period);
+        if (result.success && result.data) {
+          setStats(result.data);
+        }
+      } catch (err) {
+        console.error('Failed to load growth stats:', err);
+        setError('加载统计信息失败');
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      console.error('Failed to load growth stats:', err);
-      setError('加载统计信息失败');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   useEffect(() => {
     if (childId) {

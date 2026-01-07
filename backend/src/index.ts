@@ -21,26 +21,30 @@ const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || 'localhost';
 
 // 安全中间件
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https:"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", 'https:'],
+      },
     },
-  },
-  crossOriginEmbedderPolicy: false,
-}));
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // CORS配置
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:1229',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:1229',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  })
+);
 
 // 基础中间件
 app.use(compression());
@@ -49,13 +53,15 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 日志中间件
 if (process.env.NODE_ENV !== 'test') {
-  app.use(morgan('combined', {
-    stream: {
-      write: (message: string) => {
-        logger.http(message.trim());
+  app.use(
+    morgan('combined', {
+      stream: {
+        write: (message: string) => {
+          logger.http(message.trim());
+        },
       },
-    },
-  }));
+    })
+  );
 }
 
 // 速率限制
@@ -159,7 +165,7 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 // 未捕获的异常处理
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   logger.error('Uncaught Exception:', error);
   gracefulShutdown('uncaughtException');
 });

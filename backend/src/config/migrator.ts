@@ -29,7 +29,8 @@ export class DatabaseMigrator {
   // 获取所有迁移文件
   private async getMigrationFiles(): Promise<string[]> {
     try {
-      const files = fs.readdirSync(this.migrationsPath)
+      const files = fs
+        .readdirSync(this.migrationsPath)
         .filter(file => file.endsWith('.sql'))
         .sort(); // 按字母顺序排序
 
@@ -37,7 +38,9 @@ export class DatabaseMigrator {
       return files;
     } catch (error) {
       logger.error('Failed to read migration directory:', error);
-      throw new Error(`Failed to read migration directory: ${this.migrationsPath}`);
+      throw new Error(
+        `Failed to read migration directory: ${this.migrationsPath}`
+      );
     }
   }
 
@@ -104,10 +107,13 @@ export class DatabaseMigrator {
       await client.query(migration.up);
 
       // 记录迁移
-      await client.query(`
+      await client.query(
+        `
         INSERT INTO migrations (id, name, version, description)
         VALUES ($1, $2, $3, $4)
-      `, [migration.id, migration.name, migration.version, migration.description]);
+      `,
+        [migration.id, migration.name, migration.version, migration.description]
+      );
 
       await client.query('COMMIT');
       logger.info(`Migration ${migration.name} executed successfully`);
@@ -128,14 +134,18 @@ export class DatabaseMigrator {
       await client.query('BEGIN');
 
       if (!migration.down) {
-        throw new Error(`No rollback script available for migration ${migration.name}`);
+        throw new Error(
+          `No rollback script available for migration ${migration.name}`
+        );
       }
 
       logger.info(`Rolling back migration: ${migration.name}`);
       await client.query(migration.down);
 
       // 删除迁移记录
-      await client.query('DELETE FROM migrations WHERE id = $1', [migration.id]);
+      await client.query('DELETE FROM migrations WHERE id = $1', [
+        migration.id,
+      ]);
 
       await client.query('COMMIT');
       logger.info(`Migration ${migration.name} rolled back successfully`);
@@ -149,7 +159,10 @@ export class DatabaseMigrator {
   }
 
   // 解析迁移文件信息
-  private parseMigrationInfo(filename: string, content: string): Omit<Migration, 'up' | 'down'> {
+  private parseMigrationInfo(
+    filename: string,
+    content: string
+  ): Omit<Migration, 'up' | 'down'> {
     const lines = content.split('\n').slice(0, 10); // 只读取前10行
     const metadata: any = {};
 
@@ -181,7 +194,10 @@ export class DatabaseMigrator {
     const pendingMigrations: Migration[] = [];
 
     for (const file of migrationFiles) {
-      const content = fs.readFileSync(path.join(this.migrationsPath, file), 'utf-8');
+      const content = fs.readFileSync(
+        path.join(this.migrationsPath, file),
+        'utf-8'
+      );
       const { up, down } = this.readMigrationFile(file);
       const info = this.parseMigrationInfo(file, content);
 
@@ -237,8 +253,8 @@ export class DatabaseMigrator {
       let migrationsToRollback = [...executedMigrations].reverse();
 
       if (targetVersion) {
-        migrationsToRollback = migrationsToRollback.filter(m =>
-          m.version > targetVersion
+        migrationsToRollback = migrationsToRollback.filter(
+          m => m.version > targetVersion
         );
       } else if (migrationsToRollback.length > 0) {
         // 只回滚最后一个迁移
@@ -281,9 +297,10 @@ export class DatabaseMigrator {
         total: migrationFiles.length,
         executed: executedMigrations.length,
         pending: migrationFiles.length - executedMigrations.length,
-        latest: executedMigrations.length > 0
-          ? executedMigrations[executedMigrations.length - 1].version
-          : null,
+        latest:
+          executedMigrations.length > 0
+            ? executedMigrations[executedMigrations.length - 1].version
+            : null,
       };
     } catch (error) {
       logger.error('Failed to check migration status:', error);
@@ -324,53 +341,67 @@ if (require.main === module) {
 
   switch (command) {
     case 'up':
-      migrator.run().then(() => {
-        logger.info('Migration completed');
-        process.exit(0);
-      }).catch((error) => {
-        logger.error('Migration failed:', error);
-        process.exit(1);
-      });
+      migrator
+        .run()
+        .then(() => {
+          logger.info('Migration completed');
+          process.exit(0);
+        })
+        .catch(error => {
+          logger.error('Migration failed:', error);
+          process.exit(1);
+        });
       break;
 
     case 'down':
-      migrator.rollback(targetVersion).then(() => {
-        logger.info('Rollback completed');
-        process.exit(0);
-      }).catch((error) => {
-        logger.error('Rollback failed:', error);
-        process.exit(1);
-      });
+      migrator
+        .rollback(targetVersion)
+        .then(() => {
+          logger.info('Rollback completed');
+          process.exit(0);
+        })
+        .catch(error => {
+          logger.error('Rollback failed:', error);
+          process.exit(1);
+        });
       break;
 
     case 'status':
-      migrator.status().then((status) => {
-        console.log('Migration Status:');
-        console.log('Total:', status.total);
-        console.log('Executed:', status.executed);
-        console.log('Pending:', status.pending);
-        console.log('Latest:', status.latest);
-        process.exit(0);
-      }).catch((error) => {
-        console.error('Failed to check status:', error);
-        process.exit(1);
-      });
+      migrator
+        .status()
+        .then(status => {
+          console.log('Migration Status:');
+          console.log('Total:', status.total);
+          console.log('Executed:', status.executed);
+          console.log('Pending:', status.pending);
+          console.log('Latest:', status.latest);
+          process.exit(0);
+        })
+        .catch(error => {
+          console.error('Failed to check status:', error);
+          process.exit(1);
+        });
       break;
 
     case 'reset':
-      migrator.reset().then(() => {
-        logger.info('Reset completed');
-        process.exit(0);
-      }).catch((error) => {
-        logger.error('Reset failed:', error);
-        process.exit(1);
-      });
+      migrator
+        .reset()
+        .then(() => {
+          logger.info('Reset completed');
+          process.exit(0);
+        })
+        .catch(error => {
+          logger.error('Reset failed:', error);
+          process.exit(1);
+        });
       break;
 
     default:
       console.log('Usage: npm run migrate [up|down|status|reset] [version]');
       console.log('  up      - Run pending migrations');
-      console.log('  down    - Rollback migrations (optional: specify target version)');
+      console.log(
+        '  down    - Rollback migrations (optional: specify target version)'
+      );
       console.log('  status  - Show migration status');
       console.log('  reset   - Reset database and re-run all migrations');
       process.exit(1);

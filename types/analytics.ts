@@ -1,555 +1,698 @@
-import type { UUID } from './database'
+/**
+ * @file 分析类型定义
+ * @description 定义分析相关的类型接口
+ * @module types/analytics
+ * @author YYC³
+ * @version 1.0.0
+ * @created 2025-12-29
+ * @copyright Copyright (c) 2025 YYC³
+ * @license MIT
+ */
 
-export type JsonValue = string | number | boolean | null | Record<string, JsonValue> | JsonValue[]
+import { JsonValue, JsonObject, JsonArray } from './common';
 
-export type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary'
+export type { JsonValue, JsonObject, JsonArray } from './common';
 
-export type AggregationType = 'sum' | 'avg' | 'min' | 'max' | 'count' | 'distinct'
+export type MetricType = 'counter' | 'gauge' | 'histogram' | 'summary';
 
-export type TimeGranularity = 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
+/**
+ * 聚合类型
+ */
+export type AggregationType =
+  | 'sum'
+  | 'avg'
+  | 'min'
+  | 'max'
+  | 'count'
+  | 'median'
+  | 'percentile';
 
-export type ChartType = 'line' | 'bar' | 'pie' | 'area' | 'scatter' | 'heatmap' | 'treemap' | 'funnel' | 'gauge'
+/**
+ * 时间粒度
+ */
+export type TimeGranularity =
+  | 'second'
+  | 'minute'
+  | 'hour'
+  | 'day'
+  | 'week'
+  | 'month'
+  | 'quarter'
+  | 'year';
 
-export type TrendDirection = 'up' | 'down' | 'stable'
+/**
+ * 图表类型
+ */
+export type ChartType =
+  | 'line'
+  | 'bar'
+  | 'pie'
+  | 'area'
+  | 'scatter'
+  | 'heatmap'
+  | 'table'
+  | 'gauge'
+  | 'funnel'
+  | 'sankey'
+  | 'treemap';
 
-export type ComparisonType = 'previous_period' | 'same_period_last_year' | 'target' | 'baseline'
+/**
+ * 趋势方向
+ */
+export type TrendDirection = 'up' | 'down' | 'stable';
 
-export type AlertSeverity = 'info' | 'warning' | 'error' | 'critical'
+/**
+ * 比较类型
+ */
+export type ComparisonType = 'yoy' | 'mom' | 'wow' | 'dod';
 
-export type ReportFormat = 'pdf' | 'excel' | 'csv' | 'json' | 'html'
+/**
+ * 告警严重程度
+ */
+export type AlertSeverity = 'low' | 'medium' | 'high' | 'critical';
 
-export type ExportFrequency = 'once' | 'daily' | 'weekly' | 'monthly'
+/**
+ * 报告格式
+ */
+export type ReportFormat = 'pdf' | 'excel' | 'csv' | 'json' | 'html';
 
-export type DataSource = 'database' | 'api' | 'file' | 'stream' | 'cache'
+/**
+ * 导出频率
+ */
+export type ExportFrequency =
+  | 'once'
+  | 'daily'
+  | 'weekly'
+  | 'monthly'
+  | 'quarterly';
 
+/**
+ * 数据源
+ */
+export type DataSource = 'database' | 'api' | 'file' | 'stream' | 'cache';
+
+/**
+ * 指标
+ */
 export interface Metric {
-  id: UUID
-  name: string
-  description: string
-  type: MetricType
-  unit: string
-  tags: Record<string, string>
-  created_at: Date
-  updated_at: Date
+  id: string;
+  name: string;
+  type: MetricType;
+  aggregation: AggregationType;
+  unit?: string;
+  description?: string;
+  tags?: Record<string, string>;
 }
 
+/**
+ * 指标值
+ */
 export interface MetricValue {
-  metric_id: UUID
-  value: number
-  timestamp: Date
-  labels?: Record<string, string>
+  metricId: string;
+  value: number;
+  timestamp: Date;
+  tags?: Record<string, string>;
 }
 
+/**
+ * 指标序列
+ */
 export interface MetricSeries {
-  metric: Metric
-  values: MetricValue[]
-  aggregation?: AggregationType
+  metricId: string;
+  values: MetricValue[];
+  metadata?: Record<string, unknown>;
 }
 
+/**
+ * 维度
+ */
 export interface Dimension {
-  id: UUID
-  name: string
-  type: 'categorical' | 'numerical' | 'temporal'
-  values?: string[]
+  id: string;
+  name: string;
+  type: 'string' | 'number' | 'boolean' | 'date';
+  values?: string[] | number[];
 }
 
+/**
+ * 过滤器
+ */
 export interface Filter {
-  dimension: string
-  operator: 'eq' | 'ne' | 'gt' | 'lt' | 'gte' | 'lte' | 'in' | 'not_in' | 'contains' | 'starts_with' | 'ends_with'
-  value: string | number | boolean | string[] | number[]
+  field: string;
+  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'nin';
+  value: unknown;
 }
 
+/**
+ * 查询选项
+ */
 export interface QueryOptions {
-  metrics: string[]
-  dimensions?: string[]
-  filters?: Filter[]
-  granularity?: TimeGranularity
-  startDate: Date
-  endDate: Date
-  aggregation?: AggregationType
-  limit?: number
-  offset?: number
+  metricIds: string[];
+  dimensions?: string[];
+  filters?: Filter[];
+  granularity?: TimeGranularity;
+  startTime: Date;
+  endTime: Date;
+  limit?: number;
+  offset?: number;
 }
 
+/**
+ * 查询结果
+ */
 export interface QueryResult {
-  data: Record<string, JsonValue>[]
+  data: MetricSeries[];
   metadata: {
-    total: number
-    queryTime: number
-    cached: boolean
-  }
+    total: number;
+    limit: number;
+    offset: number;
+    startTime: Date;
+    endTime: Date;
+  };
 }
 
+/**
+ * 图表配置
+ */
 export interface ChartConfig {
-  type: ChartType
-  title: string
-  xAxis?: {
-    field: string
-    label: string
-    type: 'category' | 'time' | 'value'
-  }
-  yAxis?: {
-    field: string
-    label: string
-    type: 'value'
-  }
-  series?: Array<{
-    field: string
-    label: string
-    color?: string
-  }>
-  options?: {
-    stacked?: boolean
-    normalized?: boolean
-    showLegend?: boolean
-    showGrid?: boolean
-    showTooltip?: boolean
-  }
+  id: string;
+  type: ChartType;
+  title: string;
+  metricIds: string[];
+  dimensions?: string[];
+  filters?: Filter[];
+  options?: Record<string, unknown>;
 }
 
+/**
+ * 仪表板
+ */
 export interface Dashboard {
-  id: UUID
-  name: string
-  description: string
-  layout: DashboardLayout
-  widgets: Widget[]
-  filters?: Filter[]
-  refreshInterval?: number
-  created_at: Date
-  updated_at: Date
+  id: string;
+  name: string;
+  description?: string;
+  layout: DashboardLayout;
+  widgets: Widget[];
+  metadata?: Record<string, unknown>;
 }
 
+/**
+ * 仪表板布局
+ */
 export interface DashboardLayout {
-  type: 'grid' | 'flex' | 'absolute'
-  columns: number
-  rows?: number
-  gap?: number
+  columns: number;
+  rows: number;
+  items: Array<{
+    id: string;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  }>;
 }
 
+/**
+ * 小组件
+ */
 export interface Widget {
-  id: UUID
-  type: 'metric' | 'chart' | 'table' | 'text' | 'custom'
-  title: string
-  position: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }
-  config: ChartConfig | MetricConfig | TableConfig | TextConfig
-  dataSource: DataSource
-  query?: QueryOptions
-  refreshInterval?: number
+  id: string;
+  type: ChartType | 'text' | 'table' | 'metric';
+  title: string;
+  config: ChartConfig | MetricConfig | TableConfig | TextConfig;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
 
+/**
+ * 指标配置
+ */
 export interface MetricConfig {
-  metricId: UUID
-  showTrend?: boolean
-  showComparison?: boolean
-  comparisonType?: ComparisonType
-  format?: 'number' | 'percentage' | 'currency' | 'duration'
+  metricId: string;
+  aggregation: AggregationType;
+  format?: string;
+  threshold?: {
+    warning: number;
+    critical: number;
+  };
 }
 
+/**
+ * 表格配置
+ */
 export interface TableConfig {
   columns: Array<{
-    field: string
-    label: string
-    sortable?: boolean
-    filterable?: boolean
-    format?: string
-  }>
-  sortable?: boolean
-  filterable?: boolean
-  pagination?: boolean
-  pageSize?: number
+    field: string;
+    label: string;
+    format?: string;
+  }>;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
+/**
+ * 文本配置
+ */
 export interface TextConfig {
-  content: string
-  format: 'plain' | 'markdown' | 'html'
+  content: string;
+  format?: string;
 }
 
+/**
+ * 报告
+ */
 export interface Report {
-  id: UUID
-  name: string
-  description: string
-  type: 'dashboard' | 'custom' | 'scheduled'
-  format: ReportFormat
-  template?: UUID
-  parameters?: Record<string, JsonValue>
-  schedule?: Schedule
-  recipients: string[]
-  created_at: Date
-  updated_at: Date
+  id: string;
+  name: string;
+  type: 'dashboard' | 'custom';
+  format: ReportFormat;
+  config: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
+/**
+ * 定时任务
+ */
 export interface Schedule {
-  frequency: ExportFrequency
-  timezone: string
-  time?: string
-  dayOfWeek?: number
-  dayOfMonth?: number
-  startDate: Date
-  endDate?: Date
+  id: string;
+  name: string;
+  type: 'report' | 'alert' | 'export';
+  frequency: ExportFrequency;
+  timezone?: string;
+  enabled: boolean;
+  nextRun: Date;
+  lastRun?: Date;
 }
 
+/**
+ * 告警
+ */
 export interface Alert {
-  id: UUID
-  name: string
-  description: string
-  metricId: UUID
-  condition: AlertCondition
-  severity: AlertSeverity
-  enabled: boolean
-  channels: NotificationChannel[]
-  cooldown?: number
-  lastTriggered?: Date
-  created_at: Date
-  updated_at: Date
+  id: string;
+  name: string;
+  description?: string;
+  severity: AlertSeverity;
+  condition: AlertCondition;
+  notification: NotificationChannel;
+  enabled: boolean;
+  triggeredAt?: Date;
 }
 
+/**
+ * 告警条件
+ */
 export interface AlertCondition {
-  operator: 'gt' | 'lt' | 'eq' | 'ne' | 'gte' | 'lte'
-  threshold: number
-  duration?: number
-  aggregation?: AggregationType
+  metricId: string;
+  operator: 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'neq';
+  threshold: number;
+  duration?: number;
 }
 
+/**
+ * 通知渠道
+ */
 export interface NotificationChannel {
-  type: 'email' | 'webhook' | 'slack' | 'sms'
-  config: Record<string, JsonValue>
+  type: 'email' | 'sms' | 'webhook' | 'slack' | 'telegram';
+  config: Record<string, unknown>;
 }
 
+/**
+ * 告警触发
+ */
 export interface AlertTrigger {
-  id: UUID
-  alertId: UUID
-  metricValue: number
-  threshold: number
-  message: string
-  triggeredAt: Date
-  acknowledgedAt?: Date
-  acknowledgedBy?: UUID
+  alertId: string;
+  triggeredAt: Date;
+  value: number;
+  threshold: number;
+  status: 'active' | 'resolved';
 }
 
+/**
+ * 趋势分析
+ */
 export interface TrendAnalysis {
-  metric: string
-  currentValue: number
-  previousValue: number
-  change: number
-  changePercent: number
-  direction: TrendDirection
-  significance: 'significant' | 'moderate' | 'insignificant'
-  confidence: number
+  metricId: string;
+  direction: TrendDirection;
+  change: number;
+  changePercent: number;
+  confidence: number;
+  period: ComparisonType;
 }
 
+/**
+ * 异常检测
+ */
 export interface AnomalyDetection {
-  metric: string
-  timestamp: Date
-  value: number
-  expected: number
-  deviation: number
-  severity: 'low' | 'medium' | 'high'
-  type: 'spike' | 'drop' | 'pattern_break'
+  metricId: string;
+  detectedAt: Date;
+  value: number;
+  expectedValue: number;
+  deviation: number;
+  severity: AlertSeverity;
 }
 
+/**
+ * 预测
+ */
 export interface Forecast {
-  metric: string
-  horizon: number
-  method: 'linear' | 'exponential' | 'arima' | 'prophet' | 'lstm'
+  metricId: string;
+  modelId: string;
   predictions: Array<{
-    timestamp: Date
-    value: number
-    confidenceInterval: {
-      lower: number
-      upper: number
-    }
-  }>
-  accuracy: {
-    mae: number
-    mse: number
-    rmse: number
-    mape: number
-  }
+    timestamp: Date;
+    value: number;
+    confidence: number;
+  }>;
+  horizon: TimeGranularity;
+  createdAt: Date;
 }
 
+/**
+ * 队列分析
+ */
 export interface CohortAnalysis {
-  cohort: string
-  size: number
+  cohortId: string;
+  cohortSize: number;
   metrics: Array<{
-    period: number
-    value: number
-    retentionRate: number
-  }>
+    period: string;
+    retention: number;
+    churn: number;
+  }>;
+  createdAt: Date;
 }
 
+/**
+ * 漏斗分析
+ */
 export interface FunnelAnalysis {
-  name: string
+  funnelId: string;
   steps: Array<{
-    name: string
-    count: number
-    conversionRate: number
-    dropOffRate: number
-  }>
-  overallConversionRate: number
-  averageTimeBetweenSteps: number
+    name: string;
+    count: number;
+    conversionRate: number;
+    dropOffRate: number;
+  }>;
+  overallConversionRate: number;
+  createdAt: Date;
 }
 
+/**
+ * 分段
+ */
 export interface Segment {
-  id: UUID
-  name: string
-  description: string
-  criteria: Filter[]
-  size: number
-  percentage: number
-  characteristics: Record<string, JsonValue>
-  created_at: Date
-  updated_at: Date
+  segmentId: string;
+  name: string;
+  criteria: Filter[];
+  size: number;
+  characteristics: Record<string, unknown>;
+  createdAt: Date;
 }
 
+/**
+ * 热力图数据
+ */
 export interface HeatmapData {
-  x: string
-  y: string
-  value: number
-  metadata?: Record<string, JsonValue>
+  x: string[];
+  y: string[];
+  values: number[][];
 }
 
+/**
+ * 桑基图数据
+ */
 export interface SankeyData {
   nodes: Array<{
-    id: string
-    label: string
-    value?: number
-  }>
+    id: string;
+    name: string;
+    color?: string;
+  }>;
   links: Array<{
-    source: string
-    target: string
-    value: number
-  }>
+    source: string;
+    target: string;
+    value: number;
+    color?: string;
+  }>;
 }
 
+/**
+ * 树状图数据
+ */
 export interface TreemapData {
-  name: string
-  value: number
-  children?: TreemapData[]
-  color?: string
+  name: string;
+  value: number;
+  children?: TreemapData[];
+  color?: string;
 }
 
+/**
+ * 直方图数据
+ */
 export interface HistogramData {
-  bin: string
-  count: number
-  density: number
+  bins: Array<{
+    min: number;
+    max: number;
+    count: number;
+  }>;
+  mean: number;
+  std: number;
 }
 
+/**
+ * 散点图数据
+ */
 export interface ScatterData {
-  x: number
-  y: number
-  size?: number
-  color?: string
-  metadata?: Record<string, JsonValue>
+  points: Array<{
+    x: number;
+    y: number;
+    size?: number;
+    color?: string;
+  }>;
 }
 
+/**
+ * 性能指标
+ */
 export interface PerformanceMetrics {
-  responseTime: {
-    p50: number
-    p95: number
-    p99: number
-    avg: number
-  }
-  throughput: number
-  errorRate: number
-  availability: number
-  cpuUsage: number
-  memoryUsage: number
-  diskUsage: number
-  networkUsage: number
+  responseTime: number;
+  throughput: number;
+  errorRate: number;
+  availability: number;
+  cpuUsage?: number;
+  memoryUsage?: number;
 }
 
+/**
+ * 用户行为指标
+ */
 export interface UserBehaviorMetrics {
-  activeUsers: number
-  newUsers: number
-  returningUsers: number
-  sessionDuration: {
-    avg: number
-    median: number
-  }
-  pageViews: number
-  bounceRate: number
-  conversionRate: number
-  retentionRate: number
-  churnRate: number
+  activeUsers: number;
+  userRetentionRate: number;
+  averageResponseTime?: number;
+  userSatisfaction?: number;
+  averageSessionDuration?: number;
+  pageViewsPerSession?: number;
 }
 
+/**
+ * 业务指标
+ */
 export interface BusinessMetrics {
-  revenue: number
-  revenueGrowth: number
-  averageOrderValue: number
-  customerLifetimeValue: number
-  customerAcquisitionCost: number
-  monthlyRecurringRevenue: number
-  annualRecurringRevenue: number
+  revenue: number;
+  profit: number;
+  margin: number;
+  growth: number;
+  churn: number;
 }
 
+/**
+ * 成长指标
+ */
 export interface GrowthMetrics {
-  totalRecords: number
-  recordsByCategory: Record<string, number>
-  recordsByMonth: Array<{
-    month: string
-    count: number
-  }>
-  averageRecordsPerChild: number
-  activeChildren: number
-  totalConversations: number
-  conversationsByRole: Record<string, number>
-  averageConversationLength: number
+  totalGrowthRecords: number;
+  averageScore: number;
+  completionRate: number;
+  improvementRate: number;
+  engagement: number;
 }
 
+/**
+ * 评估指标
+ */
 export interface AssessmentMetrics {
-  dimensionScores: Record<string, {
-    score: number
-    level: string
-    percentile: number
-    description: string
-  }>
-  overallLevel: string
-  overallScore: number
-  strengths: string[]
-  areasForImprovement: string[]
-  recommendations: string[]
-  nextSteps: string[]
+  totalAssessments: number;
+  averageScore: number;
+  passRate: number;
+  averageCompletionTime: number;
+  improvementRate: number;
 }
 
+/**
+ * 分析事件
+ */
 export interface AnalyticsEvent {
-  id: UUID
-  userId?: UUID
-  sessionId?: string
-  eventType: string
-  eventName: string
-  properties: Record<string, JsonValue>
-  timestamp: Date
-  platform: 'web' | 'mobile' | 'api'
-  device?: {
-    type: string
-    os: string
-    browser?: string
-  }
-  location?: {
-    country: string
-    city: string
-    timezone: string
-  }
+  eventType: string;
+  userId?: string;
+  sessionId?: string;
+  timestamp: Date;
+  properties: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 }
 
+/**
+ * 事件聚合
+ */
 export interface EventAggregation {
-  eventType: string
-  eventName: string
-  count: number
-  uniqueUsers: number
-  avgValue?: number
-  sumValue?: number
-  firstOccurrence: Date
-  lastOccurrence: Date
+  eventType: string;
+  count: number;
+  uniqueUsers: number;
+  avgValue?: number;
+  minValue?: number;
+  maxValue?: number;
+  sumValue?: number;
+  period: {
+    start: Date;
+    end: Date;
+  };
 }
 
+/**
+ * 实时指标
+ */
 export interface RealtimeMetric {
-  name: string
-  value: number
-  timestamp: Date
-  trend?: TrendDirection
-  change?: number
-  changePercent?: number
+  metricId: string;
+  value: number;
+  timestamp: Date;
+  trend?: TrendDirection;
+  alert?: {
+    severity: AlertSeverity;
+    message: string;
+  };
+  activeUsers?: number;
+  newUsers?: number;
+  aiConversations?: number;
+  averageSatisfaction?: number;
+  systemHealth?: number;
+  responseTime?: number;
+  errorRate?: number;
+  totalUsers?: number;
+  lastUpdated?: Date;
 }
 
+/**
+ * 实时仪表板
+ */
 export interface RealtimeDashboard {
-  metrics: RealtimeMetric[]
-  alerts: AlertTrigger[]
-  activeUsers: number
-  throughput: number
-  errorRate: number
+  dashboardId: string;
+  metrics: RealtimeMetric[];
+  lastUpdated: Date;
 }
 
+/**
+ * 实时活动
+ */
+export interface RealtimeActivity {
+  id: string;
+  activityId: string;
+  type: 'user_action' | 'system_event' | 'ai_interaction' | 'business_event';
+  description: string;
+  timestamp: Date | string;
+  userId?: string;
+  impact?: 'low' | 'medium' | 'high';
+  details?: {
+    duration?: number;
+    success?: boolean;
+    userId?: string;
+    sessionId?: string;
+  };
+  metadata?: {
+    ip?: string;
+    userAgent?: string;
+    location?: string;
+    device?: string;
+    [key: string]: unknown;
+  };
+}
+
+/**
+ * 数据质量报告
+ */
 export interface DataQualityReport {
-  completeness: number
-  accuracy: number
-  consistency: number
-  timeliness: number
-  validity: number
-  uniqueness: number
+  reportId: string;
+  metrics: {
+    completeness: number;
+    accuracy: number;
+    consistency: number;
+    timeliness: number;
+    uniqueness: number;
+  };
   issues: Array<{
-    type: string
-    severity: 'low' | 'medium' | 'high'
-    description: string
-    count: number
-    affectedRecords: number
-  }>
+    field: string;
+    issue: string;
+    count: number;
+    severity: AlertSeverity;
+  }>;
+  createdAt: Date;
 }
 
+/**
+ * 分析导出
+ */
 export interface AnalyticsExport {
-  id: UUID
-  reportId: UUID
-  format: ReportFormat
-  status: 'pending' | 'processing' | 'completed' | 'failed'
-  url?: string
-  expiresAt?: Date
-  createdAt: Date
-  completedAt?: Date
-  error?: string
+  exportId: string;
+  type: 'metrics' | 'events' | 'reports';
+  format: ReportFormat;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  url?: string;
+  createdAt: Date;
+  completedAt?: Date;
 }
 
+/**
+ * 分析配置
+ */
 export interface AnalyticsConfig {
-  dataRetention: {
-    raw: number
-    aggregated: number
-  }
-  aggregationGranularity: TimeGranularity
-  defaultTimezone: string
-  alertDefaults: {
-    severity: AlertSeverity
-    cooldown: number
-  }
-  performance: {
-    cacheEnabled: boolean
-    cacheTTL: number
-    queryTimeout: number
-  }
-  privacy: {
-    anonymizeIP: boolean
-    maskPII: boolean
-    dataMinimization: boolean
-  }
+  retentionPeriod: number;
+  samplingRate?: number;
+  aggregationGranularity: TimeGranularity;
+  alertRules: Alert[];
 }
 
+/**
+ * 比较结果
+ */
 export interface ComparisonResult {
-  current: number
-  previous: number
-  change: number
-  changePercent: number
-  direction: TrendDirection
-  isSignificant: boolean
-  confidence: number
+  metricId: string;
+  current: number;
+  previous: number;
+  change: number;
+  changePercent: number;
+  period: ComparisonType;
+  significance: 'significant' | 'not-significant';
 }
 
+/**
+ * 洞察
+ */
 export interface Insight {
-  id: UUID
-  type: 'trend' | 'anomaly' | 'correlation' | 'opportunity' | 'risk'
-  title: string
-  description: string
-  metrics: string[]
-  confidence: number
-  impact: 'low' | 'medium' | 'high'
-  actionable: boolean
-  recommendations?: string[]
-  createdAt: Date
-  expiresAt?: Date
+  insightId: string;
+  type: 'trend' | 'anomaly' | 'opportunity' | 'risk';
+  title: string;
+  description: string;
+  metricId: string;
+  confidence: number;
+  impact: 'high' | 'medium' | 'low';
+  actions?: string[];
+  createdAt: Date;
 }
 
+/**
+ * 分析查询
+ */
 export interface AnalyticsQuery {
-  id: UUID
-  name: string
-  description: string
-  query: QueryOptions
-  createdBy: UUID
-  createdAt: Date
-  updatedAt: Date
-  lastExecuted?: Date
-  executionCount: number
-  avgExecutionTime: number
+  queryId: string;
+  name: string;
+  sql?: string;
+  config: QueryOptions;
+  createdAt: Date;
+  updatedAt: Date;
 }

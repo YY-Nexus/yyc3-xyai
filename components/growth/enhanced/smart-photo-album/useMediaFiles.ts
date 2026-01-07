@@ -29,7 +29,7 @@ const mockMediaFiles: MediaFile[] = [
     emotions: [
       { emotion: 'happy', confidence: 0.9, person: '小语' },
       { emotion: 'happy', confidence: 0.8, person: '妈妈' },
-      { emotion: 'happy', confidence: 0.7, person: '爸爸' }
+      { emotion: 'happy', confidence: 0.7, person: '爸爸' },
     ],
     description: '小语一岁生日派对，全家人一起庆祝她的成长里程碑',
     isFavorite: true,
@@ -38,14 +38,14 @@ const mockMediaFiles: MediaFile[] = [
       scene: '生日派对',
       quality: 'high',
       colorScheme: ['粉色', '蓝色', '黄色'],
-      相似度: 0.9
+      相似度: 0.9,
     },
     metadata: {
       camera: 'iPhone 15 Pro',
       settings: '1920x1080, HDR',
       fileSize: '2 MB',
-      format: 'JPEG'
-    }
+      format: 'JPEG',
+    },
   },
   {
     id: '2',
@@ -62,7 +62,7 @@ const mockMediaFiles: MediaFile[] = [
     tags: ['游泳', '第一次', '成长', '运动'],
     emotions: [
       { emotion: 'happy', confidence: 0.8, person: '小语' },
-      { emotion: 'neutral', confidence: 0.7, person: '妈妈' }
+      { emotion: 'neutral', confidence: 0.7, person: '妈妈' },
     ],
     description: '小语第一次在专业游泳馆游泳，表现得非常勇敢！',
     isFavorite: true,
@@ -71,14 +71,14 @@ const mockMediaFiles: MediaFile[] = [
       scene: '游泳馆',
       quality: 'high',
       colorScheme: ['蓝色', '白色'],
-      相似度: 0.88
+      相似度: 0.88,
     },
     metadata: {
       camera: 'Canon EOS R5',
       settings: '2048x1536, f/2.8, 1/200s',
       fileSize: '3 MB',
-      format: 'JPEG'
-    }
+      format: 'JPEG',
+    },
   },
   {
     id: '3',
@@ -96,7 +96,7 @@ const mockMediaFiles: MediaFile[] = [
     tags: ['说话', '第一次', '成长', '家庭'],
     emotions: [
       { emotion: 'happy', confidence: 0.9, person: '小语' },
-      { emotion: 'excited', confidence: 0.95, person: '妈妈' }
+      { emotion: 'excited', confidence: 0.95, person: '妈妈' },
     ],
     description: '小语第一次清晰地说出"妈妈"，这是最珍贵的时刻！',
     isFavorite: true,
@@ -105,14 +105,14 @@ const mockMediaFiles: MediaFile[] = [
       scene: '客厅',
       quality: 'high',
       colorScheme: ['白色', '灰色', '橙色'],
-      相似度: 0.92
+      相似度: 0.92,
     },
     metadata: {
       camera: 'Samsung Galaxy S24',
       settings: '1280x720, 30fps',
       fileSize: '4 MB',
-      format: 'MP4'
-    }
+      format: 'MP4',
+    },
   },
   {
     id: '4',
@@ -130,7 +130,7 @@ const mockMediaFiles: MediaFile[] = [
     tags: ['爬行', '运动发展', '第一次', '成长'],
     emotions: [
       { emotion: 'neutral', confidence: 0.7, person: '小语' },
-      { emotion: 'happy', confidence: 0.9, person: '妈妈' }
+      { emotion: 'happy', confidence: 0.9, person: '妈妈' },
     ],
     description: '小语第一次成功爬行！这是她探索世界的重要一步',
     isFavorite: true,
@@ -139,15 +139,15 @@ const mockMediaFiles: MediaFile[] = [
       scene: '儿童房',
       quality: 'medium',
       colorScheme: ['黄色', '蓝色', '绿色'],
-      相似度: 0.85
+      相似度: 0.85,
     },
     metadata: {
       camera: 'iPhone 15 Pro',
       settings: '1080p, 60fps',
       fileSize: '5.9 MB',
-      format: 'MP4'
-    }
-  }
+      format: 'MP4',
+    },
+  },
 ];
 
 /**
@@ -165,23 +165,30 @@ export const useMediaFiles = () => {
   const [autoTagging, setAutoTagging] = useState(true);
 
   // 过滤参数
-  const filterParams: FilterParams = useMemo(() => ({
-    searchQuery,
-    selectedTags,
-    dateRange
-  }), [searchQuery, selectedTags, dateRange]);
+  const filterParams: FilterParams = useMemo(
+    () => ({
+      searchQuery,
+      selectedTags,
+      dateRange,
+    }),
+    [searchQuery, selectedTags, dateRange]
+  );
 
   // 过滤和排序文件
   const filteredFiles = useMemo(() => {
     let filtered = mediaFiles.filter(file => {
       // 搜索过滤
-      const matchesSearch = searchQuery === '' ||
+      const matchesSearch =
+        searchQuery === '' ||
         file.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
         file.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        file.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        file.tags.some(tag =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
       // 标签过滤
-      const matchesTags = selectedTags.length === 0 ||
+      const matchesTags =
+        selectedTags.length === 0 ||
         selectedTags.some(tag => file.tags.includes(tag));
 
       // 日期范围过滤
@@ -242,80 +249,88 @@ export const useMediaFiles = () => {
   }, []);
 
   // 处理文件上传
-  const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
 
-    setIsProcessing(true);
+      setIsProcessing(true);
 
-    for (const file of files) {
-      try {
-        // 模拟AI分析
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      for (const file of files) {
+        try {
+          // 模拟AI分析
+          await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const newFile: MediaFile = {
-          id: Date.now().toString() + Math.random(),
-          type: file.type.startsWith('video/') ? 'video' : 'photo',
-          url: URL.createObjectURL(file),
-          thumbnail: URL.createObjectURL(file), // 在实际应用中需要生成缩略图
-          filename: file.name,
-          size: file.size,
-          dimensions: { width: 1920, height: 1080 }, // 模拟尺寸
-          date: new Date().toISOString().split('T')[0],
-          age: calculateAge(new Date(), new Date('2024-12-27')),
-          people: autoTagging ? ['小语'] : [],
-          tags: autoTagging ? generateSmartTags(file.name) : [],
-          emotions: [],
-          description: '',
-          isFavorite: false,
-          aiAnalysis: autoTagging ? {
-            objects: ['婴儿', '玩具'],
-            scene: '家庭环境',
-            quality: 'high',
-            colorScheme: ['白色', '粉色'],
-            相似度: Math.random() * 0.3 + 0.7
-          } : undefined,
-          metadata: {
-            fileSize: formatFileSize(file.size),
-            format: file.type.split('/')[1]?.toUpperCase() || 'UNKNOWN'
-          }
-        };
+          const newFile: MediaFile = {
+            id: Date.now().toString() + Math.random(),
+            type: file.type.startsWith('video/') ? 'video' : 'photo',
+            url: URL.createObjectURL(file),
+            thumbnail: URL.createObjectURL(file), // 在实际应用中需要生成缩略图
+            filename: file.name,
+            size: file.size,
+            dimensions: { width: 1920, height: 1080 }, // 模拟尺寸
+            date: new Date().toISOString().split('T')[0],
+            age: calculateAge(new Date(), new Date('2024-12-27')),
+            people: autoTagging ? ['小语'] : [],
+            tags: autoTagging ? generateSmartTags(file.name) : [],
+            emotions: [],
+            description: '',
+            isFavorite: false,
+            aiAnalysis: autoTagging
+              ? {
+                  objects: ['婴儿', '玩具'],
+                  scene: '家庭环境',
+                  quality: 'high',
+                  colorScheme: ['白色', '粉色'],
+                  相似度: Math.random() * 0.3 + 0.7,
+                }
+              : undefined,
+            metadata: {
+              fileSize: formatFileSize(file.size),
+              format: file.type.split('/')[1]?.toUpperCase() || 'UNKNOWN',
+            },
+          };
 
-        setMediaFiles(prev => [newFile, ...prev]);
-      } catch (error) {
-        console.error('文件上传失败:', error);
+          setMediaFiles(prev => [newFile, ...prev]);
+        } catch (error) {
+          console.error('文件上传失败:', error);
+        }
       }
-    }
 
-    setIsProcessing(false);
-    // 清空文件输入
-    event.target.value = '';
-  }, [autoTagging]);
+      setIsProcessing(false);
+      // 清空文件输入
+      event.target.value = '';
+    },
+    [autoTagging]
+  );
 
   // 批量删除文件
   const deleteSelectedFiles = useCallback(() => {
     if (selectedFiles.size === 0) return;
-    
+
     setMediaFiles(prev => {
       return prev.filter(file => !selectedFiles.has(file.id));
     });
-    
+
     setSelectedFiles(new Set());
   }, [selectedFiles]);
 
   // 批量添加/移除收藏
-  const toggleSelectedFavorites = useCallback((isFavorite: boolean) => {
-    if (selectedFiles.size === 0) return;
-    
-    setMediaFiles(prev => {
-      return prev.map(file => {
-        if (selectedFiles.has(file.id)) {
-          return { ...file, isFavorite };
-        }
-        return file;
+  const toggleSelectedFavorites = useCallback(
+    (isFavorite: boolean) => {
+      if (selectedFiles.size === 0) return;
+
+      setMediaFiles(prev => {
+        return prev.map(file => {
+          if (selectedFiles.has(file.id)) {
+            return { ...file, isFavorite };
+          }
+          return file;
+        });
       });
-    });
-  }, [selectedFiles]);
+    },
+    [selectedFiles]
+  );
 
   // 选择所有文件
   const selectAllFiles = useCallback(() => {
@@ -342,7 +357,7 @@ export const useMediaFiles = () => {
     autoTagging,
     allTags,
     filterParams,
-    
+
     // 方法
     setSearchQuery,
     setSelectedTags,
@@ -354,6 +369,6 @@ export const useMediaFiles = () => {
     handleFileUpload,
     deleteSelectedFiles,
     toggleSelectedFavorites,
-    selectAllFiles
+    selectAllFiles,
   };
 };

@@ -3,8 +3,16 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { db } from '@/config/database';
 import { redis } from '@/config/database';
-import { generateToken, generateRefreshToken, getUserById } from '@/middleware/auth';
-import { createValidationError, createUnauthorizedError, createConflictError } from '@/middleware/errorHandler';
+import {
+  generateToken,
+  generateRefreshToken,
+  getUserById,
+} from '@/middleware/auth';
+import {
+  createValidationError,
+  createUnauthorizedError,
+  createConflictError,
+} from '@/middleware/errorHandler';
 import { catchAsync } from '@/middleware/errorHandler';
 import { Logger } from '@/config/logger';
 
@@ -35,10 +43,9 @@ export const register = catchAsync(async (req: Request, res: Response) => {
   const validatedData = registerSchema.parse(req.body);
 
   // 检查邮箱是否已存在
-  const existingUser = await db.query(
-    'SELECT id FROM users WHERE email = $1',
-    [validatedData.email]
-  );
+  const existingUser = await db.query('SELECT id FROM users WHERE email = $1', [
+    validatedData.email,
+  ]);
 
   if (existingUser.rows.length > 0) {
     throw createConflictError('Email already registered');
@@ -53,7 +60,13 @@ export const register = catchAsync(async (req: Request, res: Response) => {
     `INSERT INTO users (email, password_hash, first_name, last_name, phone)
      VALUES ($1, $2, $3, $4, $5)
      RETURNING id, email, first_name, last_name, phone, role, is_active, email_verified, created_at`,
-    [validatedData.email, passwordHash, validatedData.firstName, validatedData.lastName, validatedData.phone]
+    [
+      validatedData.email,
+      passwordHash,
+      validatedData.firstName,
+      validatedData.lastName,
+      validatedData.phone,
+    ]
   );
 
   const user = result.rows[0];
@@ -144,7 +157,10 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   }
 
   // 验证密码
-  const isValidPassword = await bcrypt.compare(validatedData.password, user.password_hash);
+  const isValidPassword = await bcrypt.compare(
+    validatedData.password,
+    user.password_hash
+  );
 
   if (!isValidPassword) {
     throw createUnauthorizedError('Invalid email or password');
@@ -173,10 +189,9 @@ export const login = catchAsync(async (req: Request, res: Response) => {
   );
 
   // 更新最后登录时间
-  await db.query(
-    'UPDATE users SET last_login_at = NOW() WHERE id = $1',
-    [user.id]
-  );
+  await db.query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [
+    user.id,
+  ]);
 
   // 清除用户缓存
   await redis.del(`user:${user.id}`);
@@ -309,7 +324,8 @@ export const getProfile = catchAsync(async (req: Request, res: Response) => {
         childrenCount: parseInt(stats.children_count) || 0,
         growthRecordsCount: parseInt(stats.growth_records_count) || 0,
         aiConversationsCount: parseInt(stats.ai_conversations_count) || 0,
-        unreadNotificationsCount: parseInt(stats.unread_notifications_count) || 0,
+        unreadNotificationsCount:
+          parseInt(stats.unread_notifications_count) || 0,
       },
     },
     meta: {
@@ -363,7 +379,12 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
       'USER_UPDATE',
       'user',
       userId,
-      { firstName: oldUser.first_name, lastName: oldUser.last_name, phone: oldUser.phone, avatarUrl: oldUser.avatar_url },
+      {
+        firstName: oldUser.first_name,
+        lastName: oldUser.last_name,
+        phone: oldUser.phone,
+        avatarUrl: oldUser.avatar_url,
+      },
       { firstName, lastName, phone, avatarUrl },
       req.ip,
       req.get('User-Agent'),
@@ -397,68 +418,76 @@ export const updateProfile = catchAsync(async (req: Request, res: Response) => {
 });
 
 // 修改密码
-export const changePassword = catchAsync(async (req: Request, res: Response) => {
-  const userId = (req as any).user?.id;
+export const changePassword = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = (req as any).user?.id;
 
-  if (!userId) {
-    throw createUnauthorizedError('User not authenticated');
-  }
+    if (!userId) {
+      throw createUnauthorizedError('User not authenticated');
+    }
 
-  // 验证输入数据
-  const validatedData = changePasswordSchema.parse(req.body);
+    // 验证输入数据
+    const validatedData = changePasswordSchema.parse(req.body);
 
-  // 获取当前密码哈希
-  const result = await db.query(
-    'SELECT password_hash FROM users WHERE id = $1',
-    [userId]
-  );
+    // 获取当前密码哈希
+    const result = await db.query(
+      'SELECT password_hash FROM users WHERE id = $1',
+      [userId]
+    );
 
-  if (result.rows.length === 0) {
-    throw createUnauthorizedError('User not found');
-  }
+    if (result.rows.length === 0) {
+      throw createUnauthorizedError('User not found');
+    }
 
-  const currentPasswordHash = result.rows[0].password_hash;
+    const currentPasswordHash = result.rows[0].password_hash;
 
-  // 验证当前密码
-  const isValidPassword = await bcrypt.compare(validatedData.currentPassword, currentPasswordHash);
+    // 验证当前密码
+    const isValidPassword = await bcrypt.compare(
+      validatedData.currentPassword,
+      currentPasswordHash
+    );
 
-  if (!isValidPassword) {
-    throw createUnauthorizedError('Current password is incorrect');
-  }
+    if (!isValidPassword) {
+      throw createUnauthorizedError('Current password is incorrect');
+    }
 
-  // 加密新密码
-  const saltRounds = parseInt(process.env.BCRYPT_ROUNDS || '12');
-  const newPasswordHash = await bcrypt.hash(validatedData.newPassword, saltRounds);
+    // 加密新密码
+    const saltRounds = parseInt(process.env.BCRYPT_ROUNDS || '12');
+    const newPasswordHash = await bcrypt.hash(
+      validatedData.newPassword,
+      saltRounds
+    );
 
-  // 更新密码
-  await db.query(
-    'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
-    [newPasswordHash, userId]
-  );
+    // 更新密码
+    await db.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+      [newPasswordHash, userId]
+    );
 
-  // 删除所有用户会话（强制重新登录）
-  await db.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]);
+    // 删除所有用户会话（强制重新登录）
+    await db.query('DELETE FROM user_sessions WHERE user_id = $1', [userId]);
 
-  // 记录审计日志
-  await db.query(
-    `INSERT INTO audit_logs (user_id, action, resource_type, ip_address, user_agent)
+    // 记录审计日志
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, resource_type, ip_address, user_agent)
      VALUES ($1, $2, $3, $4, $5)`,
-    [userId, 'PASSWORD_CHANGE', 'user', req.ip, req.get('User-Agent')]
-  );
+      [userId, 'PASSWORD_CHANGE', 'user', req.ip, req.get('User-Agent')]
+    );
 
-  logger.info('Password changed successfully', {
-    userId,
-    ipAddress: req.ip,
-  });
+    logger.info('Password changed successfully', {
+      userId,
+      ipAddress: req.ip,
+    });
 
-  res.json({
-    success: true,
-    message: 'Password changed successfully. Please login again.',
-    meta: {
-      timestamp: new Date().toISOString(),
-    },
-  });
-});
+    res.json({
+      success: true,
+      message: 'Password changed successfully. Please login again.',
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+);
 
 // 获取用户会话列表
 export const getSessions = catchAsync(async (req: Request, res: Response) => {
@@ -502,16 +531,23 @@ export const deleteSession = catchAsync(async (req: Request, res: Response) => {
     throw createUnauthorizedError('User not authenticated');
   }
 
-  await db.query(
-    'DELETE FROM user_sessions WHERE id = $1 AND user_id = $2',
-    [sessionId, userId]
-  );
+  await db.query('DELETE FROM user_sessions WHERE id = $1 AND user_id = $2', [
+    sessionId,
+    userId,
+  ]);
 
   // 记录审计日志
   await db.query(
     `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, ip_address, user_agent)
      VALUES ($1, $2, $3, $4, $5, $6)`,
-    [userId, 'SESSION_DELETE', 'user_session', sessionId, req.ip, req.get('User-Agent')]
+    [
+      userId,
+      'SESSION_DELETE',
+      'user_session',
+      sessionId,
+      req.ip,
+      req.get('User-Agent'),
+    ]
   );
 
   res.json({

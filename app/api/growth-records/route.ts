@@ -1,62 +1,73 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/db/client"
+import { type NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db/client';
 
 interface GrowthRecord {
-  id: string
-  child_id: string
-  type: 'milestone' | 'observation' | 'emotion'
-  title: string
-  content: string
-  recorded_at: string
-  tags?: string[]
-  media_urls?: string[]
+  id: string;
+  child_id: string;
+  type: 'milestone' | 'observation' | 'emotion';
+  title: string;
+  content: string;
+  recorded_at: string;
+  tags?: string[];
+  media_urls?: string[];
 }
 
 export async function GET(request: NextRequest) {
   try {
-    await db.seedMockData()
+    await db.seedMockData();
 
-    const searchParams = request.nextUrl.searchParams
-    const childId = searchParams.get("childId")
-    const type = searchParams.get("type")
+    const searchParams = request.nextUrl.searchParams;
+    const childId = searchParams.get('childId');
+    const type = searchParams.get('type');
 
-    let records = await db.findMany("growth_records")
+    let records = await db.findMany('growth_records');
 
     if (childId) {
       records = records.filter((record: unknown) => {
-        const r = record as GrowthRecord
-        return r.child_id === childId
-      })
+        const r = record as GrowthRecord;
+        return r.child_id === childId;
+      });
     }
 
     if (type) {
       records = records.filter((record: unknown) => {
-        const r = record as GrowthRecord
-        return r.type === type
-      })
+        const r = record as GrowthRecord;
+        return r.type === type;
+      });
     }
 
     // 按时间倒序排列
     records.sort((a: unknown, b: unknown) => {
-      const ra = a as GrowthRecord
-      const rb = b as GrowthRecord
-      return new Date(rb.recorded_at).getTime() - new Date(ra.recorded_at).getTime()
-    })
+      const ra = a as GrowthRecord;
+      const rb = b as GrowthRecord;
+      return (
+        new Date(rb.recorded_at).getTime() - new Date(ra.recorded_at).getTime()
+      );
+    });
 
-    return NextResponse.json({ data: records, success: true })
+    return NextResponse.json({ data: records, success: true });
   } catch (error) {
-    console.error("[v0] Error fetching growth records:", error)
-    return NextResponse.json({ error: "Failed to fetch growth records", success: false }, { status: 500 })
+    console.error('[v0] Error fetching growth records:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch growth records', success: false },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const newRecord = await db.create("growth_records", body)
-    return NextResponse.json({ data: newRecord, success: true }, { status: 201 })
+    const body = await request.json();
+    const newRecord = await db.create('growth_records', body);
+    return NextResponse.json(
+      { data: newRecord, success: true },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error("[v0] Error creating growth record:", error)
-    return NextResponse.json({ error: "Failed to create growth record", success: false }, { status: 500 })
+    console.error('[v0] Error creating growth record:', error);
+    return NextResponse.json(
+      { error: 'Failed to create growth record', success: false },
+      { status: 500 }
+    );
   }
 }

@@ -1,31 +1,34 @@
-import { generateText } from "ai"
-import { createOpenAI } from "@ai-sdk/openai"
+import { generateText } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
 
 const openai = createOpenAI({
-  apiKey: process.env['OPENAI_API_KEY'] ?? "",
-  ...(process.env['OPENAI_BASE_URL'] && { baseURL: process.env['OPENAI_BASE_URL'] })
-})
+  apiKey: process.env['OPENAI_API_KEY'] ?? '',
+  ...(process.env['OPENAI_BASE_URL'] && {
+    baseURL: process.env['OPENAI_BASE_URL'],
+  }),
+});
 
-const model = openai("gpt-4o-mini") satisfies any
+const model = openai('gpt-4o-mini') satisfies any;
 
 interface DimensionAnalysis {
-  score: number
-  level: string
-  percentile: number
-  description: string
+  score: number;
+  level: string;
+  percentile: number;
+  description: string;
 }
 
 interface DimensionData {
-  [key: string]: DimensionAnalysis
+  [key: string]: DimensionAnalysis;
 }
 
 export async function POST(request: Request) {
   try {
-    const { childName, childAge, stageId, stageName, scores } = await request.json()
+    const { childName, childAge, stageId, stageName, scores } =
+      await request.json();
 
     // 计算各维度得分和总体评估
-    const dimensionAnalysis = analyzeDimensions(scores)
-    const overallLevel = calculateOverallLevel(dimensionAnalysis)
+    const dimensionAnalysis = analyzeDimensions(scores);
+    const overallLevel = calculateOverallLevel(dimensionAnalysis);
 
     // 生成AI评估报告
     const { text: aiReport } = await generateText({
@@ -58,7 +61,7 @@ ${JSON.stringify(dimensionAnalysis, null, 2)}
 - 避免使用"落后""问题""缺陷"等负面词汇
 - 用"成长空间""发展机会""可以更好"等正向表达
 - 强调每个孩子发展节奏不同是正常的`,
-    })
+    });
 
     // 构建完整报告
     const report = {
@@ -73,108 +76,115 @@ ${JSON.stringify(dimensionAnalysis, null, 2)}
       aiAnalysis: aiReport,
       recommendations: extractRecommendations(aiReport),
       nextSteps: generateNextSteps(stageId, dimensionAnalysis),
-    }
+    };
 
-    return Response.json(report)
+    return Response.json(report);
   } catch (error) {
-    console.error("Assessment report error:", error)
-    return Response.json({ error: "报告生成失败" }, { status: 500 })
+    console.error('Assessment report error:', error);
+    return Response.json({ error: '报告生成失败' }, { status: 500 });
   }
 }
 
 // 分析各维度得分
 function analyzeDimensions(scores: Record<string, number>): DimensionData {
-  const analysis: DimensionData = {}
+  const analysis: DimensionData = {};
 
   for (const [dimension, score] of Object.entries(scores)) {
-    const percentile = calculatePercentile(score)
+    const percentile = calculatePercentile(score);
     analysis[dimension] = {
       score,
       level: getScoreLevel(score),
       percentile,
       description: getScoreDescription(score),
-    }
+    };
   }
 
-  return analysis
+  return analysis;
 }
 
 // 计算总体发展水平
 function calculateOverallLevel(dimensionAnalysis: DimensionData): string {
-  const scores = Object.values(dimensionAnalysis).map((d) => d.score)
-  const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length
+  const scores = Object.values(dimensionAnalysis).map(d => d.score);
+  const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
 
-  if (avgScore >= 85) return "发展良好"
-  if (avgScore >= 70) return "发展正常"
-  if (avgScore >= 55) return "需要关注"
-  return "建议咨询专业人士"
+  if (avgScore >= 85) return '发展良好';
+  if (avgScore >= 70) return '发展正常';
+  if (avgScore >= 55) return '需要关注';
+  return '建议咨询专业人士';
 }
 
 // 计算百分位
 function calculatePercentile(score: number): number {
   // 简化的百分位计算（实际应基于常模数据）
-  if (score >= 90) return 95
-  if (score >= 80) return 85
-  if (score >= 70) return 70
-  if (score >= 60) return 50
-  if (score >= 50) return 30
-  return 15
+  if (score >= 90) return 95;
+  if (score >= 80) return 85;
+  if (score >= 70) return 70;
+  if (score >= 60) return 50;
+  if (score >= 50) return 30;
+  return 15;
 }
 
 // 获取分数等级
 function getScoreLevel(score: number): string {
-  if (score >= 85) return "优秀"
-  if (score >= 70) return "良好"
-  if (score >= 55) return "正常"
-  if (score >= 40) return "待发展"
-  return "需关注"
+  if (score >= 85) return '优秀';
+  if (score >= 70) return '良好';
+  if (score >= 55) return '正常';
+  if (score >= 40) return '待发展';
+  return '需关注';
 }
 
 // 获取分数描述
 function getScoreDescription(score: number): string {
-  if (score >= 85) return "在同龄儿童中表现突出"
-  if (score >= 70) return "发展状况良好，符合预期"
-  if (score >= 55) return "发展正常，可适当加强"
-  if (score >= 40) return "有较大成长空间"
-  return "建议寻求专业指导"
+  if (score >= 85) return '在同龄儿童中表现突出';
+  if (score >= 70) return '发展状况良好，符合预期';
+  if (score >= 55) return '发展正常，可适当加强';
+  if (score >= 40) return '有较大成长空间';
+  return '建议寻求专业指导';
 }
 
 // 提取建议
 function extractRecommendations(report: string): string[] {
-  const lines = report.split("\n")
-  const recommendations: string[] = []
+  const lines = report.split('\n');
+  const recommendations: string[] = [];
 
-  let inRecommendSection = false
+  let inRecommendSection = false;
   for (const line of lines) {
-    if (line.includes("专业建议") || line.includes("家庭活动")) {
-      inRecommendSection = true
-      continue
+    if (line.includes('专业建议') || line.includes('家庭活动')) {
+      inRecommendSection = true;
+      continue;
     }
-    if (line.includes("【") && inRecommendSection) {
-      inRecommendSection = false
+    if (line.includes('【') && inRecommendSection) {
+      inRecommendSection = false;
     }
-    if (inRecommendSection && line.trim().startsWith("-")) {
-      recommendations.push(line.trim().substring(1).trim())
+    if (inRecommendSection && line.trim().startsWith('-')) {
+      recommendations.push(line.trim().substring(1).trim());
     }
   }
 
-  return recommendations.slice(0, 10)
+  return recommendations.slice(0, 10);
 }
 
 // 生成下一步行动
-function generateNextSteps(_stageId: string, analysis: DimensionData): string[] {
-  const steps = ["定期进行发展评估，追踪成长变化", "保持与孩子的高质量陪伴时间", "鼓励探索和尝试新事物"]
+function generateNextSteps(
+  _stageId: string,
+  analysis: DimensionData
+): string[] {
+  const steps = [
+    '定期进行发展评估，追踪成长变化',
+    '保持与孩子的高质量陪伴时间',
+    '鼓励探索和尝试新事物',
+  ];
 
   // 找出最需要关注的维度
   const sortedDimensions = Object.entries(analysis)
     .sort((a, b) => a[1].score - b[1].score)
-    .slice(0, 2)
+    .slice(0, 2);
 
   for (const [dim, data] of sortedDimensions) {
     if (data.score < 70) {
-      steps.push(`重点关注${dim}发展，增加相关活动`)
+      steps.push(`重点关注${dim}发展，增加相关活动`);
     }
   }
 
-  return steps
+  return steps;
 }

@@ -79,7 +79,11 @@ export interface AlertProps {
  * Tabs组件属性
  */
 export interface TabsProps {
-  tabs: Array<{ key: string; label: React.ReactNode; children: React.ReactNode }>;
+  tabs: Array<{
+    key: string;
+    label: React.ReactNode;
+    children: React.ReactNode;
+  }>;
   activeKey?: string;
   onChange?: (key: string) => void;
   type?: 'line' | 'card' | 'pills';

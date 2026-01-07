@@ -156,10 +156,9 @@ export const authMiddleware = async (
     // 记录最后登录时间（异步，不阻塞请求）
     setImmediate(async () => {
       try {
-        await db.query(
-          'UPDATE users SET last_login_at = NOW() WHERE id = $1',
-          [user.id]
-        );
+        await db.query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [
+          user.id,
+        ]);
 
         // 清除缓存
         await redis.del(`user:${user.id}`);
@@ -207,7 +206,11 @@ export const optionalAuthMiddleware = async (
 export const requireRole = (roles: string | string[]) => {
   const allowedRoles = Array.isArray(roles) ? roles : [roles];
 
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction): void => {
+  return (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): void => {
     if (!req.user) {
       return next(createUnauthorizedError('Authentication required'));
     }
@@ -230,8 +233,14 @@ export const requireParent = requireRole('parent');
 export const requireModeratorOrAdmin = requireRole(['admin', 'moderator']);
 
 // 检查资源所有权
-export const checkOwnership = (resourceType: 'user' | 'child' | 'growth_record') => {
-  return async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+export const checkOwnership = (
+  resourceType: 'user' | 'child' | 'growth_record'
+) => {
+  return async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       if (!req.user) {
         return next(createUnauthorizedError('Authentication required'));
@@ -266,9 +275,10 @@ export const checkOwnership = (resourceType: 'user' | 'child' | 'growth_record')
         const result = await db.query(query, [resourceId]);
 
         if (result.rows.length > 0) {
-          const ownerUserId = resourceType === 'growth_record'
-            ? result.rows[0].user_id
-            : result.rows[0].user_id;
+          const ownerUserId =
+            resourceType === 'growth_record'
+              ? result.rows[0].user_id
+              : result.rows[0].user_id;
 
           isOwner = ownerUserId === userId;
         }

@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // 配置 Turbopack 根目录，消除 workspace root warning
@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
       root: __dirname,
     },
   },
-  
+
   // 配置图片优化域名
   images: {
     remotePatterns: [
@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  
+
   // 配置环境变量
   env: {
     NEXT_PUBLIC_APP_NAME: 'YYC³ 智能守护系统',

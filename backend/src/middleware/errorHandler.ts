@@ -79,7 +79,8 @@ const handleCastError = (err: any, res: Response): void => {
 const handleJWTError = (err: any, res: Response): void => {
   logger.error('JWT Error:', { message: err.message });
 
-  const message = err.name === 'JsonWebTokenError' ? 'Invalid token' : 'Token expired';
+  const message =
+    err.name === 'JsonWebTokenError' ? 'Invalid token' : 'Token expired';
   const statusCode = err.name === 'JsonWebTokenError' ? 401 : 401;
 
   res.status(statusCode).json({
@@ -154,7 +155,9 @@ export const errorHandler = (
   next: NextFunction
 ): void => {
   // 设置请求ID
-  res.locals.requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  res.locals.requestId =
+    req.headers['x-request-id'] ||
+    `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -205,8 +208,14 @@ export const errorHandler = (
 };
 
 // 404错误处理中间件
-export const notFound = (req: Request, res: Response, next: NextFunction): void => {
-  const error = new Error(`Can't find ${req.originalUrl} on this server!`) as any;
+export const notFound = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const error = new Error(
+    `Can't find ${req.originalUrl} on this server!`
+  ) as any;
   error.statusCode = 404;
   error.status = 'fail';
   error.isOperational = true;
@@ -255,37 +264,51 @@ export const createValidationError = (details: any): CustomError => {
 };
 
 // 未授权错误
-export const createUnauthorizedError = (message: string = 'Unauthorized'): CustomError => {
+export const createUnauthorizedError = (
+  message: string = 'Unauthorized'
+): CustomError => {
   return createError(message, 401);
 };
 
 // 禁止访问错误
-export const createForbiddenError = (message: string = 'Forbidden'): CustomError => {
+export const createForbiddenError = (
+  message: string = 'Forbidden'
+): CustomError => {
   return createError(message, 403);
 };
 
 // 未找到错误
-export const createNotFoundError = (resource: string = 'Resource'): CustomError => {
+export const createNotFoundError = (
+  resource: string = 'Resource'
+): CustomError => {
   return createError(`${resource} not found`, 404);
 };
 
 // 冲突错误
-export const createConflictError = (message: string = 'Conflict'): CustomError => {
+export const createConflictError = (
+  message: string = 'Conflict'
+): CustomError => {
   return createError(message, 409);
 };
 
 // 请求体过大错误
-export const createPayloadTooLargeError = (message: string = 'Payload too large'): CustomError => {
+export const createPayloadTooLargeError = (
+  message: string = 'Payload too large'
+): CustomError => {
   return createError(message, 413);
 };
 
 // 请求过于频繁错误
-export const createTooManyRequestsError = (message: string = 'Too many requests'): CustomError => {
+export const createTooManyRequestsError = (
+  message: string = 'Too many requests'
+): CustomError => {
   return createError(message, 429);
 };
 
 // 内部服务器错误
-export const createInternalServerError = (message: string = 'Internal server error'): CustomError => {
+export const createInternalServerError = (
+  message: string = 'Internal server error'
+): CustomError => {
   return createError(message, 500);
 };
 

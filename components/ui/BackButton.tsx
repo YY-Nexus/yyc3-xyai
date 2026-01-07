@@ -28,7 +28,7 @@ export function BackButton({
       )}
       {...props}
     >
-      {showIcon && <ChevronLeft className="w-4 h-4" />}
+      {showIcon && <ChevronLeft className='w-4 h-4' />}
       <span>{text}</span>
     </button>
   );

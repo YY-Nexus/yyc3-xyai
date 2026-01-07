@@ -74,4 +74,4 @@ export default {
       ['lcov', { file: 'coverage/lcov.info' }],
     ],
   },
-}
+};

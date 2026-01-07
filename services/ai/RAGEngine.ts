@@ -99,8 +99,10 @@ export class RAGEngine {
 
   constructor() {
     this.chromaURL = config.chroma?.url || 'http://localhost:8000';
-    this.collectionName = config.chroma?.collectionName || 'yyc3_knowledge_base';
-    this.embeddingModel = config.chroma?.embeddingModel || 'sentence-transformers/all-MiniLM-L6-v2';
+    this.collectionName =
+      config.chroma?.collectionName || 'yyc3_knowledge_base';
+    this.embeddingModel =
+      config.chroma?.embeddingModel || 'sentence-transformers/all-MiniLM-L6-v2';
     this.maxContextLength = config.rag?.maxContextLength || 4000;
     this.topK = config.rag?.topK || 5;
     this.similarityThreshold = config.rag?.similarityThreshold || 0.7;
@@ -119,16 +121,19 @@ export class RAGEngine {
         query_texts: [query.text],
         n_results: topK * 2, // 获取更多结果用于重排序
         where: this.buildWhereClause(query.filters),
-        include: ['metadatas', 'documents', 'distances']
+        include: ['metadatas', 'documents', 'distances'],
       };
 
-      const response = await fetch(`${this.chromaURL}/api/v1/collections/${this.collectionName}/query`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        `${this.chromaURL}/api/v1/collections/${this.collectionName}/query`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`ChromaDB query failed: ${response.statusText}`);
@@ -174,10 +179,11 @@ export class RAGEngine {
 
       // 返回topK结果
       return rerankedResults.slice(0, topK);
-
     } catch (error) {
       console.error('Knowledge retrieval failed:', error);
-      throw new Error(`Failed to retrieve knowledge: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to retrieve knowledge: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -186,13 +192,15 @@ export class RAGEngine {
    */
   async buildContext(context: RAGContext): Promise<string> {
     try {
-      const { query, retrieved_knowledge, conversation_history, user_context } = context;
+      const { query, retrieved_knowledge, conversation_history, user_context } =
+        context;
 
       // 1. 构建知识上下文
       const knowledgeContext = this.buildKnowledgeContext(retrieved_knowledge);
 
       // 2. 构建对话上下文
-      const conversationContext = this.buildConversationContext(conversation_history);
+      const conversationContext =
+        this.buildConversationContext(conversation_history);
 
       // 3. 构建用户上下文
       const userContextStr = this.buildUserContext(user_context);
@@ -218,10 +226,11 @@ ${conversationContext}
       }
 
       return fullContext;
-
     } catch (error) {
       console.error('Context building failed:', error);
-      throw new Error(`Failed to build context: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to build context: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -234,18 +243,21 @@ ${conversationContext}
       const enhancedContext = await this.buildContext(context);
 
       // 2. 构建RAG提示模板
-      const ragPrompt = this.buildRAGPrompt(enhancedContext, context.user_context);
+      const ragPrompt = this.buildRAGPrompt(
+        enhancedContext,
+        context.user_context
+      );
 
       // 3. 调用本地AI模型生成回答
       const messages: ChatMessage[] = [
         {
           role: 'system',
-          content: ragPrompt
+          content: ragPrompt,
         },
         {
           role: 'user',
-          content: context.query
-        }
+          content: context.query,
+        },
       ];
 
       const aiResponse = await ollamaService.chat(messages, {
@@ -261,10 +273,11 @@ ${conversationContext}
       );
 
       return enhancedResponse;
-
     } catch (error) {
       console.error('RAG response generation failed:', error);
-      throw new Error(`Failed to generate response: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to generate response: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -289,23 +302,27 @@ ${conversationContext}
         metadatas,
       };
 
-      const response = await fetch(`${this.chromaURL}/api/v1/collections/${this.collectionName}/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
+      const response = await fetch(
+        `${this.chromaURL}/api/v1/collections/${this.collectionName}/add`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to add knowledge: ${response.statusText}`);
       }
 
       console.log(`Successfully added ${documents.length} knowledge documents`);
-
     } catch (error) {
       console.error('Failed to add knowledge:', error);
-      throw new Error(`Failed to add knowledge: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to add knowledge: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -319,10 +336,11 @@ ${conversationContext}
 
       // 再添加新文档
       await this.addKnowledge([document]);
-
     } catch (error) {
       console.error('Failed to update knowledge:', error);
-      throw new Error(`Failed to update knowledge: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to update knowledge: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -331,21 +349,25 @@ ${conversationContext}
    */
   async deleteKnowledge(id: string): Promise<void> {
     try {
-      const response = await fetch(`${this.chromaURL}/api/v1/collections/${this.collectionName}/delete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ids: [id] }),
-      });
+      const response = await fetch(
+        `${this.chromaURL}/api/v1/collections/${this.collectionName}/delete`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ids: [id] }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Failed to delete knowledge: ${response.statusText}`);
       }
-
     } catch (error) {
       console.error('Failed to delete knowledge:', error);
-      throw new Error(`Failed to delete knowledge: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to delete knowledge: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -359,10 +381,14 @@ ${conversationContext}
     difficulty_levels: { [key: string]: number };
   }> {
     try {
-      const response = await fetch(`${this.chromaURL}/api/v1/collections/${this.collectionName}/count`);
+      const response = await fetch(
+        `${this.chromaURL}/api/v1/collections/${this.collectionName}/count`
+      );
 
       if (!response.ok) {
-        throw new Error(`Failed to get knowledge stats: ${response.statusText}`);
+        throw new Error(
+          `Failed to get knowledge stats: ${response.statusText}`
+        );
       }
 
       const totalDocuments = await response.json();
@@ -371,11 +397,11 @@ ${conversationContext}
       return {
         total_documents,
         categories: {
-          '儿童心理学': 150,
-          '教育方法': 120,
-          '亲子关系': 100,
-          '兴趣培养': 80,
-          '安全教育': 60,
+          儿童心理学: 150,
+          教育方法: 120,
+          亲子关系: 100,
+          兴趣培养: 80,
+          安全教育: 60,
         },
         age_groups: {
           '3-6岁': 200,
@@ -383,15 +409,16 @@ ${conversationContext}
           '13-18岁': 130,
         },
         difficulty_levels: {
-          'beginner': 250,
-          'intermediate': 180,
-          'advanced': 80,
+          beginner: 250,
+          intermediate: 180,
+          advanced: 80,
         },
       };
-
     } catch (error) {
       console.error('Failed to get knowledge stats:', error);
-      throw new Error(`Failed to get knowledge stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to get knowledge stats: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -436,7 +463,10 @@ ${conversationContext}
    */
   private generateHighlights(query: string, document: string): string[] {
     const highlights: string[] = [];
-    const queryWords = query.toLowerCase().split(/\s+/).filter(word => word.length > 2);
+    const queryWords = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(word => word.length > 2);
 
     for (const word of queryWords) {
       const regex = new RegExp(`(.{0,50})${word}(.{0,50})`, 'gi');
@@ -452,25 +482,32 @@ ${conversationContext}
   /**
    * 重排序检索结果
    */
-  private async rererankResults(query: string, results: RetrievalResult[]): Promise<RetrievalResult[]> {
+  private async rererankResults(
+    query: string,
+    results: RetrievalResult[]
+  ): Promise<RetrievalResult[]> {
     // 简化的重排序实现，基于多个因子进行评分
-    return results.map(result => {
-      let rerankScore = result.score;
+    return results
+      .map(result => {
+        let rerankScore = result.score;
 
-      // 新近性加权
-      const daysSinceUpdate = (Date.now() - new Date(result.metadata.updated_at).getTime()) / (1000 * 60 * 60 * 24);
-      const recencyWeight = Math.max(0, 1 - daysSinceUpdate / 365);
-      rerankScore += recencyWeight * 0.1;
+        // 新近性加权
+        const daysSinceUpdate =
+          (Date.now() - new Date(result.metadata.updated_at).getTime()) /
+          (1000 * 60 * 60 * 24);
+        const recencyWeight = Math.max(0, 1 - daysSinceUpdate / 365);
+        rerankScore += recencyWeight * 0.1;
 
-      // 内容长度加权
-      const lengthWeight = Math.min(result.metadata.word_count / 1000, 1);
-      rerankScore += lengthWeight * 0.05;
+        // 内容长度加权
+        const lengthWeight = Math.min(result.metadata.word_count / 1000, 1);
+        rerankScore += lengthWeight * 0.05;
 
-      return {
-        ...result,
-        score: rerankScore,
-      };
-    }).sort((a, b) => b.score - a.score);
+        return {
+          ...result,
+          score: rerankScore,
+        };
+      })
+      .sort((a, b) => b.score - a.score);
   }
 
   /**
@@ -481,7 +518,9 @@ ${conversationContext}
       return '未找到相关知识。';
     }
 
-    return knowledge.map((doc, index) => `
+    return knowledge
+      .map(
+        (doc, index) => `
 知识 ${index + 1} (相关度: ${(doc.score * 100).toFixed(1)}%):
 标题: ${doc.metadata.title}
 分类: ${doc.metadata.category}
@@ -489,7 +528,9 @@ ${conversationContext}
 适用年龄: ${doc.metadata.age_group.join(', ')}
 内容: ${doc.content}
 来源: ${doc.metadata.source}
-`).join('\n');
+`
+      )
+      .join('\n');
   }
 
   /**
@@ -501,7 +542,9 @@ ${conversationContext}
     }
 
     const recentHistory = history.slice(-6); // 保留最近6轮对话
-    return recentHistory.map(msg => `${msg.role === 'user' ? '用户' : 'AI'}: ${msg.content}`).join('\n');
+    return recentHistory
+      .map(msg => `${msg.role === 'user' ? '用户' : 'AI'}: ${msg.content}`)
+      .join('\n');
   }
 
   /**
@@ -536,7 +579,10 @@ ${conversationContext}
   /**
    * 构建RAG提示模板
    */
-  private buildRAGPrompt(context: string, userContext?: RAGContext['user_context']): string {
+  private buildRAGPrompt(
+    context: string,
+    userContext?: RAGContext['user_context']
+  ): string {
     const childAge = userContext?.child_age || 6;
     const ageGroup = this.getAgeGroup(childAge);
 
@@ -595,7 +641,10 @@ ${context}
     const relatedQuestions = this.generateRelatedQuestions(query, sources);
 
     // 生成后续建议
-    const followUpSuggestions = this.generateFollowUpSuggestions(query, sources);
+    const followUpSuggestions = this.generateFollowUpSuggestions(
+      query,
+      sources
+    );
 
     return {
       answer: aiResponse,
@@ -613,8 +662,11 @@ ${context}
   private calculateConfidence(sources: RetrievalResult[]): number {
     if (sources.length === 0) return 0.3;
 
-    const avgScore = sources.reduce((sum, doc) => sum + doc.score, 0) / sources.length;
-    const highRelevanceCount = sources.filter(doc => doc.relevance === 'high').length;
+    const avgScore =
+      sources.reduce((sum, doc) => sum + doc.score, 0) / sources.length;
+    const highRelevanceCount = sources.filter(
+      doc => doc.relevance === 'high'
+    ).length;
     const relevanceBonus = (highRelevanceCount / sources.length) * 0.2;
 
     return Math.min(0.95, avgScore + relevanceBonus);
@@ -635,7 +687,10 @@ ${context}
   /**
    * 生成相关问题
    */
-  private generateRelatedQuestions(query: string, sources: RetrievalResult[]): string[] {
+  private generateRelatedQuestions(
+    query: string,
+    sources: RetrievalResult[]
+  ): string[] {
     // 简化实现，实际可以基于知识内容智能生成
     const questions: string[] = [];
 
@@ -660,12 +715,18 @@ ${context}
   /**
    * 生成后续建议
    */
-  private generateFollowUpSuggestions(query: string, sources: RetrievalResult[]): string[] {
+  private generateFollowUpSuggestions(
+    query: string,
+    sources: RetrievalResult[]
+  ): string[] {
     const suggestions: string[] = [];
 
     // 基于源内容生成建议
     for (const source of sources.slice(0, 2)) {
-      if (source.metadata.tags.includes('实践') || source.metadata.tags.includes('方法')) {
+      if (
+        source.metadata.tags.includes('实践') ||
+        source.metadata.tags.includes('方法')
+      ) {
         suggestions.push(`可以尝试"${source.metadata.title}"中提到的具体方法`);
       }
     }

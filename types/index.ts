@@ -1,9 +1,12 @@
+// ===== 基础类型 =====
 export type {
   Message,
   UserRole as CommonUserRole,
   User as CommonUser,
+  AuthenticatedRequest,
   ApiResponse,
   ApiError,
+  AppError,
   ResponseMeta,
   MediaFile,
   PaginationParams,
@@ -16,15 +19,17 @@ export type {
   Environment,
   Config,
   ValidationError,
-  ValidationResult
-} from './common'
-
-export type {
-  UUID as DatabaseUUID,
-  Timestamp as DatabaseTimestamp,
+  ValidationResult,
   JsonValue,
   JsonObject,
   JsonArray,
+  JsonPrimitive,
+} from './common';
+
+// ===== 数据库类型 =====
+export type {
+  UUID as DatabaseUUID,
+  Timestamp as DatabaseTimestamp,
   DatabaseType,
   QueryParams,
   WhereCondition,
@@ -100,13 +105,13 @@ export type {
   TriggerDefinition,
   ColumnDefinition,
   TableDefinition,
-  SchemaDiff,
+  DatabaseSchema,
   DataType,
   ColumnConstraint,
   TableConstraint,
-  DatabaseSchema
-} from './database'
+} from './database';
 
+// ===== 分析类型 =====
 export type {
   MetricType,
   AggregationType,
@@ -133,7 +138,7 @@ export type {
   TableConfig,
   TextConfig,
   Report,
-  Schedule,
+  Schedule as AnalyticsSchedule,
   Alert,
   AlertCondition,
   NotificationChannel,
@@ -163,9 +168,10 @@ export type {
   AnalyticsConfig,
   ComparisonResult,
   Insight,
-  AnalyticsQuery
-} from './analytics'
+  AnalyticsQuery,
+} from './analytics';
 
+// ===== 交互类型 =====
 export type {
   InteractionType,
   InteractionMood,
@@ -211,11 +217,12 @@ export type {
   InteractionInsight,
   InteractionDashboard,
   InteractionSearchQuery,
-  InteractionSearchResult
-} from './interaction'
+  InteractionSearchResult,
+} from './interaction';
 
+// ===== 成长类型 =====
 export type {
-  GrowthCategory,
+  GrowthCategory as GrowthCategoryType,
   GrowthStageId,
   DevelopmentDimensionId,
   GrowthRecord,
@@ -238,10 +245,10 @@ export type {
   AssessmentUpdateInput,
   AssessmentTrend,
   AssessmentStats,
-  RecommendationType,
-  Recommendation,
-  RecommendationCreateInput,
-  RecommendationStats,
+  RecommendationType as GrowthRecommendationType,
+  Recommendation as GrowthRecommendation,
+  RecommendationCreateInput as GrowthRecommendationCreateInput,
+  RecommendationStats as GrowthRecommendationStats,
   GrowthTimeline,
   GrowthSummary,
   GrowthInsight,
@@ -252,41 +259,187 @@ export type {
   GrowthGoalCreateInput,
   GrowthGoalUpdateInput,
   GrowthGoalStats,
-  GrowthComparison
-} from './growth'
+  GrowthComparison,
+} from './growth';
 
+// ===== AI 类型 =====
 export type {
+  AIRole,
+  VoiceStyle,
+  DifficultyLevel,
+  QueryComplexity,
+  RelevanceLevel,
+  HealthStatus as AIHealthStatus,
+  MessageRole,
+  RoleConfig,
+  KnowledgeDocument,
+  KnowledgeMetadata,
+  RetrievalResult,
+  SearchQuery,
+  SearchFilters,
+  RAGContext,
+  UserContext,
+  RAGResponse,
+  EmbeddingResult,
   ChatMessage,
-  ChatSession,
-  ChatRole,
-  ChatEmotion,
-  ChatContext,
   ChatOptions,
-  ChatStreamOptions,
   ChatResponse,
-  ChatStreamResponse,
-  ChatError,
-  ChatHistory,
-  ChatStats,
-  ChatFilter,
-  ChatCreateInput,
-  ChatUpdateInput
-} from './ai'
+  TokenUsage,
+  ModelInfo,
+  ModelDetails,
+  AIHealthStatus as AIHealthStatusType,
+  MemoryUsage as AIMemoryUsage,
+  ResponseTimeMetrics,
+  PerformanceMetrics as AIPerformanceMetrics,
+  CoordinatedResponse,
+  SupportingInsight,
+  RoleInfo,
+  QueryAnalysis,
+  ChildContext,
+  KnowledgeStats,
+  AIRequest,
+  AISession,
+  AIModelConfig,
+  RAGEngineConfig,
+  AISystemConfig,
+  OllamaConfig,
+  OpenAIConfig,
+  AIError,
+  AIAnalytics,
+  AIInsight,
+  AIFeedback,
+  AIRecommendation,
+  AIPromptTemplate,
+  AIConversationTurn,
+  AIConversationSummary,
+  AITrainingData,
+  AIModelMetrics,
+  AIAuditLog,
+} from './ai';
 
+// ===== 调度类型 =====
 export type {
   Schedule,
-  ScheduleItem,
   ScheduleType,
+  RepeatPattern,
+  ReminderType,
+  SchedulePriority,
   ScheduleStatus,
-  ScheduleFilter,
-  ScheduleCreateInput,
-  ScheduleUpdateInput,
-  ScheduleStats,
+  ScheduleFormData,
+  RecurrenceRule,
+  AISchedulePreferences,
+  ScheduleTemplate,
   ScheduleConflict,
-  ScheduleReminder
-} from './schedule'
+  ScheduleReminder,
+  ScheduleAnalytics,
+  ScheduleGoal,
+  ScheduleEvent,
+  CalendarView,
+  TimeBlock,
+  ScheduleSync,
+  ScheduleExport,
+  ScheduleImport,
+  ScheduleFilter,
+  ScheduleSort,
+  ScheduleStatistics,
+  ScheduleColor,
+  GetScheduleColorFn,
+  ScheduleValidation,
+  ScheduleBatchOperation,
+  ScheduleShare,
+} from './schedule';
 
-// Export Badge types from ui.ts
+// ===== 知识引擎类型 =====
+export type {
+  KnowledgeNode,
+  ActivityNode,
+  RecommendationResult as KnowledgeRecommendationResult,
+  RecommendationContext,
+  RecommendationRequest as KnowledgeRecommendationRequest,
+  RecommendationConfig as KnowledgeRecommendationConfig,
+  Neo4jService,
+  KnowledgeGraphStats,
+} from './knowledge/common';
+
+// ===== 预测引擎类型 =====
+export type {
+  PredictionData,
+  DataPoint,
+  PredictionResult,
+  PredictionTask,
+  PredictionConfig,
+  ModelConstraints,
+  ModelEvaluation,
+  QualityMetrics as PredictionQualityMetrics,
+  BiasReport,
+  CalibrationResult,
+  SensitiveData,
+  ModelSelection,
+  ModelFitAssessment,
+  EnsembleEngine,
+  Predictor,
+  TimeSeriesEngine,
+  AnomalyDetectionEngine,
+  CausalInferenceEngine,
+  TaskInfo as PredictionTaskInfo,
+  StabilityMetrics,
+  BiasVarianceTradeoff,
+  ResidualAnalysis,
+  TrainingResult,
+  PerformanceHistory,
+  DataDriftMetrics,
+  UpdatedWeights,
+  DriftDetection,
+  PredictorConfig,
+  SeasonalityAnalysis,
+  ProbabilisticForecast,
+  AnomalyReport,
+  Anomaly,
+  AnomalyExplanation,
+  CausalGraph,
+  CounterfactualResult,
+  Intervention,
+  PredictionInsights,
+  StreamingPrediction,
+  DataStream,
+  PerformanceMetrics,
+  DriftAlert,
+  Recommendation,
+  RiskAssessment,
+  KeyInsight,
+} from './prediction/common';
+
+// ===== 学习引擎类型 =====
+export type {
+  LearningModel,
+  LearningSession,
+  LearningResult,
+  MetaLearningConfig,
+  LearningTask as MetaLearningTask,
+  LearningEvent,
+  LearningMetrics,
+  LearningHistory,
+} from './learning/common';
+
+// ===== 编排器类型 =====
+export type {
+  ServiceDefinition,
+  ServiceStatus,
+  ServiceInstance,
+  GatewayConfig,
+  AuthenticationConfig,
+  RateLimitConfig,
+  CircuitBreakerConfig,
+  LoggingConfig,
+  Route,
+  RetryPolicy,
+  OrchestrationTask,
+  OrchestrationStep,
+  OrchestrationResult,
+  ServiceHealthCheck,
+} from './orchestrator/common';
+
+// ===== UI 类型 =====
 export type {
   Badge,
   BadgeSeries,
@@ -302,5 +455,32 @@ export type {
   BadgeReward,
   BadgeGroup,
   BadgeStats,
-  BadgeService
-} from './ui'
+  BadgeService,
+} from './ui';
+
+// ===== 全局工具类型 =====
+export interface MockChild {
+  id: string;
+  name: string;
+  age: number;
+  gender: 'male' | 'female';
+  avatar?: string;
+  createdAt: Date;
+}
+
+export type FilterType = 
+  | 'all'
+  | 'story'
+  | 'memory'
+  | 'slideshow'
+  | 'image-to-video'
+  | 'story-animation'
+  | 'memory-recap';
+
+export interface MultimodalInput {
+  text?: string;
+  image?: string;
+  audio?: string;
+  video?: string;
+  metadata?: Record<string, unknown>;
+}

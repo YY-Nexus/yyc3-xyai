@@ -20,9 +20,7 @@ router.use(authMiddleware);
 
 // 输入验证规则
 const chatValidation = [
-  body('childId')
-    .isUUID()
-    .withMessage('Invalid child ID format'),
+  body('childId').isUUID().withMessage('Invalid child ID format'),
   body('message')
     .trim()
     .isLength({ min: 1, max: 2000 })
@@ -48,8 +46,20 @@ const emotionAnalysisValidation = [
 ];
 
 // AI聊天路由
-router.post('/chat', aiRateLimitMiddleware, chatValidation, validateRequest, chat);
-router.post('/analyze-emotion', aiRateLimitMiddleware, emotionAnalysisValidation, validateRequest, analyzeEmotionEndpoint);
+router.post(
+  '/chat',
+  aiRateLimitMiddleware,
+  chatValidation,
+  validateRequest,
+  chat
+);
+router.post(
+  '/analyze-emotion',
+  aiRateLimitMiddleware,
+  emotionAnalysisValidation,
+  validateRequest,
+  analyzeEmotionEndpoint
+);
 
 // AI角色信息
 router.get('/roles', getAIRoles);

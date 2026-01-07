@@ -75,7 +75,13 @@ export interface GrowthRecord {
   child_id: string;
   title: string;
   description?: string;
-  category: 'milestone' | 'daily' | 'achievement' | 'health' | 'education' | 'social';
+  category:
+    | 'milestone'
+    | 'daily'
+    | 'achievement'
+    | 'health'
+    | 'education'
+    | 'social';
   media_urls?: string[];
   tags?: string[];
   location?: string;
@@ -88,7 +94,13 @@ export interface CreateGrowthRecordData {
   child_id: string;
   title: string;
   description?: string;
-  category: 'milestone' | 'daily' | 'achievement' | 'health' | 'education' | 'social';
+  category:
+    | 'milestone'
+    | 'daily'
+    | 'achievement'
+    | 'health'
+    | 'education'
+    | 'social';
   media_urls?: string[];
   tags?: string[];
   location?: string;

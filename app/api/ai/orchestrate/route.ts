@@ -1,38 +1,47 @@
-import { generateText } from "ai"
-import { createOpenAI } from "@ai-sdk/openai"
-import { AI_ROLES, analyzeQueryComplexity, getCoordinatedPrompt } from "@/lib/ai_roles"
+import { generateText } from 'ai';
+import { createOpenAI } from '@ai-sdk/openai';
+import {
+  AI_ROLES,
+  analyzeQueryComplexity,
+  getCoordinatedPrompt,
+} from '@/lib/ai_roles';
 
 const openai = createOpenAI({
-  apiKey: process.env['OPENAI_API_KEY'] ?? "",
-  ...(process.env['OPENAI_BASE_URL'] && { baseURL: process.env['OPENAI_BASE_URL'] })
-})
+  apiKey: process.env['OPENAI_API_KEY'] ?? '',
+  ...(process.env['OPENAI_BASE_URL'] && {
+    baseURL: process.env['OPENAI_BASE_URL'],
+  }),
+});
 
-const model = openai("gpt-4o-mini")
+const model = openai('gpt-4o-mini');
 
 export async function POST(request: Request) {
   try {
-    const { message } = await request.json()
+    const { message } = await request.json();
 
     if (!message) {
-      return Response.json({ error: "消息内容不能为空" }, { status: 400 })
+      return Response.json({ error: '消息内容不能为空' }, { status: 400 });
     }
 
     if (!process.env['OPENAI_API_KEY']) {
-      console.error("OpenAI API key is not configured")
-      return Response.json({ error: "服务配置错误，请检查 API 密钥" }, { status: 500 })
+      console.error('OpenAI API key is not configured');
+      return Response.json(
+        { error: '服务配置错误，请检查 API 密钥' },
+        { status: 500 }
+      );
     }
 
-    const { complexity, involvedRoles } = analyzeQueryComplexity(message)
+    const { complexity, involvedRoles } = analyzeQueryComplexity(message);
 
-    if (complexity === "simple") {
-      const role = involvedRoles[0] ?? 'advisor'
-      const roleConfig = AI_ROLES[role]
+    if (complexity === 'simple') {
+      const role = involvedRoles[0] ?? 'advisor';
+      const roleConfig = AI_ROLES[role];
 
       const { text } = await generateText({
         model: model,
         system: getCoordinatedPrompt(message, [role]),
         prompt: message,
-      })
+      });
 
       return Response.json({
         complexity,
@@ -40,12 +49,12 @@ export async function POST(request: Request) {
         mainResponse: text,
         roleName: roleConfig.name,
         roleIcon: roleConfig.icon,
-      })
+      });
     }
 
-    if (complexity === "medium") {
-      const mainRole = involvedRoles[0] ?? 'advisor'
-      const supportRole = involvedRoles[1] ?? 'companion'
+    if (complexity === 'medium') {
+      const mainRole = involvedRoles[0] ?? 'advisor';
+      const supportRole = involvedRoles[1] ?? 'companion';
 
       const [mainResponse, supportResponse] = await Promise.all([
         generateText({
@@ -58,7 +67,7 @@ export async function POST(request: Request) {
           system: `基于"${AI_ROLES[supportRole].name}"的视角，针对以下问题给出补充建议（50字以内）：`,
           prompt: message,
         }),
-      ])
+      ]);
 
       return Response.json({
         complexity,
@@ -74,43 +83,44 @@ export async function POST(request: Request) {
             insight: supportResponse.text,
           },
         ],
-      })
+      });
     }
 
-    const coordinatedPrompt = getCoordinatedPrompt(message, involvedRoles)
+    const coordinatedPrompt = getCoordinatedPrompt(message, involvedRoles);
 
     const { text: mainText } = await generateText({
       model: model as any,
       system: coordinatedPrompt,
       prompt: message,
-    })
+    });
 
     const roleInsights = await Promise.all(
-      involvedRoles.slice(1, 4).map(async (role) => {
+      involvedRoles.slice(1, 4).map(async role => {
         const { text } = await generateText({
           model: model as any,
           system: `你是"${AI_ROLES[role].name}"，请从你的专业角度给出一条简短建议（30字以内）：`,
           prompt: message,
-        })
+        });
         return {
           role,
           roleName: AI_ROLES[role].name,
           roleIcon: AI_ROLES[role].icon,
           insight: text,
-        }
-      }),
-    )
+        };
+      })
+    );
 
     const { text: actionsText } = await generateText({
       model: model as any,
-      system: "基于上述分析，给出3条具体可行的行动建议，每条15字以内，用|分隔：",
+      system:
+        '基于上述分析，给出3条具体可行的行动建议，每条15字以内，用|分隔：',
       prompt: `问题：${message}\n分析：${mainText}`,
-    })
+    });
 
     const suggestedActions = actionsText
-      .split("|")
-      .map((a) => a.trim())
-      .filter(Boolean)
+      .split('|')
+      .map(a => a.trim())
+      .filter(Boolean);
 
     return Response.json({
       complexity,
@@ -120,35 +130,39 @@ export async function POST(request: Request) {
       roleIcon: AI_ROLES[involvedRoles[0] ?? 'advisor'].icon,
       supportingInsights: roleInsights,
       suggestedActions,
-      involvedRoles: involvedRoles.map((r) => ({
+      involvedRoles: involvedRoles.map(r => ({
         id: r,
         name: AI_ROLES[r].name,
         icon: AI_ROLES[r].icon,
       })),
-    })
+    });
   } catch (error: unknown) {
-    console.error("[AI Orchestrate Error]", error)
+    console.error('[AI Orchestrate Error]', error);
 
-    let errorMessage = "AI协同响应失败，请稍后重试"
-    let statusCode = 500
+    let errorMessage = 'AI协同响应失败，请稍后重试';
+    let statusCode = 500;
 
-    const errorObj = error as Error | { message?: string; status?: number }
-    const errorMsg = errorObj instanceof Error ? errorObj.message : errorObj.message
+    const errorObj = error as Error | { message?: string; status?: number };
+    const errorMsg =
+      errorObj instanceof Error ? errorObj.message : errorObj.message;
 
-    if (errorMsg?.includes("API key")) {
-      errorMessage = "API密钥配置错误，请检查环境变量"
-      statusCode = 401
-    } else if (errorMsg?.includes("rate limit")) {
-      errorMessage = "请求过于频繁，请稍后再试"
-      statusCode = 429
-    } else if (errorMsg?.includes("timeout")) {
-      errorMessage = "请求超时，请重试"
-      statusCode = 408
+    if (errorMsg?.includes('API key')) {
+      errorMessage = 'API密钥配置错误，请检查环境变量';
+      statusCode = 401;
+    } else if (errorMsg?.includes('rate limit')) {
+      errorMessage = '请求过于频繁，请稍后再试';
+      statusCode = 429;
+    } else if (errorMsg?.includes('timeout')) {
+      errorMessage = '请求超时，请重试';
+      statusCode = 408;
     }
 
-    return Response.json({
-      error: errorMessage,
-      details: process.env.NODE_ENV === "development" ? errorMsg : undefined,
-    }, { status: statusCode })
+    return Response.json(
+      {
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? errorMsg : undefined,
+      },
+      { status: statusCode }
+    );
   }
 }

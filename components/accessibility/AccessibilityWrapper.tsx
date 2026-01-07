@@ -3,28 +3,30 @@
  * 第六阶段：高级特性与生产准备
  */
 
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import AccessibilityPanel from '@/components/accessibility/AccessibilityPanel'
+import { useState, useEffect } from 'react';
+import AccessibilityPanel from '@/components/accessibility/AccessibilityPanel';
 
 interface AccessibilityWrapperProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
-export default function AccessibilityWrapper({ children }: AccessibilityWrapperProps) {
-  const [isPanelOpen, setIsPanelOpen] = useState(false)
+export default function AccessibilityWrapper({
+  children,
+}: AccessibilityWrapperProps) {
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   // 监听打开面板事件
   useEffect(() => {
-    const handleOpenPanel = () => setIsPanelOpen(true)
+    const handleOpenPanel = () => setIsPanelOpen(true);
 
-    document.addEventListener('open-accessibility-panel', handleOpenPanel)
+    document.addEventListener('open-accessibility-panel', handleOpenPanel);
 
     return () => {
-      document.removeEventListener('open-accessibility-panel', handleOpenPanel)
-    }
-  }, [])
+      document.removeEventListener('open-accessibility-panel', handleOpenPanel);
+    };
+  }, []);
 
   return (
     <>
@@ -34,5 +36,5 @@ export default function AccessibilityWrapper({ children }: AccessibilityWrapperP
         onClose={() => setIsPanelOpen(false)}
       />
     </>
-  )
+  );
 }

@@ -32,27 +32,33 @@ function replaceConsoleCalls(content: string, filepath: string): string {
   let newContent = content;
 
   // 检查是否已经导入了 logger
-  const hasLoggerImport = /import.*logger.*from.*['"].*logger['"]/.test(content);
+  const hasLoggerImport = /import.*logger.*from.*['"].*logger['"]/.test(
+    content
+  );
 
   // 如果没有导入 logger，添加导入语句
-  if (!hasLoggerImport && (content.includes('console.log') ||
+  if (
+    !hasLoggerImport &&
+    (content.includes('console.log') ||
       content.includes('console.error') ||
       content.includes('console.warn') ||
       content.includes('console.info') ||
-      content.includes('console.debug'))) {
-
+      content.includes('console.debug'))
+  ) {
     // 找到第一个 import 语句
     const importRegex = /^(import\s+.*(?:from\s+['"].*['"]\s*;?)$/gm;
     const imports = content.match(importRegex);
 
     if (imports && imports.length > 0) {
       const lastImport = imports[imports.length - 1];
-      const insertPosition = content.lastIndexOf(lastImport) + lastImport.length;
+      const insertPosition =
+        content.lastIndexOf(lastImport) + lastImport.length;
 
       // 计算相对路径
       const relativePath = getRelativePath(filepath);
 
-      newContent = newContent.slice(0, insertPosition) +
+      newContent =
+        newContent.slice(0, insertPosition) +
         `\nimport { log as logger } from '${relativePath}';` +
         newContent.slice(insertPosition);
       modified = true;
@@ -67,32 +73,44 @@ function replaceConsoleCalls(content: string, filepath: string): string {
   });
 
   // 替换 console.error
-  newContent = newContent.replace(/console\.error\(([^)]+)\)/g, (match, args) => {
-    stats.consoleError++;
-    modified = true;
-    return `logger.error(${args})`;
-  });
+  newContent = newContent.replace(
+    /console\.error\(([^)]+)\)/g,
+    (match, args) => {
+      stats.consoleError++;
+      modified = true;
+      return `logger.error(${args})`;
+    }
+  );
 
   // 替换 console.warn
-  newContent = newContent.replace(/console\.warn\(([^)]+)\)/g, (match, args) => {
-    stats.consoleWarn++;
-    modified = true;
-    return `logger.warn(${args})`;
-  });
+  newContent = newContent.replace(
+    /console\.warn\(([^)]+)\)/g,
+    (match, args) => {
+      stats.consoleWarn++;
+      modified = true;
+      return `logger.warn(${args})`;
+    }
+  );
 
   // 替换 console.info
-  newContent = newContent.replace(/console\.info\(([^)]+)\)/g, (match, args) => {
-    stats.consoleInfo++;
-    modified = true;
-    return `logger.info(${args})`;
-  });
+  newContent = newContent.replace(
+    /console\.info\(([^)]+)\)/g,
+    (match, args) => {
+      stats.consoleInfo++;
+      modified = true;
+      return `logger.info(${args})`;
+    }
+  );
 
   // 替换 console.debug
-  newContent = newContent.replace(/console\.debug\(([^)]+)\)/g, (match, args) => {
-    stats.consoleDebug++;
-    modified = true;
-    return `logger.debug(${args})`;
-  });
+  newContent = newContent.replace(
+    /console\.debug\(([^)]+)\)/g,
+    (match, args) => {
+      stats.consoleDebug++;
+      modified = true;
+      return `logger.debug(${args})`;
+    }
+  );
 
   return modified ? newContent : null;
 }
@@ -187,7 +205,9 @@ async function main() {
   console.log(`📋 console.warn: ${stats.consoleWarn}`);
   console.log(`📋 console.info: ${stats.consoleInfo}`);
   console.log(`📋 console.debug: ${stats.consoleDebug}`);
-  console.log(`📊 总计替换: ${stats.consoleLog + stats.consoleError + stats.consoleWarn + stats.consoleInfo + stats.consoleDebug}`);
+  console.log(
+    `📊 总计替换: ${stats.consoleLog + stats.consoleError + stats.consoleWarn + stats.consoleInfo + stats.consoleDebug}`
+  );
   console.log('='.repeat(50));
   console.log('\n✅ 替换完成！');
 }

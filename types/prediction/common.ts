@@ -1,397 +1,594 @@
 /**
- * @file 预测系统通用类型定义
- * @description 定义预测结果、质量指标、偏见报告等核心类型
+ * @file 预测引擎类型定义
+ * @description 定义预测引擎相关的类型接口
  * @module types/prediction
  * @author YYC³
- * @version 1.0.0
- * @created 2025-12-29
+ * @version 2.0.0
+ * @updated 2025-01-30
  * @copyright Copyright (c) 2025 YYC³
  * @license MIT
  */
 
 /**
- * 预测结果
- */
-export interface PredictionResult {
-  id: string
-  prediction: number | number[]
-  confidence: number
-  timestamp: number
-  metadata?: Record<string, unknown>
-}
-
-/**
- * 质量指标
- */
-export interface QualityMetrics {
-  timestamp: number
-  accuracy: number
-  precision: number
-  recall: number
-  f1Score: number
-  rmse: number
-  mae: number
-  r2Score: number
-  customMetrics?: Record<string, unknown>
-}
-
-/**
- * 偏见报告
- */
-export interface BiasReport {
-  overall: 'low' | 'medium' | 'high'
-  metrics: {
-    demographicParity: number
-    disparateImpact: number
-    equalOpportunity: number
-  }
-  recommendations: string[]
-  affectedGroups: string[]
-  mitigation: string[]
-}
-
-/**
- * 敏感数据
- */
-export interface SensitiveData {
-  groups?: Record<string, number[]>
-  attributes?: Record<string, unknown[]>
-  labels?: string[]
-}
-
-/**
- * 校准结果
- */
-export interface CalibrationResult {
-  originalMetrics: {
-    avgConfidence: number
-    confidenceVariance: number
-    calibrationError: number
-    overconfidentRatio: number
-  }
-  calibratedMetrics: {
-    avgConfidence: number
-    confidenceVariance: number
-    calibrationError: number
-    overconfidentRatio: number
-  }
-  reliabilityDiagram: Array<{
-    confidence: number
-    empiricalAccuracy: number
-    count: number
-  }>
-  calibrationCurve: Array<{
-    predicted: number
-    actual: number
-    count: number
-  }>
-  improvement: number
-  recommendedMethod: string
-}
-
-/**
- * 预测数据点
- */
-export interface PredictionDataPoint {
-  timestamp: number
-  value: number
-  features?: Record<string, unknown>
-}
-
-/**
  * 预测数据
  */
 export interface PredictionData {
-  data: PredictionDataPoint[]
-  dataType: 'timeseries' | 'tabular' | 'sequential'
-  features?: string[]
-  target?: string
+  features: number[];
+  labels?: number[];
+  timestamps?: number[];
+  frequency?: string;
+  dataType?: 'timeseries' | 'cross-sectional' | 'panel' | 'mixed';
+  data?: DataPoint[];
+  metadata?: Record<string, any>;
 }
 
 /**
- * 预测配置
+ * 数据点
  */
-export interface PredictionConfig {
-  name: string
-  algorithm: string
-  parameters: Record<string, unknown>
-  preprocessing: {
-    normalize: boolean
-    handleMissing: 'interpolate' | 'mean' | 'median' | 'drop'
-    featureEngineering: boolean
-    outlierRemoval: boolean
-  }
-  validation: {
-    method: string
-    folds: number
-    testSize: number
-  }
-  constraints: {
-    maxTrainingTime: number
-    memoryLimit: number
-    accuracyThreshold: number
-    realTimeCapability: boolean
-  }
-  requirements: {
-    accuracy: 'high' | 'medium' | 'low'
-    speed: 'high' | 'medium' | 'low'
-    interpretability: 'high' | 'medium' | 'low'
-    scalability: 'high' | 'medium' | 'low'
-  }
+export interface DataPoint {
+  value: number;
+  features?: Record<string, number>;
+  timestamp?: number;
+  label?: number;
+}
+
+/**
+ * 预测结果
+ */
+export interface PredictionResult {
+  modelId: string;
+  prediction: number | number[];
+  values: number[];
+  confidence: number;
+  confidenceInterval?: [number, number];
+  id?: string;
+  timestamp: Date;
+  metadata?: Record<string, any>;
 }
 
 /**
  * 预测任务
  */
 export interface PredictionTask {
-  id: string
-  name: string
-  type: 'regression' | 'classification' | 'forecasting' | 'anomaly_detection'
-  description: string
-  priority: 'low' | 'medium' | 'high'
+  id: string;
+  name: string;
+  type: 'regression' | 'classification' | 'forecasting' | 'anomaly_detection';
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   constraints: {
-    maxTrainingTime: number
-    memoryLimit: number
-    accuracyThreshold: number
-    realTimeCapability: boolean
-  }
+    maxTrainingTime: number;
+    memoryLimit: number;
+    accuracyThreshold: number;
+    realTimeCapability: boolean;
+  };
   requirements: {
-    accuracy: 'high' | 'medium' | 'low'
-    speed: 'high' | 'medium' | 'low'
-    interpretability: 'high' | 'medium' | 'low'
-    scalability: 'high' | 'medium' | 'low'
-  }
+    minAccuracy?: number;
+    maxLatency?: number;
+    preferredModels?: string[];
+  };
+  status?: 'pending' | 'running' | 'completed' | 'failed';
 }
 
 /**
- * 预测洞察
+ * 预测配置
  */
-export interface PredictionInsights {
-  summary: string
-  keyPoints: Array<{
-    type: string
-    description: string
-    severity: string
-    confidence?: number
-    actionability?: string
-  }>
-  performanceMetrics: {
-    accuracy: number
-    confidence: number
-    stability: number
-    avgLatency: number
-    predictionCount?: number
-  }
-  driftAlerts: Array<{
-    type: string
-    severity: string
-    description: string
-    timestamp: number
-  }>
-  recommendations: Array<{
-    category: string
-    priority: string
-    description: string
-    expectedImpact: string
-    effort: string
-  }>
-  riskAssessment: {
-    overall: 'low' | 'medium' | 'high'
-    factors: Array<{
-      type: string
-      severity: string
-      description: string
-      impact: string
-    }>
-    mitigation: string[]
-    monitoring: string[]
-  }
-  confidence: number
-}
-
-/**
- * 流式预测
- */
-export interface StreamingPrediction {
-  timestamp: number
-  prediction: number
-  confidence: number
-  processingTime: number
-  dataQuality?: Record<string, unknown>
-  modelVersion: string
-}
-
-/**
- * 数据流
- */
-export interface DataStream {
-  data: PredictionDataPoint[]
-  qualityMetrics?: Record<string, unknown>
-  metadata?: Record<string, unknown>
-}
-
-/**
- * 模型选择
- */
-export interface ModelSelection {
-  selectedModel: string
-  alternativeModels: string[]
-  confidence: number
-  reasoning: string
-}
-
-/**
- * 任务信息
- */
-export interface TaskInfo {
-  ensemble: {
-    predict: (data: PredictionData, horizon?: number) => Promise<PredictionResult>
-    train: (data: PredictionData) => Promise<void>
-    getModelInfo: () => { modelId: string }
-    detectConceptDrift?: (data: PredictionData) => Promise<{ detected: boolean; driftType: string } | undefined>
-  }
-  config: Record<string, unknown>
-  data: PredictionData
-  modelSelection: ModelSelection
-  createdAt: number
-  lastUpdated?: number
-}
-
-/**
- * 预测器
- */
-export interface Predictor {
-  predict: (data: PredictionData, horizon?: number) => Promise<PredictionResult>
-  train: (data: PredictionData) => Promise<void>
-  getModelInfo: () => { modelId: string }
-}
-
-/**
- * 性能指标
- */
-export interface PerformanceMetrics {
-  accuracy: number
-  confidence: number
-  stability: number
-  avgLatency: number
-  predictionCount?: number
-}
-
-/**
- * 漂移警报
- */
-export interface DriftAlert {
-  type: string
-  severity: string
-  description: string
-  timestamp: number
-}
-
-/**
- * 推荐
- */
-export interface Recommendation {
-  category: string
-  priority: string
-  description: string
-  expectedImpact: string
-  effort: string
-}
-
-/**
- * 风险评估
- */
-export interface RiskAssessment {
-  overall: 'low' | 'medium' | 'high'
-  factors: Array<{
-    type: string
-    severity: string
-    description: string
-    impact: string
-  }>
-  mitigation: string[]
-  monitoring: string[]
-}
-
-/**
- * 关键洞察
- */
-export interface KeyInsight {
-  type: string
-  description: string
-  severity: string
-  confidence?: number
-  actionability?: string
-}
-
-/**
- * 模型拟合评估
- */
-export interface ModelFitAssessment {
-  goodnessOfFit: number
-  residualAnalysis: ResidualAnalysis
-  stabilityMetrics: StabilityMetrics
-  biasVarianceTradeoff: BiasVarianceTradeoff
-  recommendations: string[]
-}
-
-/**
- * 稳定性指标
- */
-export interface StabilityMetrics {
-  parameterStability: number
-  predictionStability: number
-  temporalStability: number
-  sensitivity: {
-    noise: number
-    complexity: number
-  }
-}
-
-/**
- * 偏差方差权衡
- */
-export interface BiasVarianceTradeoff {
-  bias: number
-  variance: number
-  irreducibleError: number
-  totalError: number
-  decomposition: string
-}
-
-/**
- * 残差分析
- */
-export interface ResidualAnalysis {
-  meanError: number
-  stdError: number
-  skewness: number
-  kurtosis: number
-  autocorrelation: number
-  heteroscedasticity: boolean
+export interface PredictionConfig {
+  modelType: 'regression' | 'classification' | 'forecasting' | 'anomaly_detection';
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  constraints?: {
+    maxTrainingTime?: number;
+    memoryLimit?: number;
+    accuracyThreshold?: number;
+    realTimeCapability?: boolean;
+  };
+  requirements?: {
+    minAccuracy?: number;
+    maxLatency?: number;
+    preferredModels?: string[];
+  };
+  parameters?: Record<string, any>;
+  preprocessing?: {
+    normalize?: boolean;
+    scale?: boolean;
+    handleMissing?: 'drop' | 'fill' | 'interpolate';
+  };
+  validation?: {
+    crossValidation?: boolean;
+    testSplit?: number;
+    validationSplit?: number;
+  };
 }
 
 /**
  * 模型约束
  */
 export interface ModelConstraints {
-  maxTrainingTime?: number
-  memoryLimit?: number
-  accuracyThreshold?: number
-  maxModels?: number
-  minAccuracy?: number
-  maxLatency?: number
-  realTimeCapability?: boolean
+  maxComplexity?: number;
+  maxFeatures?: number;
+  maxTrainingTime?: number;
+  memoryLimit?: number;
+  maxModels?: number;
+  accuracyThreshold?: number;
+  realTimeCapability?: boolean;
+}
+
+/**
+ * 模型评估
+ */
+export interface ModelEvaluation {
+  modelId: string;
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1Score: number;
+  rmse: number;
+  mae: number;
+  r2Score: number;
+  timestamp: Date;
+}
+
+/**
+ * 质量指标
+ */
+export interface QualityMetrics {
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1Score: number;
+  rmse: number;
+  mae: number;
+  r2Score: number;
+  timestamp: number;
+  customMetrics: {
+    mape: number;
+    n: number;
+    avgConfidence: number;
+    timestampRange: number;
+  };
+}
+
+/**
+ * 偏差报告
+ */
+export interface BiasReport {
+  modelId: string;
+  biasScore: number;
+  biasMetrics: {
+    genderBias?: number;
+    ageBias?: number;
+    regionBias?: number;
+  };
+  recommendations: string[];
+  timestamp: Date;
+}
+
+/**
+ * 校准结果
+ */
+export interface CalibrationResult {
+  modelId: string;
+  calibrationScore: number;
+  calibrationCurve: Array<{
+    predicted: number;
+    actual: number;
+  }>;
+  timestamp: Date;
+}
+
+/**
+ * 敏感数据
+ */
+export interface SensitiveData {
+  dataPoints?: Array<{
+    index: number;
+    sensitivity: 'high' | 'medium' | 'low';
+    features: string[];
+  }>;
+  recommendations?: string[];
+  [key: string]: unknown;
 }
 
 /**
  * 模型选择
  */
 export interface ModelSelection {
-  selectedModel: string
-  alternativeModels: string[]
-  selectionReason: string
-  expectedPerformance: number
-  confidence: number
-  fittingTime: number
+  reasoning: string;
+  selectedModel: ModelFitAssessment;
+  alternativeModels: ModelFitAssessment[];
+  selectionReason: string;
+  expectedPerformance: number;
+  confidence: number;
+  fittingTime: number;
+  goodnessOfFit: number;
+  residualAnalysis: ResidualAnalysis;
+  stabilityMetrics: StabilityMetrics;
+  biasVarianceTradeoff: BiasVarianceTradeoff;
+  recommendations: string[];
+}
+
+/**
+ * 模型拟合评估
+ */
+export interface ModelFitAssessment {
+  modelId: string;
+  accuracy: number;
+  fittingTime: number;
+  complexityScore: number;
+  generalizationScore: number;
+  confidenceScore: number;
+  [key: string]: any;
+}
+
+/**
+ * 集成引擎接口
+ */
+export interface EnsembleEngine {
+  predict: (data: PredictionData, horizon?: number) => Promise<PredictionResult>;
+  train: (data: PredictionData) => Promise<ModelEvaluation>;
+  getModelInfo: () => { modelId: string };
+  detectConceptDrift?: (data: PredictionData) => Promise<boolean>;
+}
+
+/**
+ * 预测器接口
+ */
+export interface Predictor {
+  predict: (data: PredictionData, horizon?: number) => Promise<PredictionResult>;
+  train: (data: PredictionData) => Promise<ModelEvaluation>;
+  getModelInfo: () => { modelId: string };
+  evaluate: (data: PredictionData) => Promise<ModelEvaluation>;
+  saveModel: () => Promise<void>;
+  loadModel: (modelId: string) => Promise<void>;
+  featureEngineering: (data: PredictionData) => Promise<PredictionData>;
+}
+
+/**
+ * 时间序列引擎接口
+ */
+export interface TimeSeriesEngine {
+  predict: (data: PredictionData, horizon?: number) => Promise<PredictionResult>;
+  train: (data: PredictionData) => Promise<ModelEvaluation>;
+  getModelInfo: () => { modelId: string };
+  detectConceptDrift?: (data: PredictionData) => Promise<boolean>;
+}
+
+/**
+ * 异常检测引擎接口
+ */
+export interface AnomalyDetectionEngine {
+  predict: (data: PredictionData, horizon?: number) => Promise<PredictionResult>;
+  train: (data: PredictionData) => Promise<ModelEvaluation>;
+  getModelInfo: () => { modelId: string };
+}
+
+/**
+ * 因果推断引擎接口
+ */
+export interface CausalInferenceEngine {
+  predict: (data: PredictionData, horizon?: number) => Promise<PredictionResult>;
+  train: (data: PredictionData) => Promise<ModelEvaluation>;
+  getModelInfo: () => { modelId: string };
+}
+
+/**
+ * 任务信息
+ */
+export interface TaskInfo {
+  taskId: string;
+  modelId: string;
+  ensemble: {
+    predict: (data: PredictionData, horizon?: number) => Promise<PredictionResult>;
+    train: (data: PredictionData) => Promise<ModelEvaluation>;
+    getModelInfo: () => { modelId: string };
+    detectConceptDrift?: (data: PredictionData) => Promise<boolean>;
+    addPredictor?: (predictor: any) => void;
+  };
+  config: Record<string, unknown>;
+  data: PredictionData;
+  modelSelection: ModelSelection;
+  createdAt: number;
+  lastUpdated?: number;
+  predictor?: any;
+}
+
+/**
+ * 稳定性指标
+ */
+export interface StabilityMetrics {
+  modelId: string;
+  score: number;
+  variance: number;
+  drift: number;
+  timestamp: Date;
+}
+
+/**
+ * 偏差-方差权衡
+ */
+export interface BiasVarianceTradeoff {
+  bias: number;
+  variance: number;
+  irreducibleError: number;
+  totalError: number;
+  optimalComplexity: number;
+}
+
+/**
+ * 残差分析
+ */
+export interface ResidualAnalysis {
+  residuals: number[];
+  mean: number;
+  std: number;
+  pattern: 'random' | 'systematic' | 'heteroscedastic';
+  timestamp: Date;
+}
+
+/**
+ * 训练结果
+ */
+export interface TrainingResult {
+  modelId: string;
+  accuracy: number;
+  trainingTime: number;
+  timestamp: Date;
+  metrics: Record<string, number>;
+}
+
+/**
+ * 性能历史
+ */
+export interface PerformanceHistory {
+  modelId: string;
+  history: Array<{
+    timestamp: Date;
+    accuracy: number;
+    latency: number;
+  }>;
+}
+
+/**
+ * 数据漂移指标
+ */
+export interface DataDriftMetrics {
+  modelId: string;
+  driftScore: number;
+  driftType: 'concept' | 'data' | 'none';
+  timestamp: Date;
+  affectedFeatures: string[];
+}
+
+/**
+ * 更新的权重
+ */
+export interface UpdatedWeights {
+  modelId: string;
+  weights: number[];
+  timestamp: Date;
+}
+
+/**
+ * 漂移检测
+ */
+export interface DriftDetection {
+  detected: boolean;
+  driftType: 'concept' | 'data' | 'none';
+  severity: 'low' | 'medium' | 'high';
+  timestamp: Date;
+}
+
+/**
+ * 预测器配置
+ */
+export interface PredictorConfig {
+  modelType: string;
+  name?: string;
+  algorithm?: string;
+  parameters?: Record<string, any>;
+  preprocessing?: {
+    normalize?: boolean;
+    scale?: boolean;
+    handleMissing?: 'drop' | 'fill' | 'interpolate';
+  };
+  validation?: {
+    method: 'cross_validation' | 'holdout' | 'time_series_split';
+    folds?: number;
+    testSize?: number;
+  };
+  maxPredictors?: number;
+}
+
+/**
+ * 季节性分析
+ */
+export interface SeasonalityAnalysis {
+  hasSeasonality: boolean;
+  seasonalityType: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'none';
+  strength: number;
+  period?: number;
+}
+
+/**
+ * 概率预测
+ */
+export interface ProbabilisticForecast {
+  predictions: Array<{
+    value: number;
+    probability: number;
+    confidenceInterval: [number, number];
+  }>;
+  timestamp: Date;
+}
+
+/**
+ * 异常报告
+ */
+export interface AnomalyReport {
+  anomalies: Anomaly[];
+  summary: {
+    totalAnomalies: number;
+    severity: 'low' | 'medium' | 'high';
+    timeRange: [Date, Date];
+  };
+  timestamp: Date;
+}
+
+/**
+ * 异常
+ */
+export interface Anomaly {
+  id: string;
+  timestamp: Date;
+  value: number;
+  expectedValue: number;
+  severity: 'low' | 'medium' | 'high';
+  explanation?: AnomalyExplanation;
+}
+
+/**
+ * 异常解释
+ */
+export interface AnomalyExplanation {
+  reason: string;
+  factors: string[];
+  confidence: number;
+}
+
+/**
+ * 因果图
+ */
+export interface CausalGraph {
+  nodes: Array<{
+    id: string;
+    name: string;
+    type: 'feature' | 'target' | 'confounder';
+  }>;
+  edges: Array<{
+    source: string;
+    target: string;
+    strength: number;
+    direction: 'positive' | 'negative';
+  }>;
+}
+
+/**
+ * 反事实结果
+ */
+export interface CounterfactualResult {
+  originalPrediction: number;
+  counterfactualPrediction: number;
+  changes: Record<string, number>;
+  confidence: number;
+}
+
+/**
+ * 干预
+ */
+export interface Intervention {
+  action: string;
+  target: string;
+  expectedImpact: number;
+  confidence: number;
+  timestamp: Date;
+}
+
+/**
+ * 预测洞察
+ */
+export interface PredictionInsights {
+  modelId: string;
+  insights: KeyInsight[];
+  summary: string;
+  recommendations: Recommendation[];
+  timestamp: Date;
+  keyPoints?: KeyInsight[];
+  performanceMetrics?: PerformanceMetrics;
+  driftAlerts?: DriftAlert[];
+  riskAssessment?: RiskAssessment;
+  confidence?: number;
+}
+
+/**
+ * 流式预测
+ */
+export interface StreamingPrediction {
+  predictionId: string;
+  result: PredictionResult;
+  streamId: string;
+  timestamp: Date;
+  prediction: number | number[];
+  confidence: number;
+  processingTime: number;
+  dataQuality: any;
+  modelVersion: string;
+}
+
+/**
+ * 数据流
+ */
+export interface DataStream {
+  streamId: string;
+  data: DataPoint[];
+  metadata: Record<string, any>;
+  isActive: boolean;
+  qualityMetrics: any;
+}
+
+/**
+ * 性能指标
+ */
+export interface PerformanceMetrics {
+  modelId: string;
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1Score: number;
+  latency: number;
+  throughput: number;
+  timestamp: Date;
+  confidence?: number;
+}
+
+/**
+ * 漂移警报
+ */
+export interface DriftAlert {
+  modelId: string;
+  alertType: 'concept_drift' | 'data_drift' | 'performance_degradation';
+  severity: 'low' | 'medium' | 'high';
+  message: string;
+  timestamp: number;
+  detected?: boolean;
+  driftType?: string;
+}
+
+/**
+ * 推荐
+ */
+export interface Recommendation {
+  type: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high';
+  expectedImpact: number;
+}
+
+/**
+ * 风险评估
+ */
+export interface RiskAssessment {
+  modelId: string;
+  riskLevel: 'low' | 'medium' | 'high';
+  riskFactors: string[];
+  mitigationStrategies: string[];
+  timestamp: Date;
+}
+
+/**
+ * 关键洞察
+ */
+export interface KeyInsight {
+  type: string;
+  description: string;
+  importance: number;
+  timestamp: Date;
 }

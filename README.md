@@ -1,178 +1,62 @@
-# YYC³ 智能插拔式移动AI系统
+# 小语AI智能成长守护系统 - 开发者文档
 
 <div align="center">
 
-![YYC³ Banner](public/git_1800_450-6.png)
+![小语AI智能成长守护系统](https://raw.githubusercontent.com/YY-Nexus/yyc3-xyai/main/public/git_1800_450-6.png)
 
-![YYC³ Logo](https://img.shields.io/badge/YYC³-智能插拔式移动AI系统-blue?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-2.0.0-green?style=for-the-badge)
-![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
-![Bun](https://img.shields.io/badge/runtime-Bun-black?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/framework-Next.js-16.1.1-black?style=for-the-badge)
+**小语AI智能成长守护系统**
+
+[![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.2.3-blue?style=for-the-badge&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge)](https://github.com/YY-Nexus/yyc3-xyai)
+[![Coverage](https://img.shields.io/badge/Coverage-41%25-yellow?style=for-the-badge)](https://github.com/YY-Nexus/yyc3-xyai)
+
+**版本**: v2.0.0 | **最后更新**: 2025-01-30
+
+[快速开始](#-快速开始) · [项目结构](#-项目结构) · [核心功能](#-核心功能) · [API文档](#-api文档) · [部署指南](#-部署指南)
 
 </div>
 
-**Intelligent Pluggable Mobile AI System**
+---
 
-基于事件驱动+目标驱动混合架构的智能插拔式移动AI系统，支持动态工具注册、知识库管理、多模态AI交互和微服务部署。
+## 📋 目录
 
-[快速开始](#快速开始) • [功能特性](#功能特性) • [项目整合](#项目整合) • [系统架构](#系统架构) • [文档索引](#文档索引) • [部署指南](#部署指南)
+- [项目概述](#-项目概述)
+- [技术栈](#-技术栈)
+- [项目结构](#-项目结构)
+- [快速开始](#-快速开始)
+- [核心功能](#-核心功能)
+- [开发指南](#-开发指南)
+- [API文档](#-api文档)
+- [数据库设计](#-数据库设计)
+- [部署指南](#-部署指南)
+- [贡献指南](#-贡献指南)
+- [常见问题](#-常见问题)
 
 ---
 
 ## 🎯 项目概述
 
-YYC³智能插拔式移动AI系统是基于四个项目（yyc3-xy-01、yyc3-xy-02、yyc3-xy-03、yyc3-xy-05）深度分析后，选择 **yyc3-xy-05作为主基座**，整合其他项目优势功能打造的综合性AI系统，专为0-3岁儿童成长守护场景设计。
-
-### 项目背景
-
-本项目旨在整合四个项目的优势：
-
-- **yyc3-xy-01**：文档体系完善，架构设计清晰
-- **yyc3-xy-02**：日志系统完善，监控系统完善
-- **yyc3-xy-03**：测试配置完善，轻量级设计
-- **yyc3-xy-05**：技术栈最新，功能最完整（主基座）
+小语AI智能成长守护系统是基于Next.js 16、React 19和TypeScript 5构建的智能育儿平台，专为0-3岁儿童成长守护场景设计。
 
 ### 核心价值
 
-- **智能成长守护** - 基于AI的0-3岁儿童成长记录与分析
-- **多模态交互** - 支持文本、语音、图像、视频等多种交互方式
-- **个性化推荐** - 根据儿童成长数据提供定制化教育内容
-- **实时陪伴** - 智能AI助手提供24/7情感陪伴和互动
-- **家长赋能** - 为家长提供科学的育儿指导和成长建议
+- **智能守护**: AI智能对话、消息通知、日程计划、系统设置
+- **成长记录**: 成长记录、成长评估、活动记录、交互记录、儿童档案、徽章成就
+- **知识教育**: 课程学习、作业管理、阅读计划、视频教学、创意培养、课程大纲
 
-### 技术亮点
+### 项目特色
 
-- **事件驱动+目标驱动混合架构** - 灵活高效的AI决策机制
-- **动态工具生态** - 自动工具发现与注册系统
-- **RAG知识库** - 向量存储和检索增强生成
-- **微服务架构** - 完整的服务编排和API网关
-- **三层学习架构** - 行为、策略、知识三层智能学习
+- **最新技术栈**: 采用Next.js 16.1.1、React 19.2.3、TypeScript 5.9.3
+- **智能AI系统**: 集成AgenticCore元学习系统、Neo4j知识图谱
+- **Q版角色系统**: 支持性别主题切换、表情变化、个性化配置
+- **企业级架构**: 微服务架构、事件驱动、目标驱动
 
 ---
 
-## 🚀 项目整合
-
-本项目整合了四个项目的优势，经过三个阶段的深度整合：
-
-### 整合策略
-
-```
-主基座: yyc3-xy-05 (70%)
-    ├── 元学习系统 ⭐
-    ├── Neo4j 知识图谱 ⭐
-    ├── 自适应预测引擎 ⭐
-    └── 最新技术栈（Next.js 16.1.1）
-    ↓
-整合来源: yyc3-xy-01 (15%)
-    └── 文档体系 ⭐
-    ↓
-整合来源: yyc3-xy-02 (10%)
-    ├── 日志系统 ⭐
-    └── 监控系统 ⭐
-    ↓
-整合来源: yyc3-xy-03 (5%)
-    └── 测试配置 ⭐
-```
-
-### 阶段1：技术栈升级（✅ 完成）
-
-**执行时间**: 2025-01-30
-**执行状态**: ✅ 完成
-
-**主要成果**:
-
-- ✅ 确认Next.js 16.1.1（最新版本）
-- ✅ 确认React 19.2.3（最新版本）
-- ✅ 确认TypeScript 5.9.3（最新版本）
-- ✅ 修复16+生产代码类型错误
-- ✅ 提高代码质量到95%+
-
-### 阶段2：功能补充（✅ 完成）
-
-**执行时间**: 2025-01-30
-**执行状态**: ✅ 完成
-
-**主要成果**:
-
-- ✅ 增强日志系统（v2.0.0）
-  - 支持5个日志级别（ERROR, WARN, INFO, DEBUG, TRACE）
-  - 支持localStorage存储
-  - 支持日志下载
-- ✅ 集成企业级监控系统
-  - Prometheus配置（8个监控目标）
-  - Grafana配置
-- ✅ 完整Badges徽章系统
-  - API路由（4个端点）
-  - Mock数据（17K）
-  - 服务层（10个方法）
-  - 类型定义（10个类型）
-
-### 阶段3：文档整合（⏳ 进行中）
-
-**执行时间**: 2025-01-30
-**执行状态**: ⏳ 进行中
-
-**主要任务**:
-
-- ⏳ 整合技术文档
-- ⏳ 整合项目文档
-- ⏳ 整合用户文档
-- ⏳ 建立文档维护流程
-
-### 整合成果
-
-✅ **技术栈**：使用最新版本（Next.js 16.1.1, React 19.2.3, TypeScript 5.9.3）
-✅ **日志系统**：增强的Client Logger（v2.0.0）+ Winston企业级日志系统
-✅ **监控系统**：Prometheus + Grafana企业级监控系统
-✅ **Badges系统**：完整的徽章系统（API + 数据 + 服务）
-✅ **类型系统**：95%+类型安全，无类型错误
-✅ **项目评分**：91/100 ⭐⭐⭐⭐⭐
-
----
-
-## ✨ 功能特性
-
-### 🤖 智能AI助手
-
-- **拖拽式界面** - 基于React DnD的智能组件，自由布局
-- **多视图切换** - 对话、工具、洞察多模式切换
-- **位置优化** - 自动最佳位置计算，提升用户体验
-- **实时任务监控** - 动态任务状态跟踪和进度展示
-- **语音交互** - 支持语音输入和语音回复
-- **情感识别** - 实时分析用户情绪状态
-
-### 🧠 核心系统引擎
-
-- **AgenticCore** - 事件驱动+目标驱动混合架构
-- **ServiceOrchestrator** - 微服务编排与协调
-- **GoalManagementSystem** - 目标生命周期管理
-- **MetaLearningSystem** - 三层智能学习架构（行为、策略、知识）
-
-### 👶 0-3岁成长守护体系
-
-- **成长记录** - 智能记录儿童成长里程碑
-- **发展评估** - 基于儿童发展理论的智能评估
-- **个性化指导** - 根据成长数据提供定制化建议
-- **里程碑庆祝** - 自动识别并庆祝成长里程碑
-
-### 📊 数据分析引擎
-
-- **实时监控** - 实时数据采集和分析
-- **趋势预测** - 基于机器学习的成长趋势预测
-- **异常检测** - 自动识别成长异常
-- **可视化报表** - 丰富的图表和报表展示
-
-### 🛡️ 安全与隐私
-
-- **数据加密** - 端到端数据加密
-- **隐私保护** - 符合GDPR和COPPA标准
-- **访问控制** - 细粒度的权限管理
-- **审计日志** - 完整的操作审计记录
-
----
-
-## 🎯 技术栈
+## 🛠️ 技术栈
 
 ### 前端技术
 
@@ -184,17 +68,16 @@ YYC³智能插拔式移动AI系统是基于四个项目（yyc3-xy-01、yyc3-xy-0
 | **Tailwind CSS** | 4.x | CSS框架 |
 | **Radix UI** | - | 无样式组件库 |
 | **Framer Motion** | - | 动画库 |
+| **React DnD** | - | 拖拽功能库 |
 
 ### 后端技术
 
 | 技术 | 版本 | 说明 |
 |------|------|------|
-| **Bun** | Latest | JavaScript运行时 |
 | **Node.js** | 18+ | JavaScript运行时 |
-| **PostgreSQL** | 15+ | 关系型数据库 |
-| **Redis** | 7+ | 缓存和会话存储 |
-| **Neo4j** | 5+ | 图数据库（知识图谱） |
-| **Winston** | - | 企业级日志系统 |
+| **Bun** | Latest | JavaScript运行时（可选）|
+| **Next.js API Routes** | - | API路由 |
+| **Prisma** | - | ORM（可选）|
 
 ### AI/ML技术
 
@@ -203,276 +86,1033 @@ YYC³智能插拔式移动AI系统是基于四个项目（yyc3-xy-01、yyc3-xy-0
 | **OpenAI API** | - | GPT-4, GPT-3.5 |
 | **Claude API** | - | Anthropic AI |
 | **LangChain** | - | AI应用开发框架 |
-| **Pinecone** | - | 向量数据库 |
-| **OpenCV** | - | 计算机视觉 |
+| **Neo4j** | 5+ | 图数据库（知识图谱）|
 
-### DevOps技术
+### 开发工具
 
-| 技术 | 版本 | 说明 |
-|------|------|------|
-| **Docker** | 20+ | 容器化 |
-| **Kubernetes** | 1.27+ | 容器编排 |
-| **Prometheus** | - | 监控系统 |
-| **Grafana** | - | 可视化监控 |
-| **GitHub Actions** | - | CI/CD |
+| 工具 | 说明 |
+|------|------|
+| **ESLint** | 代码规范检查 |
+| **Prettier** | 代码格式化 |
+| **Jest** | 单元测试 |
+| **Bun Test** | 单元测试 |
+| **GitHub Actions** | CI/CD |
 
 ---
 
-## 📋 快速开始
+## 📁 项目结构
+
+```
+yyc3-xy-ai/
+├── app/                         # Next.js App Router
+│   ├── [locale]/                # 国际化路由
+│   │   ├── ai-chat/             # AI聊天页面
+│   │   ├── growth/              # 成长页面
+│   │   └── page.tsx             # 国际化首页
+│   ├── activities/              # 活动页面
+│   ├── ai-creative/             # AI创意页面
+│   ├── badges/                  # 徽章页面
+│   ├── books/                   # 书籍页面
+│   ├── children/                # 儿童管理页面
+│   ├── courses/                 # 课程页面
+│   ├── curriculum/              # 课程大纲页面
+│   ├── growth/                  # 成长页面
+│   │   ├── assessment/          # 成长评估页面
+│   │   └── page.tsx             # 成长总览页面
+│   ├── homework/                # 作业页面
+│   ├── interactions/            # 交互页面
+│   ├── messages/                # 消息页面
+│   ├── page.tsx                 # 首页
+│   ├── schedule/                # 计划页面
+│   ├── settings/                # 设置页面
+│   └── videos/                  # 视频页面
+├── components/                  # React组件
+│   ├── ai-xiaoyu/               # AI小语组件
+│   ├── growth/                  # 成长组件
+│   ├── headers/                 # 头部组件
+│   ├── Navigation.tsx           # 导航组件
+│   ├── ChildSelector.tsx        # 儿童选择器
+│   └── ui/                      # UI组件库
+├── core/                        # 核心模块
+│   ├── AgenticCore.ts           # Agentic核心
+│   └── AgenticCore-Enhanced.ts  # Agentic增强核心
+├── lib/                         # 工具库
+│   ├── character-manager.ts     # 角色管理器
+│   ├── db/client.ts             # 数据库客户端
+│   └── hooks/                   # 自定义Hooks
+├── hooks/                       # 全局自定义Hooks
+│   ├── useAuth.ts               # 认证Hook
+│   ├── useChildren.ts           # 儿童Hook
+│   └── useGrowthStage.ts        # 成长阶段Hook
+├── public/                      # 静态资源
+│   ├── role-photos/             # 角色图片
+│   │   ├── boy/                 # 男孩图片
+│   │   └── girl/                # 女孩图片
+│   └── git_1800_450-6.png       # Git顶图
+├── docs/                        # 文档
+│   ├── 01-架构设计类/             # 架构设计文档
+│   ├── 02-开发指南/               # 开发指南
+│   ├── 03-文档规范类/             # 文档规范
+│   ├── 04-项目管理类/             # 项目管理文档
+│   └── 05-项目概述类/             # 项目概述
+├── types/                       # TypeScript类型定义
+│   └── common.ts                # 通用类型
+├── __tests__/                   # 测试文件
+│   ├── components/              # 组件测试
+│   ├── hooks/                   # Hooks测试
+│   └── lib/                     # 工具库测试
+├── .env.local                   # 环境变量
+├── next.config.ts               # Next.js配置
+├── package.json                 # 项目依赖
+├── tsconfig.json                # TypeScript配置
+└── tailwind.config.ts           # Tailwind CSS配置
+```
+
+---
+
+## 🚀 快速开始
 
 ### 环境要求
 
-- Node.js 18+
-- Bun (可选，推荐)
-- Docker 20+
-- PostgreSQL 15+
-- Redis 7+
+- **Node.js**: 18.x 或更高版本
+- **npm**: 9.x 或更高版本（或使用 bun）
+- **Git**: 最新版本
 
 ### 安装步骤
 
+#### 1. 克隆仓库
+
 ```bash
-# 克隆仓库
-git clone https://github.com/YY-Nexus/yyc3-xy-ai.git
-
-# 进入项目目录
+git clone https://github.com/YY-Nexus/yyc3-xyai.git
 cd yyc3-xy-ai
+```
 
-# 安装依赖
+#### 2. 安装依赖
+
+```bash
 npm install
 # 或使用 bun
 bun install
+```
 
-# 配置环境变量
-cp .env.example .env
-# 编辑 .env 文件，配置必要的环境变量
+#### 3. 配置环境变量
 
-# 启动开发服务器
+```bash
+cp .env.example .env.local
+```
+
+编辑 `.env.local` 文件，配置必要的环境变量：
+
+```env
+# 应用配置
+NEXT_PUBLIC_APP_NAME=小语AI智能成长守护系统
+NEXT_PUBLIC_APP_VERSION=2.0.0
+NEXT_PUBLIC_API_URL=http://localhost:1228
+
+# API配置
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your_neo4j_password
+```
+
+#### 4. 启动开发服务器
+
+```bash
 npm run dev
-# 或使用 bun
-bun run dev
+```
 
-# 访问 http://localhost:3000
+访问地址: <http://localhost:1228>
+
+#### 5. 构建生产版本
+
+```bash
+npm run build
+npm run start
+```
+
+访问地址: <http://localhost:1228>
+
+---
+
+## 🎨 核心功能
+
+### 1. 智能守护
+
+#### AI聊天
+
+**路径**: `app/[locale]/ai-chat/page.tsx`
+
+**功能**:
+
+- AI智能对话
+- 语音交互
+- 多角色切换
+- 消息历史记录
+
+**技术实现**:
+
+```typescript
+// 使用 OpenAI API 进行对话
+import { useChat } from 'ai/react'
+
+const { messages, input, handleInputChange, handleSubmit } = useChat({
+  api: '/api/chat',
+  initialMessages: [],
+})
+```
+
+#### 消息通知
+
+**路径**: `app/messages/page.tsx`
+
+**功能**:
+
+- 消息列表
+- 消息详情
+- 消息发送
+- 消息状态跟踪
+
+#### 日程计划
+
+**路径**: `app/schedule/page.tsx`
+
+**功能**:
+
+- 计划列表
+- 计划详情
+- 计划提醒
+- 计划完成状态
+
+#### 系统设置
+
+**路径**: `app/settings/page.tsx`
+
+**功能**:
+
+- 用户设置
+- 系统设置
+- 偏好设置
+- 权限管理
+
+### 2. 成长记录
+
+#### 成长总览
+
+**路径**: `app/growth/page.tsx`
+
+**功能**:
+
+- 成长数据可视化
+- 成长时间线
+- 智能评估
+- 发展曲线图
+
+**技术实现**:
+
+```typescript
+// 使用 Framer Motion 进行动画
+import { motion } from 'framer-motion'
+
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5 }}
+>
+  {/* 成长数据内容 */}
+</motion.div>
+```
+
+#### 成长评估
+
+**路径**: `app/growth/assessment/page.tsx`
+
+**功能**:
+
+- 成长评估
+- 评估报告
+- 建议推荐
+- 发展水平分析
+
+#### 活动记录
+
+**路径**: `app/activities/page.tsx`
+
+**功能**:
+
+- 活动列表
+- 活动详情
+- 活动记录
+- 活动统计
+
+#### 儿童档案
+
+**路径**: `app/children/page.tsx`
+
+**功能**:
+
+- 儿童信息管理
+- 角色配置
+- 主题切换
+- 档案编辑
+
+#### 徽章成就
+
+**路径**: `app/badges/page.tsx`
+
+**功能**:
+
+- 徽章展示
+- 进度追踪
+- 成就解锁
+- 徽章等级
+
+### 3. 知识教育
+
+#### 课程学习
+
+**路径**: `app/courses/page.tsx`
+
+**功能**:
+
+- 课程列表
+- 学习进度
+- 课程评价
+- 课程推荐
+
+#### 课程大纲
+
+**路径**: `app/curriculum/page.tsx`
+
+**功能**:
+
+- 课程大纲
+- 学习计划
+- 课程安排
+- 学习路径
+
+#### 作业管理
+
+**路径**: `app/homework/page.tsx`
+
+**功能**:
+
+- 作业列表
+- 作业提交
+- 作业反馈
+- 作业统计
+
+#### 阅读计划
+
+**路径**: `app/books/page.tsx`
+
+**功能**:
+
+- 书籍列表
+- 阅读记录
+- 推荐书籍
+- 阅读统计
+
+#### 视频教学
+
+**路径**: `app/videos/page.tsx`
+
+**功能**:
+
+- 视频列表
+- 视频播放
+- 视频推荐
+- 视频记录
+
+#### AI创意
+
+**路径**: `app/ai-creative/page.tsx`
+
+**功能**:
+
+- AI创意生成
+- 个性化内容创作
+- 创意展示
+- 创意分享
+
+---
+
+## 💻 开发指南
+
+### 代码规范
+
+#### TypeScript
+
+```typescript
+// ✅ 正确
+interface User {
+  id: string
+  name: string
+  email: string
+}
+
+// ❌ 错误
+interface User {
+  id: any
+  name: any
+  email: any
+}
+```
+
+#### React组件
+
+```typescript
+// ✅ 正确
+'use client'
+
+import { useState } from 'react'
+
+export default function MyComponent() {
+  const [count, setCount] = useState(0)
+
+  return <div>Count: {count}</div>
+}
+
+// ❌ 错误
+import { useState } from 'react'
+
+export default function MyComponent() {
+  const [count, setCount] = useState(0)
+
+  return <div>Count: {count}</div>
+}
+```
+
+#### Tailwind CSS
+
+```typescript
+// ✅ 正确
+<div className="flex items-center justify-center p-4 bg-white rounded-lg shadow">
+  内容
+</div>
+
+// ❌ 错误
+<div style={{ display: 'flex', padding: '16px', backgroundColor: 'white' }}>
+  内容
+</div>
+```
+
+### 组件开发
+
+#### 创建新组件
+
+```bash
+# 创建组件目录
+mkdir components/MyComponent
+
+# 创建组件文件
+touch components/MyComponent/index.tsx
+touch components/MyComponent/MyComponent.tsx
+touch components/MyComponent/MyComponent.test.tsx
+touch components/MyComponent/README.md
+```
+
+#### 组件模板
+
+```typescript
+'use client'
+
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+
+interface MyComponentProps {
+  title: string
+  onClick?: () => void
+}
+
+export default function MyComponent({ title, onClick }: MyComponentProps) {
+  const [isActive, setIsActive] = useState(false)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="p-4 bg-white rounded-lg shadow"
+      onClick={onClick}
+    >
+      <h2 className="text-xl font-bold">{title}</h2>
+    </motion.div>
+  )
+}
+```
+
+### 自定义Hooks开发
+
+#### 创建新Hook
+
+```bash
+# 创建Hook目录
+mkdir hooks/useMyHook
+
+# 创建Hook文件
+touch hooks/useMyHook.ts
+touch hooks/useMyHook.test.ts
+```
+
+#### Hook模板
+
+```typescript
+import { useState, useEffect } from 'react'
+
+interface UseMyHookReturn {
+  data: any
+  isLoading: boolean
+  error: Error | null
+  refetch: () => void
+}
+
+export function useMyHook(): UseMyHookReturn {
+  const [data, setData] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
+
+  const fetchData = async () => {
+    setIsLoading(true)
+    try {
+      // Fetch data
+      setData(/* data */)
+    } catch (err) {
+      setError(err as Error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  return {
+    data,
+    isLoading,
+    error,
+    refetch: fetchData,
+  }
+}
+```
+
+---
+
+## 🔌 API文档
+
+### API路由结构
+
+```
+app/api/
+├── chat/                # AI聊天API
+│   └── route.ts
+├── children/            # 儿童管理API
+│   └── route.ts
+├── growth/              # 成长记录API
+│   └── route.ts
+└── assessments/         # 成长评估API
+    └── route.ts
+```
+
+### API端点
+
+#### 1. AI聊天API
+
+**端点**: `POST /api/chat`
+
+**请求体**:
+
+```json
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "你好"
+    }
+  ]
+}
+```
+
+**响应**:
+
+```json
+{
+  "message": {
+    "role": "assistant",
+    "content": "你好！我是小语的AI守护助手"
+  }
+}
+```
+
+#### 2. 儿童管理API
+
+**端点**: `GET /api/children`
+
+**响应**:
+
+```json
+{
+  "children": [
+    {
+      "id": "child-001",
+      "name": "小云",
+      "gender": "female",
+      "birthDate": "2020-09-15"
+    }
+  ]
+}
+```
+
+**端点**: `POST /api/children`
+
+**请求体**:
+
+```json
+{
+  "name": "小云",
+  "gender": "female",
+  "birthDate": "2020-09-15"
+}
+```
+
+**响应**:
+
+```json
+{
+  "child": {
+    "id": "child-001",
+    "name": "小云",
+    "gender": "female",
+    "birthDate": "2020-09-15"
+  }
+}
+```
+
+#### 3. 成长记录API
+
+**端点**: `GET /api/growth?childId=child-001`
+
+**响应**:
+
+```json
+{
+  "records": [
+    {
+      "id": "record-001",
+      "childId": "child-001",
+      "date": "2025-01-30",
+      "height": 115,
+      "weight": 20,
+      "notes": "正常"
+    }
+  ]
+}
+```
+
+**端点**: `POST /api/growth`
+
+**请求体**:
+
+```json
+{
+  "childId": "child-001",
+  "date": "2025-01-30",
+  "height": 115,
+  "weight": 20,
+  "notes": "正常"
+}
+```
+
+**响应**:
+
+```json
+{
+  "record": {
+    "id": "record-001",
+    "childId": "child-001",
+    "date": "2025-01-30",
+    "height": 115,
+    "weight": 20,
+    "notes": "正常"
+  }
+}
+```
+
+#### 4. 成长评估API
+
+**端点**: `POST /api/growth/assessment`
+
+**请求体**:
+
+```json
+{
+  "childId": "child-001",
+  "assessmentDate": "2025-01-30"
+}
+```
+
+**响应**:
+
+```json
+{
+  "assessment": {
+    "id": "assessment-001",
+    "childId": "child-001",
+    "overallScore": 87,
+    "overallLevel": "良好",
+    "dimensionScores": {
+      "academic": { "score": 85, "level": "良好" },
+      "learningHabits": { "score": 82, "level": "良好" },
+      "logicalThinking": { "score": 90, "level": "优秀" },
+      "selfManagement": { "score": 78, "level": "良好" },
+      "socialSkills": { "score": 92, "level": "优秀" }
+    }
+  }
+}
+```
+
+---
+
+## 🗄️ 数据库设计
+
+### 数据模型
+
+#### 1. Child（儿童）
+
+```typescript
+interface Child {
+  id: string
+  name: string
+  nickname: string
+  gender: 'male' | 'female'
+  birthDate: Date
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+#### 2. GrowthRecord（成长记录）
+
+```typescript
+interface GrowthRecord {
+  id: string
+  childId: string
+  date: Date
+  height: number
+  weight: number
+  notes?: string
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+#### 3. Milestone（里程碑）
+
+```typescript
+interface Milestone {
+  id: string
+  childId: string
+  title: string
+  description: string
+  date: Date
+  isAchieved: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+#### 4. Badge（徽章）
+
+```typescript
+interface Badge {
+  id: string
+  childId: string
+  title: string
+  description: string
+  icon: string
+  level: 'bronze' | 'silver' | 'gold' | 'platinum'
+  isUnlocked: boolean
+  unlockedAt?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### 数据库连接
+
+```typescript
+// lib/db/client.ts
+import { PrismaClient } from '@prisma/client'
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+```
+
+---
+
+## 📦 部署指南
+
+### 环境变量
+
+```env
+# 应用配置
+NEXT_PUBLIC_APP_NAME=小语AI智能成长守护系统
+NEXT_PUBLIC_APP_VERSION=2.0.0
+NEXT_PUBLIC_API_URL=https://api.yyc3-xyai.com
+
+# API配置
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+NEO4J_URI=bolt://neo4j:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your_neo4j_password
+
+# 数据库配置
+DATABASE_URL=postgresql://user:password@localhost:5432/yyc3xyai
+
+# 其他配置
+NEXTAUTH_SECRET=your_nextauth_secret
+NEXTAUTH_URL=https://yyc3-xyai.com
 ```
 
 ### Docker部署
 
-```bash
-# 构建Docker镜像
-docker build -t yyc3-xy-ai .
+#### Dockerfile
 
-# 运行容器
-docker run -p 3000:3000 yyc3-xy-ai
+```dockerfile
+# Build stage
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY bun.lockb ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV production
+
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
 ```
 
----
+#### docker-compose.yml
 
-## 📂 项目结构
+```yaml
+version: '3.8'
 
-```
-yyc3-xy-ai/
-├── app/                  # Next.js App Router
-│   ├── api/              # API路由
-│   ├── (dashboard)/      # 仪表盘页面
-│   ├── (auth)/           # 认证页面
-│   └── layout.tsx        # 根布局
-├── components/           # React组件
-│   ├── ui/               # 基础UI组件
-│   ├── features/         # 功能组件
-│   └── layouts/          # 布局组件
-├── lib/                  # 工具库
-│   ├── db.ts             # 数据库配置
-│   ├── logger.ts         # 日志系统
-│   ├── client-logger.ts  # 客户端日志
-│   └── services/         # 服务层
-├── types/                # TypeScript类型定义
-│   ├── index.ts          # 类型导出
-│   ├── database.ts       # 数据库类型
-│   ├── ui.ts             # UI类型
-│   └── logger.ts         # 日志类型
-├── public/               # 静态资源
-├── docs/                 # 文档
-├── monitoring/           # 监控配置
-│   ├── prometheus.yml    # Prometheus配置
-│   └── grafana/          # Grafana配置
-└── package.json          # 项目配置
-```
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://user:password@db:5432/yyc3xyai
+    depends_on:
+      - db
 
----
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=yyc3xyai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-## 📚 文档索引
+  neo4j:
+    image: neo4j:5.0
+    environment:
+      - NEO4J_AUTH=neo4j/your_neo4j_password
+    volumes:
+      - neo4j_data:/data
 
-### 技术文档
-
-- [README.md](README.md) - 项目说明（本文档）
-- [技术架构文档](docs/01-架构设计类/README.md) - 系统架构设计
-- [API文档](docs/02-开发指南/API文档.md) - API接口文档
-- [类型定义文档](docs/03-文档规范类/类型定义文档.md) - TypeScript类型
-
-### 项目文档
-
-- [开发规划大纲](docs/05-项目概述类/开发规划大纲优化版.md) - 项目开发规划
-- [阶段1完成报告](PHASE1_COMPLETION_REPORT.md) - 第一阶段整合报告
-- [阶段2完成报告](PHASE2_COMPLETION_REPORT.md) - 第二阶段整合报告
-- [文档分析报告](PHASE3_DOCUMENT_ANALYSIS_REPORT.md) - 文档分析报告
-
-### 用户文档
-
-- [用户使用手册](docs/06-爱之细语/用户使用手册.md) - 用户使用指南
-- [开发者文档](docs/06-爱之细语/开发者文档闭环版.md) - 开发者指南
-- [部署与运维手册](docs/06-爱之细语/部署与运维手册.md) - 部署运维指南
-- [移动端设计指南](docs/06-爱之细语/移动端设计指南.md) - 移动端设计
-
----
-
-## 📖 开发指南
-
-### 代码规范
-
-本项目使用ESLint和Prettier进行代码规范检查：
-
-```bash
-# 检查代码规范
-npm run lint
-
-# 修复代码规范
-npm run lint:fix
-
-# 格式化代码
-npm run format
+volumes:
+  postgres_data:
+  neo4j_data:
 ```
 
-### 测试
+### Vercel部署
 
-```bash
-# 运行所有测试
-npm test
+#### 1. 连接GitHub仓库
 
-# 运行测试覆盖率
-npm run test:coverage
-```
+访问 <https://vercel.com/new，选择连接GitHub仓库> `YY-Nexus/yyc3-xyai`
 
-### 构建生产版本
+#### 2. 配置环境变量
 
-```bash
-# 构建生产版本
-npm run build
+在Vercel项目设置中添加所有必要的环境变量。
 
-# 启动生产服务器
-npm start
-```
+#### 3. 部署
 
----
-
-## 🚀 部署指南
-
-### 环境变量配置
-
-创建`.env`文件并配置以下环境变量：
-
-```env
-# 数据库配置
-DATABASE_URL=postgresql://user:password@localhost:5432/yyc3
-
-# Redis配置
-REDIS_URL=redis://localhost:6379
-
-# OpenAI配置
-OPENAI_API_KEY=your-openai-api-key
-
-# Neo4j配置
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=your-password
-```
-
-### 部署到Vercel
-
-```bash
-# 安装Vercel CLI
-npm install -g vercel
-
-# 登录Vercel
-vercel login
-
-# 部署到Vercel
-vercel
-```
-
-### 部署到Docker
-
-```bash
-# 构建Docker镜像
-docker build -t yyc3-xy-ai .
-
-# 运行容器
-docker-compose up -d
-```
-
----
-
-## 📊 监控与运维
-
-### Prometheus监控
-
-访问Prometheus仪表板：
-
-```
-http://localhost:9090
-```
-
-### Grafana可视化
-
-访问Grafana仪表板：
-
-```
-http://localhost:3001
-```
-
-### 日志查看
-
-查看系统日志：
-
-```bash
-npm run logs
-```
+Vercel会自动检测Next.js项目并进行部署。
 
 ---
 
 ## 🤝 贡献指南
 
-我们欢迎所有形式的贡献！请查看[贡献指南](CONTRIBUTING.md)了解详情。
+### 贡献流程
+
+1. Fork本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建Pull Request
+
+### 代码规范
+
+- 遵循TypeScript和ESLint规范
+- 编写单元测试
+- 更新文档
+- 遵循Conventional Commits规范
+
+### Commit信息规范
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**类型**:
+
+- `feat`: 新功能
+- `fix`: 修复bug
+- `docs`: 文档更新
+- `style`: 代码格式（不影响功能）
+- `refactor`: 重构
+- `test`: 测试相关
+- `chore`: 构建/工具相关
+
+**示例**:
+
+```
+feat(ai-chat): add voice interaction feature
+
+- Add voice input component
+- Integrate Web Speech API
+- Update AI chat API to handle voice messages
+
+Closes #123
+```
 
 ---
 
-## 📝 变更日志
+## ❓ 常见问题
 
-查看[CHANGELOG.md](CHANGELOG.md)了解最新的版本变更。
+### Q1: 如何添加新的页面？
+
+A: 在`app`目录下创建新的页面文件夹，并添加`page.tsx`文件。
+
+```bash
+mkdir app/new-page
+touch app/new-page/page.tsx
+```
+
+### Q2: 如何配置新的环境变量？
+
+A: 在`.env.local`文件中添加新的环境变量，并在代码中通过`process.env.VARIABLE_NAME`访问。
+
+### Q3: 如何调试Next.js应用？
+
+A: 使用VS Code的调试功能，在`.vscode/launch.json`中配置：
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Next.js: debug server-side",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev"
+    },
+    {
+      "name": "Next.js: debug client-side",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:1228"
+    }
+  ]
+}
+```
+
+### Q4: 如何优化Next.js应用性能？
+
+A:
+
+- 使用Next.js Image组件优化图片
+- 使用React.memo和useMemo优化组件性能
+- 使用Next.js的ISR和SSG优化页面加载
+- 使用CDN加速静态资源
+
+### Q5: 如何处理国际化？
+
+A: 使用Next.js的国际化路由，在`app/[locale]`目录下创建页面，并使用`useLocale`和`useTranslations` Hooks。
+
+```typescript
+import { useLocale, useTranslations } from 'next-intl'
+
+export default function MyComponent() {
+  const t = useTranslations('common')
+  const locale = useLocale()
+
+  return <div>{t('welcome')}</div>
+}
+```
 
 ---
 
-## ⚖️ 许可证
+## 📞 联系方式
 
-本项目采用MIT许可证。详情请查看[LICENSE](LICENSE)文件。
+### 项目信息
 
----
+- **项目名称**: 小语AI智能成长守护系统
+- **Git仓库**: <https://github.com/YY-Nexus/yyc3-xyai.git>
+- **管理员邮箱**: <admin@0379.email>
+- **项目版本**: v2.0.0
 
-## 📞 联系我们
+### 贡献者
 
-- **项目主页**: <https://github.com/YY-Nexus/yyc3-xy-ai>
-- **问题反馈**: <https://github.com/YY-Nexus/yyc3-xy-ai/issues>
-- **邮件**: <support@yyc3.com>
-
----
-
-**以智能守护成长，用科技点亮未来**
-
-**Intelligent Guardianship for Growth, Technology Illuminating Future**
+- YYC³ Development Team
+- Contributors from the community
 
 ---
 
-**项目版本**: v2.0.0
-**文档版本**: v2.0.0
-**最后更新**: 2025-01-30
-**项目状态**: ✅ 正在开发中
-**整合进度**: 67%（阶段1和2完成，阶段3进行中）
-**项目评分**: 91/100 ⭐⭐⭐⭐⭐
+## 📄 许可证
+
+本项目采用MIT许可证。详细信息请参阅 [LICENSE](LICENSE) 文件。
+
+---
+
+<div align="center">
+
+**[⬆ 回到顶部](#小语ai智能成长守护系统---开发者文档)**
+
+Made with ❤️ by YYC³ Development Team
+
+</div>

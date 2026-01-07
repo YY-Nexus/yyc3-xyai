@@ -16,7 +16,7 @@ import {
   KnowledgeNode,
   AbilityNode,
   ActivityNode,
-  KnowledgePathResult
+  KnowledgePathResult,
 } from './Neo4jService';
 
 // 数据质量检查结果
@@ -25,7 +25,12 @@ interface DataQualityReport {
   total_relationships: number;
   quality_score: number;
   issues: Array<{
-    type: 'duplicate' | 'missing_property' | 'invalid_value' | 'orphaned_node' | 'circular_reference';
+    type:
+      | 'duplicate'
+      | 'missing_property'
+      | 'invalid_value'
+      | 'orphaned_node'
+      | 'circular_reference';
     severity: 'low' | 'medium' | 'high' | 'critical';
     description: string;
     affected_nodes: string[];
@@ -132,7 +137,7 @@ export class KnowledgeGraphManager {
     completeness: 0.9,
     consistency: 0.95,
     validity: 0.98,
-    connectivity: 0.7
+    connectivity: 0.7,
   };
 
   constructor() {
@@ -143,7 +148,7 @@ export class KnowledgeGraphManager {
       validate_data: true,
       update_existing: false,
       generate_ids: true,
-      skip_duplicates: true
+      skip_duplicates: true,
     };
   }
 
@@ -165,7 +170,6 @@ export class KnowledgeGraphManager {
       await this.createBasicStructure();
 
       console.log('Knowledge Graph initialization completed successfully.');
-
     } catch (error) {
       console.error('Failed to initialize knowledge graph:', error);
       throw new Error(`Knowledge Graph initialization failed: ${error}`);
@@ -186,7 +190,7 @@ export class KnowledgeGraphManager {
       // 关系唯一性约束
       'CREATE CONSTRAINT unique_child_knowledge IF NOT EXISTS FOR ()-[r:HAS_KNOWLEDGE]-() REQUIRE r.id IS UNIQUE',
       'CREATE CONSTRAINT unique_child_ability IF NOT EXISTS FOR ()-[r:HAS_ABILITY]-() REQUIRE r.id IS UNIQUE',
-      'CREATE CONSTRAINT unique_child_activity IF NOT EXISTS FOR ()-[r:PARTICIPATED_IN]-() REQUIRE r.id IS UNIQUE'
+      'CREATE CONSTRAINT unique_child_activity IF NOT EXISTS FOR ()-[r:PARTICIPATED_IN]-() REQUIRE r.id IS UNIQUE',
     ];
 
     for (const constraint of constraints) {
@@ -219,7 +223,7 @@ export class KnowledgeGraphManager {
 
       // 全文搜索索引
       'CREATE FULLTEXT INDEX knowledge_search_index IF NOT EXISTS FOR (k:Knowledge) ON EACH [k.title, k.description]',
-      'CREATE FULLTEXT INDEX activity_search_index IF NOT EXISTS FOR (ac:Activity) ON EACH [ac.title, ac.description]'
+      'CREATE FULLTEXT INDEX activity_search_index IF NOT EXISTS FOR (ac:Activity) ON EACH [ac.title, ac.description]',
     ];
 
     for (const index of indexes) {
@@ -247,7 +251,6 @@ export class KnowledgeGraphManager {
       await this.createActivityCategories();
 
       console.log('✅ Basic data structure created successfully.');
-
     } catch (error) {
       console.error('Failed to create basic structure:', error);
       throw error;
@@ -259,24 +262,59 @@ export class KnowledgeGraphManager {
    */
   private async createKnowledgeCategories(): Promise<void> {
     const categories = [
-      { id: 'math', name: '数学认知', description: '数量、形状、空间、时间等数学概念' },
-      { id: 'language', name: '语言发展', description: '听说读写、词汇表达、沟通能力' },
-      { id: 'science', name: '科学探索', description: '自然现象、科学原理、探索精神' },
-      { id: 'art', name: '艺术创造', description: '音乐、绘画、手工、审美能力' },
-      { id: 'social', name: '社会情感', description: '人际交往、情绪管理、社会适应' },
-      { id: 'health', name: '健康体育', description: '身体发育、运动技能、健康习惯' },
-      { id: 'life', name: '生活技能', description: '自理能力、生活习惯、安全意识' },
-      { id: 'moral', name: '品德发展', description: '行为规范、价值观念、道德品质' }
+      {
+        id: 'math',
+        name: '数学认知',
+        description: '数量、形状、空间、时间等数学概念',
+      },
+      {
+        id: 'language',
+        name: '语言发展',
+        description: '听说读写、词汇表达、沟通能力',
+      },
+      {
+        id: 'science',
+        name: '科学探索',
+        description: '自然现象、科学原理、探索精神',
+      },
+      {
+        id: 'art',
+        name: '艺术创造',
+        description: '音乐、绘画、手工、审美能力',
+      },
+      {
+        id: 'social',
+        name: '社会情感',
+        description: '人际交往、情绪管理、社会适应',
+      },
+      {
+        id: 'health',
+        name: '健康体育',
+        description: '身体发育、运动技能、健康习惯',
+      },
+      {
+        id: 'life',
+        name: '生活技能',
+        description: '自理能力、生活习惯、安全意识',
+      },
+      {
+        id: 'moral',
+        name: '品德发展',
+        description: '行为规范、价值观念、道德品质',
+      },
     ];
 
     for (const category of categories) {
-      await neo4jService.query(`
+      await neo4jService.query(
+        `
         MERGE (kc:KnowledgeCategory {id: $id})
         SET kc.name = $name,
             kc.description = $description,
             kc.created_at = timestamp(),
             kc.updated_at = timestamp()
-      `, category);
+      `,
+        category
+      );
     }
   }
 
@@ -285,23 +323,34 @@ export class KnowledgeGraphManager {
    */
   private async createAbilityDimensions(): Promise<void> {
     const dimensions = [
-      { id: 'cognitive', name: '认知能力', description: '注意力、记忆力、思维能力等' },
+      {
+        id: 'cognitive',
+        name: '认知能力',
+        description: '注意力、记忆力、思维能力等',
+      },
       { id: 'language', name: '语言能力', description: '理解表达、词汇运用等' },
       { id: 'social', name: '社交能力', description: '人际交往、合作分享等' },
-      { id: 'emotional', name: '情感能力', description: '情绪识别、情绪管理等' },
+      {
+        id: 'emotional',
+        name: '情感能力',
+        description: '情绪识别、情绪管理等',
+      },
       { id: 'creative', name: '创造能力', description: '想象力、创新思维等' },
       { id: 'motor', name: '运动能力', description: '大肌肉、精细动作等' },
-      { id: 'self_care', name: '自理能力', description: '生活技能、独立性等' }
+      { id: 'self_care', name: '自理能力', description: '生活技能、独立性等' },
     ];
 
     for (const dimension of dimensions) {
-      await neo4jService.query(`
+      await neo4jService.query(
+        `
         MERGE (ad:AbilityDimension {id: $id})
         SET ad.name = $name,
             ad.description = $description,
             ad.created_at = timestamp(),
             ad.updated_at = timestamp()
-      `, dimension);
+      `,
+        dimension
+      );
     }
   }
 
@@ -310,22 +359,37 @@ export class KnowledgeGraphManager {
    */
   private async createActivityCategories(): Promise<void> {
     const categories = [
-      { id: 'educational', name: '教育活动', description: '知识学习、技能训练等' },
+      {
+        id: 'educational',
+        name: '教育活动',
+        description: '知识学习、技能训练等',
+      },
       { id: 'creative', name: '创意活动', description: '艺术创作、手工制作等' },
       { id: 'physical', name: '体育活动', description: '运动游戏、体能训练等' },
       { id: 'social', name: '社交活动', description: '集体游戏、角色扮演等' },
-      { id: 'exploratory', name: '探索活动', description: '科学实验、自然观察等' },
-      { id: 'entertainment', name: '娱乐活动', description: '游戏、故事、音乐等' }
+      {
+        id: 'exploratory',
+        name: '探索活动',
+        description: '科学实验、自然观察等',
+      },
+      {
+        id: 'entertainment',
+        name: '娱乐活动',
+        description: '游戏、故事、音乐等',
+      },
     ];
 
     for (const category of categories) {
-      await neo4jService.query(`
+      await neo4jService.query(
+        `
         MERGE (ac:ActivityCategory {id: $id})
         SET ac.name = $name,
             ac.description = $description,
             ac.created_at = timestamp(),
             ac.updated_at = timestamp()
-      `, category);
+      `,
+        category
+      );
     }
   }
 
@@ -340,7 +404,7 @@ export class KnowledgeGraphManager {
     const result = {
       success_count: 0,
       failed_count: 0,
-      errors: [] as string[]
+      errors: [] as string[],
     };
 
     try {
@@ -360,12 +424,15 @@ export class KnowledgeGraphManager {
           }
         }
 
-        console.log(`Processed ${Math.min(i + this.importConfig.batch_size, children.length)}/${children.length} children`);
+        console.log(
+          `Processed ${Math.min(i + this.importConfig.batch_size, children.length)}/${children.length} children`
+        );
       }
 
-      console.log(`Children import completed: ${result.success_count} success, ${result.failed_count} failed`);
+      console.log(
+        `Children import completed: ${result.success_count} success, ${result.failed_count} failed`
+      );
       return result;
-
     } catch (error) {
       console.error('Children import failed:', error);
       throw error;
@@ -375,7 +442,9 @@ export class KnowledgeGraphManager {
   /**
    * 导入单个儿童数据
    */
-  private async importSingleChild(childData: Partial<ChildNode>): Promise<void> {
+  private async importSingleChild(
+    childData: Partial<ChildNode>
+  ): Promise<void> {
     const child: ChildNode = {
       id: childData.id || this.generateId('child'),
       name: childData.name || '',
@@ -385,14 +454,15 @@ export class KnowledgeGraphManager {
       learning_style: childData.learning_style || 'mixed',
       created_at: Date.now(),
       updated_at: Date.now(),
-      ...childData
+      ...childData,
     };
 
     if (this.importConfig.validate_data) {
       this.validateChildData(child);
     }
 
-    await neo4jService.query(`
+    await neo4jService.query(
+      `
       MERGE (c:Child {id: $id})
       SET c.name = $name,
           c.age = $age,
@@ -401,7 +471,9 @@ export class KnowledgeGraphManager {
           c.learning_style = $learning_style,
           c.created_at = $created_at,
           c.updated_at = $updated_at
-    `, child);
+    `,
+      child
+    );
   }
 
   /**
@@ -415,13 +487,19 @@ export class KnowledgeGraphManager {
     const result = {
       success_count: 0,
       failed_count: 0,
-      errors: [] as string[]
+      errors: [] as string[],
     };
 
     try {
-      console.log(`Starting import of ${knowledgeItems.length} knowledge items...`);
+      console.log(
+        `Starting import of ${knowledgeItems.length} knowledge items...`
+      );
 
-      for (let i = 0; i < knowledgeItems.length; i += this.importConfig.batch_size) {
+      for (
+        let i = 0;
+        i < knowledgeItems.length;
+        i += this.importConfig.batch_size
+      ) {
         const batch = knowledgeItems.slice(i, i + this.importConfig.batch_size);
 
         for (const knowledgeData of batch) {
@@ -430,17 +508,22 @@ export class KnowledgeGraphManager {
             result.success_count++;
           } catch (error) {
             result.failed_count++;
-            result.errors.push(`Knowledge ${knowledgeData.id || 'unknown'}: ${error}`);
+            result.errors.push(
+              `Knowledge ${knowledgeData.id || 'unknown'}: ${error}`
+            );
             console.error(`Failed to import knowledge:`, knowledgeData, error);
           }
         }
 
-        console.log(`Processed ${Math.min(i + this.importConfig.batch_size, knowledgeItems.length)}/${knowledgeItems.length} knowledge items`);
+        console.log(
+          `Processed ${Math.min(i + this.importConfig.batch_size, knowledgeItems.length)}/${knowledgeItems.length} knowledge items`
+        );
       }
 
-      console.log(`Knowledge import completed: ${result.success_count} success, ${result.failed_count} failed`);
+      console.log(
+        `Knowledge import completed: ${result.success_count} success, ${result.failed_count} failed`
+      );
       return result;
-
     } catch (error) {
       console.error('Knowledge import failed:', error);
       throw error;
@@ -450,7 +533,9 @@ export class KnowledgeGraphManager {
   /**
    * 导入单个知识数据
    */
-  private async importSingleKnowledge(knowledgeData: Partial<KnowledgeNode>): Promise<void> {
+  private async importSingleKnowledge(
+    knowledgeData: Partial<KnowledgeNode>
+  ): Promise<void> {
     const knowledge: KnowledgeNode = {
       id: knowledgeData.id || this.generateId('knowledge'),
       title: knowledgeData.title || '',
@@ -462,14 +547,15 @@ export class KnowledgeGraphManager {
       tags: knowledgeData.tags || [],
       created_at: Date.now(),
       updated_at: Date.now(),
-      ...knowledgeData
+      ...knowledgeData,
     };
 
     if (this.importConfig.validate_data) {
       this.validateKnowledgeData(knowledge);
     }
 
-    await neo4jService.query(`
+    await neo4jService.query(
+      `
       MERGE (k:Knowledge {id: $id})
       SET k.title = $title,
           k.description = $description,
@@ -480,17 +566,22 @@ export class KnowledgeGraphManager {
           k.tags = $tags,
           k.created_at = $created_at,
           k.updated_at = $updated_at
-    `, knowledge);
+    `,
+      knowledge
+    );
 
     // 关联到知识分类
     if (knowledge.category) {
-      await neo4jService.query(`
+      await neo4jService.query(
+        `
         MATCH (k:Knowledge {id: $knowledgeId}), (kc:KnowledgeCategory {id: $categoryId})
         MERGE (k)-[:BELONGS_TO]->(kc)
-      `, {
-        knowledgeId: knowledge.id,
-        categoryId: knowledge.category
-      });
+      `,
+        {
+          knowledgeId: knowledge.id,
+          categoryId: knowledge.category,
+        }
+      );
     }
   }
 
@@ -534,12 +625,13 @@ export class KnowledgeGraphManager {
         total_relationships: statistics.relationship_counts.total,
         quality_score: qualityScore,
         issues,
-        statistics
+        statistics,
       };
 
-      console.log(`Data quality check completed. Quality score: ${qualityScore.toFixed(2)}`);
+      console.log(
+        `Data quality check completed. Quality score: ${qualityScore.toFixed(2)}`
+      );
       return report;
-
     } catch (error) {
       console.error('Data quality check failed:', error);
       throw error;
@@ -562,14 +654,16 @@ export class KnowledgeGraphManager {
 
     for (const record of duplicateChildren) {
       const children = record.get('children');
-      const childIds = children.map((c: Neo4jNode) => c.properties.id as string);
+      const childIds = children.map(
+        (c: Neo4jNode) => c.properties.id as string
+      );
 
       issues.push({
         type: 'duplicate',
         severity: 'medium',
         description: `发现重复的儿童记录（同名同年龄）`,
         affected_nodes: childIds,
-        suggested_fix: '检查儿童信息，合并重复记录或添加区分标识'
+        suggested_fix: '检查儿童信息，合并重复记录或添加区分标识',
       });
     }
 
@@ -597,7 +691,7 @@ export class KnowledgeGraphManager {
           severity: 'high',
           description: '部分儿童记录缺失必要属性（姓名、年龄或性别）',
           affected_nodes: childIds,
-          suggested_fix: '补充缺失的儿童基本信息'
+          suggested_fix: '补充缺失的儿童基本信息',
         });
       }
     }
@@ -617,7 +711,7 @@ export class KnowledgeGraphManager {
           severity: 'high',
           description: '部分知识记录缺失必要属性（标题或分类）',
           affected_nodes: knowledgeIds,
-          suggested_fix: '补充缺失的知识信息'
+          suggested_fix: '补充缺失的知识信息',
         });
       }
     }
@@ -646,7 +740,7 @@ export class KnowledgeGraphManager {
           severity: 'high',
           description: '部分儿童年龄值无效（应在0-18岁之间）',
           affected_nodes: childIds,
-          suggested_fix: '更正儿童年龄数据'
+          suggested_fix: '更正儿童年龄数据',
         });
       }
     }
@@ -659,14 +753,15 @@ export class KnowledgeGraphManager {
     `);
 
     if (knowledgeWithInvalidDifficulty.length > 0) {
-      const knowledgeIds = knowledgeWithInvalidDifficulty[0].get('knowledge_ids');
+      const knowledgeIds =
+        knowledgeWithInvalidDifficulty[0].get('knowledge_ids');
       if (knowledgeIds.length > 0) {
         issues.push({
           type: 'invalid_value',
           severity: 'medium',
           description: '部分知识难度等级无效（应在0-1之间）',
           affected_nodes: knowledgeIds,
-          suggested_fix: '更正知识难度等级（0=最简单，1=最难）'
+          suggested_fix: '更正知识难度等级（0=最简单，1=最难）',
         });
       }
     }
@@ -695,7 +790,7 @@ export class KnowledgeGraphManager {
           severity: 'medium',
           description: '部分能力节点没有连接到任何其他节点',
           affected_nodes: abilityIds,
-          suggested_fix: '为孤立的能力节点建立适当的关联关系'
+          suggested_fix: '为孤立的能力节点建立适当的关联关系',
         });
       }
     }
@@ -706,7 +801,9 @@ export class KnowledgeGraphManager {
   /**
    * 检查循环引用
    */
-  private async checkCircularReferences(): Promise<DataQualityReport['issues']> {
+  private async checkCircularReferences(): Promise<
+    DataQualityReport['issues']
+  > {
     const issues = [];
 
     // 检查知识前置关系的循环引用
@@ -725,7 +822,7 @@ export class KnowledgeGraphManager {
         severity: 'critical',
         description: `知识前置关系存在循环引用（路径长度：${cycleLength}）`,
         affected_nodes: [knowledgeId],
-        suggested_fix: '检查并修正知识前置关系，消除循环引用'
+        suggested_fix: '检查并修正知识前置关系，消除循环引用',
       });
     }
 
@@ -771,20 +868,28 @@ export class KnowledgeGraphManager {
     const relationship_counts = { total: 0, ...relationship_types };
 
     // 计算总数
-    node_counts.total = Object.values(node_types).reduce((sum, count) => sum + count, 0);
-    relationship_counts.total = Object.values(relationship_types).reduce((sum, count) => sum + count, 0);
+    node_counts.total = Object.values(node_types).reduce(
+      (sum, count) => sum + count,
+      0
+    );
+    relationship_counts.total = Object.values(relationship_types).reduce(
+      (sum, count) => sum + count,
+      0
+    );
 
     return {
       node_types,
       relationship_types,
-      connectivity_metrics
+      connectivity_metrics,
     };
   }
 
   /**
    * 计算连接性指标
    */
-  private async calculateConnectivityMetrics(): Promise<DataQualityReport['statistics']['connectivity_metrics']> {
+  private async calculateConnectivityMetrics(): Promise<
+    DataQualityReport['statistics']['connectivity_metrics']
+  > {
     // 计算平均度数
     const avgDegreeResult = await neo4jService.query(`
       MATCH (n)
@@ -807,14 +912,16 @@ export class KnowledgeGraphManager {
              MAX(component_size) as largest_component_size
     `);
 
-    const connected_components = componentsResult[0]?.get('connected_components') || 1;
-    const largest_component_size = componentsResult[0]?.get('largest_component_size') || 0;
+    const connected_components =
+      componentsResult[0]?.get('connected_components') || 1;
+    const largest_component_size =
+      componentsResult[0]?.get('largest_component_size') || 0;
 
     return {
       average_degree,
       max_degree,
       connected_components,
-      largest_component_size
+      largest_component_size,
     };
   }
 
@@ -847,7 +954,10 @@ export class KnowledgeGraphManager {
       }
 
       // 根据影响节点数量调整扣分
-      const affectedRatio = Math.min(issue.affected_nodes.length / statistics.node_counts.total, 1);
+      const affectedRatio = Math.min(
+        issue.affected_nodes.length / statistics.node_counts.total,
+        1
+      );
       totalScore -= penalty * affectedRatio;
       maxPenalty += penalty;
     }
@@ -901,7 +1011,6 @@ export class KnowledgeGraphManager {
 
       console.log(`Generated ${paths.length} learning paths`);
       return paths;
-
     } catch (error) {
       console.error('Failed to generate learning path:', error);
       throw error;
@@ -926,7 +1035,7 @@ export class KnowledgeGraphManager {
 
     const result = await neo4jService.query(query, {
       startId: params.start_knowledge,
-      targetId: params.target_knowledge
+      targetId: params.target_knowledge,
     });
 
     const paths: KnowledgePathResult[] = [];
@@ -935,23 +1044,31 @@ export class KnowledgeGraphManager {
       const path = record.get('path');
       const pathLength = record.get('path_length');
 
-      const knowledgeSequence: KnowledgeSequenceItem[] = path.segments.map((segment: PathSegment) => ({
-        knowledge_id: segment.end.properties.id as string,
-        title: segment.end.properties.title as string,
-        difficulty_level: segment.end.properties.difficulty_level as number,
-        estimated_time: this.estimateLearningTime(segment.end.properties.difficulty_level as number)
-      }));
+      const knowledgeSequence: KnowledgeSequenceItem[] = path.segments.map(
+        (segment: PathSegment) => ({
+          knowledge_id: segment.end.properties.id as string,
+          title: segment.end.properties.title as string,
+          difficulty_level: segment.end.properties.difficulty_level as number,
+          estimated_time: this.estimateLearningTime(
+            segment.end.properties.difficulty_level as number
+          ),
+        })
+      );
 
       paths.push({
         path_id: this.generateId('path'),
         knowledge_sequence: knowledgeSequence,
-        total_estimated_time: knowledgeSequence.reduce((sum, k) => sum + k.estimated_time, 0),
+        total_estimated_time: knowledgeSequence.reduce(
+          (sum, k) => sum + k.estimated_time,
+          0
+        ),
         difficulty_progression: knowledgeSequence.map(k => k.difficulty_level),
         confidence_score: this.calculatePathConfidence(knowledgeSequence),
         prerequisites_met: true,
         learning_objectives: this.generateLearningObjectives(knowledgeSequence),
-        recommended_activities: await this.getActivitiesForPath(knowledgeSequence),
-        created_at: Date.now()
+        recommended_activities:
+          await this.getActivitiesForPath(knowledgeSequence),
+        created_at: Date.now(),
       });
     }
 
@@ -982,7 +1099,7 @@ export class KnowledgeGraphManager {
 
     const result = await neo4jService.query(query, {
       currentKnowledgeIds,
-      targetId: params.target_knowledge
+      targetId: params.target_knowledge,
     });
 
     const paths: KnowledgePathResult[] = [];
@@ -992,23 +1109,31 @@ export class KnowledgeGraphManager {
       const pathLength = record.get('path_length');
       const startKnowledgeId = record.get('start_knowledge_id');
 
-      const knowledgeSequence: KnowledgeSequenceItem[] = path.segments.map((segment: PathSegment) => ({
-        knowledge_id: segment.end.properties.id as string,
-        title: segment.end.properties.title as string,
-        difficulty_level: segment.end.properties.difficulty_level as number,
-        estimated_time: this.estimateLearningTime(segment.end.properties.difficulty_level as number)
-      }));
+      const knowledgeSequence: KnowledgeSequenceItem[] = path.segments.map(
+        (segment: PathSegment) => ({
+          knowledge_id: segment.end.properties.id as string,
+          title: segment.end.properties.title as string,
+          difficulty_level: segment.end.properties.difficulty_level as number,
+          estimated_time: this.estimateLearningTime(
+            segment.end.properties.difficulty_level as number
+          ),
+        })
+      );
 
       paths.push({
         path_id: this.generateId('path'),
         knowledge_sequence: knowledgeSequence,
-        total_estimated_time: knowledgeSequence.reduce((sum, k) => sum + k.estimated_time, 0),
+        total_estimated_time: knowledgeSequence.reduce(
+          (sum, k) => sum + k.estimated_time,
+          0
+        ),
         difficulty_progression: knowledgeSequence.map(k => k.difficulty_level),
         confidence_score: this.calculatePathConfidence(knowledgeSequence),
         prerequisites_met: true,
         learning_objectives: this.generateLearningObjectives(knowledgeSequence),
-        recommended_activities: await this.getActivitiesForPath(knowledgeSequence),
-        created_at: Date.now()
+        recommended_activities:
+          await this.getActivitiesForPath(knowledgeSequence),
+        created_at: Date.now(),
       });
     }
 
@@ -1038,13 +1163,15 @@ export class KnowledgeGraphManager {
       LIMIT 10
     `;
 
-    const minDifficulty = params.difficulty_preference === 'challenge' ? 0.6 : 0.3;
-    const maxDifficulty = params.difficulty_preference === 'gradual' ? 0.7 : 0.9;
+    const minDifficulty =
+      params.difficulty_preference === 'challenge' ? 0.6 : 0.3;
+    const maxDifficulty =
+      params.difficulty_preference === 'gradual' ? 0.7 : 0.9;
 
     const result = await neo4jService.query(query, {
       age: childNode.age,
       minDifficulty,
-      maxDifficulty
+      maxDifficulty,
     });
 
     const paths: KnowledgePathResult[] = [];
@@ -1053,23 +1180,34 @@ export class KnowledgeGraphManager {
       const path = record.get('path');
       const pathLength = record.get('path_length');
 
-      const knowledgeSequence: KnowledgeSequenceItem[] = path.segments.map((segment: PathSegment) => ({
-        knowledge_id: segment.end.properties.id as string,
-        title: segment.end.properties.title as string,
-        difficulty_level: segment.end.properties.difficulty_level as number,
-        estimated_time: this.estimateLearningTime(segment.end.properties.difficulty_level as number)
-      }));
+      const knowledgeSequence: KnowledgeSequenceItem[] = path.segments.map(
+        (segment: PathSegment) => ({
+          knowledge_id: segment.end.properties.id as string,
+          title: segment.end.properties.title as string,
+          difficulty_level: segment.end.properties.difficulty_level as number,
+          estimated_time: this.estimateLearningTime(
+            segment.end.properties.difficulty_level as number
+          ),
+        })
+      );
 
       paths.push({
         path_id: this.generateId('path'),
         knowledge_sequence: knowledgeSequence,
-        total_estimated_time: knowledgeSequence.reduce((sum, k) => sum + k.estimated_time, 0),
+        total_estimated_time: knowledgeSequence.reduce(
+          (sum, k) => sum + k.estimated_time,
+          0
+        ),
         difficulty_progression: knowledgeSequence.map(k => k.difficulty_level),
         confidence_score: this.calculatePathConfidence(knowledgeSequence),
-        prerequisites_met: await this.checkPrerequisitesMet(childId, knowledgeSequence[0].knowledge_id),
+        prerequisites_met: await this.checkPrerequisitesMet(
+          childId,
+          knowledgeSequence[0].knowledge_id
+        ),
         learning_objectives: this.generateLearningObjectives(knowledgeSequence),
-        recommended_activities: await this.getActivitiesForPath(knowledgeSequence),
-        created_at: Date.now()
+        recommended_activities:
+          await this.getActivitiesForPath(knowledgeSequence),
+        created_at: Date.now(),
       });
     }
 
@@ -1089,7 +1227,9 @@ export class KnowledgeGraphManager {
   /**
    * 计算路径置信度
    */
-  private calculatePathConfidence(knowledgeSequence: KnowledgeSequenceItem[]): number {
+  private calculatePathConfidence(
+    knowledgeSequence: KnowledgeSequenceItem[]
+  ): number {
     if (knowledgeSequence.length === 0) return 0;
 
     // 基于难度递进合理性计算置信度
@@ -1114,7 +1254,10 @@ export class KnowledgeGraphManager {
   /**
    * 检查前置条件是否满足
    */
-  private async checkPrerequisitesMet(childId: string, knowledgeId: string): Promise<boolean> {
+  private async checkPrerequisitesMet(
+    childId: string,
+    knowledgeId: string
+  ): Promise<boolean> {
     const query = `
       MATCH (child:Child {id: $childId})
       MATCH (knowledge:Knowledge {id: $knowledgeId})
@@ -1137,7 +1280,9 @@ export class KnowledgeGraphManager {
   /**
    * 生成学习目标
    */
-  private generateLearningObjectives(knowledgeSequence: KnowledgeSequenceItem[]): string[] {
+  private generateLearningObjectives(
+    knowledgeSequence: KnowledgeSequenceItem[]
+  ): string[] {
     const objectives = [];
 
     for (const knowledge of knowledgeSequence) {
@@ -1151,7 +1296,9 @@ export class KnowledgeGraphManager {
   /**
    * 获取路径推荐的活动
    */
-  private async getActivitiesForPath(knowledgeSequence: KnowledgeSequenceItem[]): Promise<ActivityRecommendation[]> {
+  private async getActivitiesForPath(
+    knowledgeSequence: KnowledgeSequenceItem[]
+  ): Promise<ActivityRecommendation[]> {
     if (knowledgeSequence.length === 0) return [];
 
     const knowledgeIds = knowledgeSequence.map(k => k.knowledge_id);
@@ -1176,7 +1323,7 @@ export class KnowledgeGraphManager {
         title: activity.properties.title,
         description: activity.properties.description,
         difficulty_level: activity.properties.difficulty_level,
-        relevance_score: relevanceCount / knowledgeIds.length
+        relevance_score: relevanceCount / knowledgeIds.length,
       };
     });
   }
@@ -1189,8 +1336,8 @@ export class KnowledgeGraphManager {
     params: PathGenerationParams
   ): KnowledgePathResult[] {
     // 过滤置信度不足的路径
-    let filteredPaths = paths.filter(path =>
-      path.confidence_score >= params.min_confidence
+    let filteredPaths = paths.filter(
+      path => path.confidence_score >= params.min_confidence
     );
 
     // 根据学习风格和难度偏好排序
@@ -1201,8 +1348,12 @@ export class KnowledgeGraphManager {
       }
 
       // 然后考虑难度偏好
-      const aAvgDifficulty = a.difficulty_progression.reduce((sum, d) => sum + d, 0) / a.difficulty_progression.length;
-      const bAvgDifficulty = b.difficulty_progression.reduce((sum, d) => sum + d, 0) / b.difficulty_progression.length;
+      const aAvgDifficulty =
+        a.difficulty_progression.reduce((sum, d) => sum + d, 0) /
+        a.difficulty_progression.length;
+      const bAvgDifficulty =
+        b.difficulty_progression.reduce((sum, d) => sum + d, 0) /
+        b.difficulty_progression.length;
 
       if (params.difficulty_preference === 'gradual') {
         return aAvgDifficulty - bAvgDifficulty; // 优先选择简单路径
@@ -1259,7 +1410,9 @@ export class KnowledgeGraphManager {
   /**
    * 导出知识图谱数据
    */
-  async exportKnowledgeGraph(format: 'json' | 'csv' | 'graphml' = 'json'): Promise<ExportData> {
+  async exportKnowledgeGraph(
+    format: 'json' | 'csv' | 'graphml' = 'json'
+  ): Promise<ExportData> {
     try {
       console.log(`Exporting knowledge graph in ${format} format...`);
 
@@ -1273,7 +1426,6 @@ export class KnowledgeGraphManager {
         default:
           throw new Error(`Unsupported export format: ${format}`);
       }
-
     } catch (error) {
       console.error('Failed to export knowledge graph:', error);
       throw error;
@@ -1285,14 +1437,16 @@ export class KnowledgeGraphManager {
    */
   private async exportAsJSON(): Promise<ExportData> {
     const nodes = await neo4jService.query('MATCH (n) RETURN n');
-    const relationships = await neo4jService.query('MATCH ()-[r]->() RETURN r, startNode(r) as start, endNode(r) as end');
+    const relationships = await neo4jService.query(
+      'MATCH ()-[r]->() RETURN r, startNode(r) as start, endNode(r) as end'
+    );
 
     const exportData: ExportData = {
       metadata: {
         export_timestamp: Date.now(),
         total_nodes: nodes.length,
         total_relationships: relationships.length,
-        format: 'json'
+        format: 'json',
       },
       nodes: nodes.map(record => record.get('n').properties),
       relationships: relationships.map(record => ({
@@ -1300,8 +1454,8 @@ export class KnowledgeGraphManager {
         type: record.get('r').type,
         start_node: record.get('start').properties.id,
         end_node: record.get('end').properties.id,
-        properties: record.get('r').properties
-      }))
+        properties: record.get('r').properties,
+      })),
     };
 
     return exportData;
@@ -1310,7 +1464,10 @@ export class KnowledgeGraphManager {
   /**
    * 导出为CSV格式
    */
-  private async exportAsCSV(): Promise<{ nodes: string, relationships: string }> {
+  private async exportAsCSV(): Promise<{
+    nodes: string;
+    relationships: string;
+  }> {
     const nodeQuery = `
       MATCH (n)
       RETURN labels(n)[0] as label, n.id as id, properties(n) as properties
@@ -1326,18 +1483,24 @@ export class KnowledgeGraphManager {
 
     // 简化的CSV生成（实际应用中应该使用专门的CSV库）
     const nodeHeaders = 'label,id,properties';
-    const nodeRows = nodes.map(record =>
-      `${record.get('label')},${record.get('id')},"${JSON.stringify(record.get('properties'))}"`
-    ).join('\n');
+    const nodeRows = nodes
+      .map(
+        record =>
+          `${record.get('label')},${record.get('id')},"${JSON.stringify(record.get('properties'))}"`
+      )
+      .join('\n');
 
     const relationshipHeaders = 'type,start_id,end_id,properties';
-    const relationshipRows = relationships.map(record =>
-      `${record.get('type')},${record.get('start_id')},${record.get('end_id')},"${JSON.stringify(record.get('properties'))}"`
-    ).join('\n');
+    const relationshipRows = relationships
+      .map(
+        record =>
+          `${record.get('type')},${record.get('start_id')},${record.get('end_id')},"${JSON.stringify(record.get('properties'))}"`
+      )
+      .join('\n');
 
     return {
       nodes: nodeHeaders + '\n' + nodeRows,
-      relationships: relationshipHeaders + '\n' + relationshipRows
+      relationships: relationshipHeaders + '\n' + relationshipRows,
     };
   }
 
@@ -1348,7 +1511,9 @@ export class KnowledgeGraphManager {
     // GraphML是XML格式，用于图数据的标准化导出
     // 这里提供简化的GraphML生成
     const nodes = await neo4jService.query('MATCH (n) RETURN n');
-    const relationships = await neo4jService.query('MATCH ()-[r]->() RETURN r, startNode(r) as start, endNode(r) as end');
+    const relationships = await neo4jService.query(
+      'MATCH ()-[r]->() RETURN r, startNode(r) as start, endNode(r) as end'
+    );
 
     let graphml = `<?xml version="1.0" encoding="UTF-8"?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns"

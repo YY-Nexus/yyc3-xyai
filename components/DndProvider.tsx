@@ -9,8 +9,11 @@ interface DndProviderWrapperProps {
   children: React.ReactNode;
 }
 
-const DndProviderWrapper: React.FC<DndProviderWrapperProps> = ({ children }) => {
-  const isTouchDevice = typeof window !== 'undefined' && 'ontouchstart' in window;
+const DndProviderWrapper: React.FC<DndProviderWrapperProps> = ({
+  children,
+}) => {
+  const isTouchDevice =
+    typeof window !== 'undefined' && 'ontouchstart' in window;
 
   return (
     <DndProvider backend={isTouchDevice ? TouchBackend : HTML5Backend}>

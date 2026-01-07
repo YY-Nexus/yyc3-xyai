@@ -87,7 +87,7 @@ export abstract class BasePredictor {
   protected normalizeFeatures(data: any): any {
     // 简单的特征标准化实现
     const normalized = { ...data };
-    
+
     // 标准化数值字段
     Object.keys(normalized).forEach(key => {
       if (typeof normalized[key] === 'number' && !isNaN(normalized[key])) {
@@ -95,7 +95,7 @@ export abstract class BasePredictor {
         normalized[key] = (normalized[key] - 0) / 100; // 示例：假设最大值为100
       }
     });
-    
+
     return normalized;
   }
 
@@ -106,13 +106,15 @@ export abstract class BasePredictor {
    */
   protected async preprocessData(data: any[]): Promise<any[]> {
     // 过滤无效数据
-    const filteredData = data.filter(item => item !== null && item !== undefined);
-    
+    const filteredData = data.filter(
+      item => item !== null && item !== undefined
+    );
+
     // 处理缺失值
     const processedData = filteredData.map(item => {
       return this.handleMissingValues(item);
     });
-    
+
     return processedData;
   }
 
@@ -123,7 +125,7 @@ export abstract class BasePredictor {
    */
   protected handleMissingValues(data: any): any {
     const processed = { ...data };
-    
+
     Object.keys(processed).forEach(key => {
       if (processed[key] === null || processed[key] === undefined) {
         // 根据数据类型处理缺失值
@@ -138,7 +140,7 @@ export abstract class BasePredictor {
         }
       }
     });
-    
+
     return processed;
   }
 
@@ -162,22 +164,25 @@ export abstract class BasePredictor {
   protected async crossValidate(data: any[], k: number = 5): Promise<number[]> {
     // 基本的交叉验证逻辑
     const scores: number[] = [];
-    
+
     // 简单实现：将数据分为k份，每份作为一次测试集
     const foldSize = Math.floor(data.length / k);
-    
+
     for (let i = 0; i < k; i++) {
       const testSet = data.slice(i * foldSize, (i + 1) * foldSize);
-      const trainingSet = [...data.slice(0, i * foldSize), ...data.slice((i + 1) * foldSize)];
-      
+      const trainingSet = [
+        ...data.slice(0, i * foldSize),
+        ...data.slice((i + 1) * foldSize),
+      ];
+
       // 训练模型
       await this.train(trainingSet);
-      
+
       // 评估模型
       const result = await this.evaluate(testSet);
       scores.push(result.accuracy);
     }
-    
+
     return scores;
   }
 
@@ -201,7 +206,9 @@ export abstract class BasePredictor {
     if (values.length === 0) return 0;
     const sorted = [...values].sort((a, b) => a - b);
     const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+    return sorted.length % 2 === 0
+      ? (sorted[mid - 1] + sorted[mid]) / 2
+      : sorted[mid];
   }
 
   /**
@@ -212,7 +219,9 @@ export abstract class BasePredictor {
   protected calculateStandardDeviation(values: number[]): number {
     if (values.length === 0) return 0;
     const mean = this.calculateMean(values);
-    const variance = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length;
+    const variance =
+      values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) /
+      values.length;
     return Math.sqrt(variance);
   }
 }

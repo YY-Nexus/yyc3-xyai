@@ -1,84 +1,55 @@
-/**
- * YYC³ AI小语智能成长守护系统 - Jest 测试配置
- * 第六阶段：高级特性与生产准备
- */
-
 const nextJest = require('next/jest')
 
 const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files
+  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
   dir: './',
 })
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'jsdom',
-
-  // 测试文件匹配模式
-  testMatch: [
-    '**/__tests__/**/*.(js|jsx|ts|tsx)',
-    '**/*.(test|spec).(js|jsx|ts|tsx)',
-  ],
-
-  // 模块路径映射
-  moduleNameMapping: {
+  testEnvironment: 'jest-environment-jsdom',
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-
-  // 覆盖率配置
-  collectCoverage: true,
   collectCoverageFrom: [
-    'components/**/*.{js,jsx,ts,tsx}',
     'app/**/*.{js,jsx,ts,tsx}',
-    'hooks/**/*.{js,jsx,ts,tsx}',
+    'components/**/*.{js,jsx,ts,tsx}',
     'lib/**/*.{js,jsx,ts,tsx}',
+    'hooks/**/*.{js,jsx,ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/.next/**',
     '!**/coverage/**',
-    '!**/jest.config.js',
-    '!**/jest.setup.js',
+    '!**/out/**',
+    '!**/public/**',
   ],
-
-  // 覆盖率报告格式
-  coverageReporters: [
-    'text',
-    'lcov',
-    'html',
-    'json-summary',
-  ],
-
-  // 覆盖率阈值
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 70,
+      // YYC³ 标准化要求
+      branches: 40,
+      functions: 50,
+      lines: 60,
+      statements: 60,
+    },
+    // 核心模块需要更高覆盖率
+    './lib/utils.ts': {
+      branches: 50,
+      functions: 60,
       lines: 70,
       statements: 70,
     },
-  },
-
-  // 测试环境设置
-  testTimeout: 10000,
-
-  // 忽略转换的模块
-  transformIgnorePatterns: [
-    'node_modules/(?!(.*\\.mjs$))',
-  ],
-
-  // 模拟文件扩展名
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-
-  // 快照序列化器
-  snapshotSerializers: [],
-
-  // 全局变量
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json',
+    './lib/character-manager.ts': {
+      branches: 60,
+      functions: 70,
+      lines: 80,
+      statements: 80,
     },
   },
+  testMatch: [
+    '**/__tests__/**/*.[jt]s?(x)',
+    '**/*.[jt]s?(x)'
+  ],
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

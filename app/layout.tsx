@@ -7,54 +7,62 @@
  * @created 2024-12-07
  * @updated 2024-12-07
  */
-import type React from "react"
-import type { Metadata, Viewport } from "next"
-import { Inter } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import ClientWrapper from "@/components/ClientWrapper"
-import { ErrorBoundary } from "@/components/ErrorBoundary"
-import { AuthProvider } from "@/hooks/useAuth"
-import ReduxProvider from "@/components/ReduxProvider"
-import DndProvider from "@/components/DndProvider"
-import { MuiThemeProvider } from "@/components/material/MuiThemeProvider"
+import type React from 'react';
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import ClientWrapper from '@/components/ClientWrapper';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AuthProvider } from '@/hooks/useAuth';
+import ReduxProvider from '@/components/ReduxProvider';
+import DndProvider from '@/components/DndProvider';
+import { MuiThemeProvider } from '@/components/material/MuiThemeProvider';
 // import { DatabaseInitializer } from "@/components/DatabaseInitializer"
-import "./globals.css"
+import './globals.css';
 
-const inter = Inter({ subsets: ["latin"], display: "swap" })
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
   title: {
-    default: "YYC³ AI小语 - 智能成长守护系统",
-    template: "%s | YYC³ AI小语",
+    default: 'YYC³ AI小语 - 智能成长守护系统',
+    template: '%s | YYC³ AI小语',
   },
-  description: "0-22岁全周期AI智能成长守护平台 | 五大AI角色陪伴 | 科学育儿指导 | 公益学习·温暖成长",
-  keywords: ["AI教育", "成长守护", "智能助手", "育儿指导", "儿童成长", "在线学习"],
-  authors: [{ name: "YYC³团队" }],
-  creator: "YYC³",
-  publisher: "YYC³",
+  description:
+    '0-22岁全周期AI智能成长守护平台 | 五大AI角色陪伴 | 科学育儿指导 | 公益学习·温暖成长',
+  keywords: [
+    'AI教育',
+    '成长守护',
+    '智能助手',
+    '育儿指导',
+    '儿童成长',
+    '在线学习',
+  ],
+  authors: [{ name: 'YYC³团队' }],
+  creator: 'YYC³',
+  publisher: 'YYC³',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  generator: "v0.app",
-  metadataBase: new URL("https://yyc3.app"),
+  generator: 'v0.app',
+  metadataBase: new URL('https://yyc3.app'),
   alternates: {
-    canonical: "/",
+    canonical: '/',
   },
   openGraph: {
-    title: "YYC³ AI小语 - 智能成长守护系统",
-    description: "0-22岁全周期AI智能成长守护平台",
-    url: "https://yyc3.app",
-    siteName: "YYC³ AI小语",
-    locale: "zh_CN",
-    type: "website",
+    title: 'YYC³ AI小语 - 智能成长守护系统',
+    description: '0-22岁全周期AI智能成长守护平台',
+    url: 'https://yyc3.app',
+    siteName: 'YYC³ AI小语',
+    locale: 'zh_CN',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "YYC³ AI小语 - 智能成长守护系统",
-    description: "0-22岁全周期AI智能成长守护平台",
+    card: 'summary_large_image',
+    title: 'YYC³ AI小语 - 智能成长守护系统',
+    description: '0-22岁全周期AI智能成长守护平台',
   },
   robots: {
     index: true,
@@ -62,52 +70,57 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
     },
   },
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
+        url: '/icon-light-32x32.png',
+        media: '(prefers-color-scheme: light)',
       },
       {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
+        url: '/icon-dark-32x32.png',
+        media: '(prefers-color-scheme: dark)',
       },
       {
-        url: "/icon.svg",
-        type: "image/svg+xml",
+        url: '/icon.svg',
+        type: 'image/svg+xml',
       },
     ],
-    apple: "/apple-icon.png",
+    apple: '/apple-icon.png',
   },
-}
+};
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FEF3F2" },
-    { media: "(prefers-color-scheme: dark)", color: "#1F2937" },
+    { media: '(prefers-color-scheme: light)', color: '#FEF3F2' },
+    { media: '(prefers-color-scheme: dark)', color: '#1F2937' },
   ],
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang='zh-CN'>
       <head>
-        <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet" />
+        <link
+          href='https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css'
+          rel='stylesheet'
+        />
       </head>
-      <body className={`${inter.className} antialiased selection:bg-orange-200 selection:text-orange-900`}>
+      <body
+        className={`${inter.className} antialiased selection:bg-orange-200 selection:text-orange-900`}
+      >
         <ErrorBoundary>
           <DndProvider>
             <ReduxProvider>
@@ -124,5 +137,5 @@ export default function RootLayout({
         <SpeedInsights />
       </body>
     </html>
-  )
+  );
 }

@@ -11,7 +11,13 @@ export type Size = 'sm' | 'md' | 'lg' | 'xl';
 /**
  * 变体类型
  */
-export type Variant = 'default' | 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost';
+export type Variant =
+  | 'default'
+  | 'primary'
+  | 'secondary'
+  | 'destructive'
+  | 'outline'
+  | 'ghost';
 
 /**
  * 加载状态

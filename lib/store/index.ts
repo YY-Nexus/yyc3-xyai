@@ -9,173 +9,192 @@
  * @license MIT
  */
 
-import { configureStore, createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist'
-import { storage } from './storage'
-import { EmotionResult, EmotionalMemory, EmotionType, AgeGroup } from '@/lib/ai/emotion-engine'
+import {
+  configureStore,
+  createSlice,
+  createAsyncThunk,
+  PayloadAction,
+} from '@reduxjs/toolkit';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+import { storage } from './storage';
+import {
+  EmotionResult,
+  EmotionalMemory,
+  InfantEmotionType as EmotionType,
+  AgeGroup,
+} from '@/lib/ai/emotion-engine';
 import aiAssistantReducer, {
   AIAssistantState,
   AIMessage,
   sendAIMessage,
-  analyzeAndUpdateEmotion
-} from './slices/aiAssistantSlice'
+  analyzeAndUpdateEmotion,
+} from './slices/aiAssistantSlice';
 
 // 用户状态
 export interface User {
-  id: string
-  name: string
-  email: string
-  role: 'parent' | 'guardian' | 'educator'
-  gender?: 'male' | 'female'
-  avatar?: string
-  createdAt: string
+  id: string;
+  name: string;
+  email: string;
+  role: 'parent' | 'guardian' | 'educator';
+  gender?: 'male' | 'female';
+  avatar?: string;
+  createdAt: string;
 }
 
 // 儿童状态
 export interface Child {
-  id: string
-  userId: string
-  name: string
-  nickname: string
-  birthDate: string
-  age: number // 年龄（月）
-  gender: 'male' | 'female'
-  avatar?: string
-  currentStage: string
-  developmentLevel: DevelopmentLevel
-  preferences: ChildPreferences
+  id: string;
+  userId: string;
+  name: string;
+  nickname: string;
+  birthDate: string;
+  age: number; // 年龄（月）
+  gender: 'male' | 'female';
+  avatar?: string;
+  currentStage: string;
+  developmentLevel: DevelopmentLevel;
+  preferences: ChildPreferences;
 }
 
 // 发展水平
 export interface DevelopmentLevel {
-  cognitive: number // 0-100
-  language: number
-  motor: number
-  social: number
-  emotional: number
+  cognitive: number; // 0-100
+  language: number;
+  motor: number;
+  social: number;
+  emotional: number;
 }
 
 // 儿童偏好
 export interface ChildPreferences {
-  favoriteActivities: string[]
-  comfortItems: string[]
-  fearTriggers: string[]
-  learningStyle: 'visual' | 'auditory' | 'kinesthetic'
-  sensitivityLevel: 'low' | 'medium' | 'high'
+  favoriteActivities: string[];
+  comfortItems: string[];
+  fearTriggers: string[];
+  learningStyle: 'visual' | 'auditory' | 'kinesthetic';
+  sensitivityLevel: 'low' | 'medium' | 'high';
 }
 
 // AI助手状态
 export interface AIAssistant {
-  isVisible: boolean
-  position: { x: number; y: number }
-  isMinimized: boolean
-  isLocked: boolean
-  currentEmotion: EmotionType
-  isActive: boolean
-  lastInteraction: string
+  isVisible: boolean;
+  position: { x: number; y: number };
+  isMinimized: boolean;
+  isLocked: boolean;
+  currentEmotion: EmotionType;
+  isActive: boolean;
+  lastInteraction: string;
 }
 
 // 成长记录
 export interface GrowthRecord {
-  id: string
-  childId: string
-  type: 'milestone' | 'daily' | 'emotion' | 'learning'
-  title: string
-  description: string
-  date: string
-  emotion?: EmotionResult
+  id: string;
+  childId: string;
+  type: 'milestone' | 'daily' | 'emotion' | 'learning';
+  title: string;
+  description: string;
+  date: string;
+  emotion?: EmotionResult;
   media?: {
-    photos: string[]
-    videos: string[]
-    audioNotes: string[]
-  }
-  tags: string[]
-  isImportant: boolean
+    photos: string[];
+    videos: string[];
+    audioNotes: string[];
+  };
+  tags: string[];
+  isImportant: boolean;
 }
 
 // 应用状态
 export interface AppState {
   // 用户相关
-  user: User | null
-  currentChild: Child | null
-  children: Child[]
+  user: User | null;
+  currentChild: Child | null;
+  children: Child[];
 
   // AI助手
-  aiAssistant: AIAssistant
+  aiAssistant: AIAssistant;
 
   // 成长记录
-  growthRecords: GrowthRecord[]
-  emotionalMemories: EmotionalMemory[]
+  growthRecords: GrowthRecord[];
+  emotionalMemories: EmotionalMemory[];
 
   // 应用设置
-  settings: AppSettings
+  settings: AppSettings;
 
   // UI状态
-  ui: UIState
+  ui: UIState;
 }
 
 // 应用设置
 export interface AppSettings {
-  theme: 'light' | 'dark' | 'auto'
-  language: 'zh-CN' | 'en-US'
-  notifications: NotificationSettings
-  privacy: PrivacySettings
-  accessibility: AccessibilitySettings
+  theme: 'light' | 'dark' | 'auto';
+  language: 'zh-CN' | 'en-US';
+  notifications: NotificationSettings;
+  privacy: PrivacySettings;
+  accessibility: AccessibilitySettings;
 }
 
 // 通知设置
 export interface NotificationSettings {
-  milestoneReminders: boolean
-  dailyReports: boolean
-  emotionAlerts: boolean
-  recommendations: boolean
+  milestoneReminders: boolean;
+  dailyReports: boolean;
+  emotionAlerts: boolean;
+  recommendations: boolean;
   quietHours: {
-    enabled: boolean
-    start: string
-    end: string
-  }
+    enabled: boolean;
+    start: string;
+    end: string;
+  };
 }
 
 // 隐私设置
 export interface PrivacySettings {
-  dataSharing: boolean
-  analytics: boolean
-  locationTracking: boolean
-  cameraAccess: boolean
-  microphoneAccess: boolean
+  dataSharing: boolean;
+  analytics: boolean;
+  locationTracking: boolean;
+  cameraAccess: boolean;
+  microphoneAccess: boolean;
 }
 
 // 无障碍设置
 export interface AccessibilitySettings {
-  highContrast: boolean
-  largeText: boolean
-  reduceMotion: boolean
-  screenReader: boolean
-  voiceControl: boolean
+  highContrast: boolean;
+  largeText: boolean;
+  reduceMotion: boolean;
+  screenReader: boolean;
+  voiceControl: boolean;
 }
 
 // UI状态
 export interface UIState {
-  isLoading: boolean
-  currentPage: string
-  sidebarOpen: boolean
+  isLoading: boolean;
+  currentPage: string;
+  sidebarOpen: boolean;
   modals: {
-    emotionAnalysis: boolean
-    growthRecord: boolean
-    settings: boolean
-    help: boolean
-  }
-  toast: ToastMessage[]
+    emotionAnalysis: boolean;
+    growthRecord: boolean;
+    settings: boolean;
+    help: boolean;
+  };
+  toast: ToastMessage[];
 }
 
 // Toast消息
 export interface ToastMessage {
-  id: string
-  type: 'success' | 'error' | 'warning' | 'info'
-  title: string
-  message: string
-  duration: number
-  timestamp: number
+  id: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+  duration: number;
+  timestamp: number;
 }
 
 // 初始状态
@@ -190,7 +209,7 @@ const initialState: AppState = {
     isLocked: false,
     currentEmotion: EmotionType.HAPPINESS,
     isActive: false,
-    lastInteraction: new Date().toISOString()
+    lastInteraction: new Date().toISOString(),
   },
   growthRecords: [],
   emotionalMemories: [],
@@ -205,23 +224,23 @@ const initialState: AppState = {
       quietHours: {
         enabled: false,
         start: '21:00',
-        end: '07:00'
-      }
+        end: '07:00',
+      },
     },
     privacy: {
       dataSharing: false,
       analytics: true,
       locationTracking: false,
       cameraAccess: false,
-      microphoneAccess: true
+      microphoneAccess: true,
     },
     accessibility: {
       highContrast: false,
       largeText: false,
       reduceMotion: false,
       screenReader: false,
-      voiceControl: false
-    }
+      voiceControl: false,
+    },
   },
   ui: {
     isLoading: false,
@@ -231,11 +250,11 @@ const initialState: AppState = {
       emotionAnalysis: false,
       growthRecord: false,
       settings: false,
-      help: false
+      help: false,
     },
-    toast: []
-  }
-}
+    toast: [],
+  },
+};
 
 // 异步Action - 情感分析
 export const analyzeEmotion = createAsyncThunk(
@@ -247,11 +266,11 @@ export const analyzeEmotion = createAsyncThunk(
       confidence: 0.8,
       intensity: 0.7,
       ageGroup: AgeGroup.TODDLER,
-      timestamp: new Date()
-    }
-    return mockResult
+      timestamp: new Date(),
+    };
+    return mockResult;
   }
-)
+);
 
 // 异步Action - 保存成长记录
 export const saveGrowthRecord = createAsyncThunk(
@@ -259,21 +278,21 @@ export const saveGrowthRecord = createAsyncThunk(
   async (record: Omit<GrowthRecord, 'id'>) => {
     const newRecord: GrowthRecord = {
       ...record,
-      id: Date.now().toString()
-    }
+      id: Date.now().toString(),
+    };
     // TODO: 实现保存逻辑
-    return newRecord
+    return newRecord;
   }
-)
+);
 
 // 异步Action - 加载儿童数据
 export const loadChildren = createAsyncThunk(
   'children/load',
   async (userId: string) => {
     // TODO: 从API加载儿童数据
-    return []
+    return [];
   }
-)
+);
 
 // 应用Slice
 const appSlice = createSlice({
@@ -282,179 +301,224 @@ const appSlice = createSlice({
   reducers: {
     // 用户相关
     setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload
+      state.user = action.payload;
     },
-    logout: (state) => {
-      state.user = null
-      state.currentChild = null
-      state.children = []
+    logout: state => {
+      state.user = null;
+      state.currentChild = null;
+      state.children = [];
     },
 
     // 儿童相关
     setCurrentChild: (state, action: PayloadAction<Child>) => {
-      state.currentChild = action.payload
+      state.currentChild = action.payload;
     },
     addChild: (state, action: PayloadAction<Child>) => {
-      state.children.push(action.payload)
+      state.children.push(action.payload);
       if (!state.currentChild) {
-        state.currentChild = action.payload
+        state.currentChild = action.payload;
       }
     },
-    updateChild: (state, action: PayloadAction<{ id: string; updates: Partial<Child> }>) => {
-      const { id, updates } = action.payload
-      const childIndex = state.children.findIndex(child => child.id === id)
+    updateChild: (
+      state,
+      action: PayloadAction<{ id: string; updates: Partial<Child> }>
+    ) => {
+      const { id, updates } = action.payload;
+      const childIndex = state.children.findIndex(child => child.id === id);
       if (childIndex !== -1) {
-        state.children[childIndex] = { ...state.children[childIndex], ...updates }
+        state.children[childIndex] = {
+          ...state.children[childIndex],
+          ...updates,
+        };
         if (state.currentChild?.id === id) {
-          state.currentChild = { ...state.currentChild, ...updates }
+          state.currentChild = { ...state.currentChild, ...updates };
         }
       }
     },
 
     // AI助手相关
     updateAIAssistant: (state, action: PayloadAction<Partial<AIAssistant>>) => {
-      state.aiAssistant = { ...state.aiAssistant, ...action.payload }
+      state.aiAssistant = { ...state.aiAssistant, ...action.payload };
     },
-    setAIAssistantPosition: (state, action: PayloadAction<{ x: number; y: number }>) => {
-      state.aiAssistant.position = action.payload
+    setAIAssistantPosition: (
+      state,
+      action: PayloadAction<{ x: number; y: number }>
+    ) => {
+      state.aiAssistant.position = action.payload;
     },
-    toggleAIAssistant: (state) => {
-      state.aiAssistant.isVisible = !state.aiAssistant.isVisible
+    toggleAIAssistant: state => {
+      state.aiAssistant.isVisible = !state.aiAssistant.isVisible;
     },
-    minimizeAIAssistant: (state) => {
-      state.aiAssistant.isMinimized = !state.aiAssistant.isMinimized
+    minimizeAIAssistant: state => {
+      state.aiAssistant.isMinimized = !state.aiAssistant.isMinimized;
     },
-    lockAIAssistant: (state) => {
-      state.aiAssistant.isLocked = !state.aiAssistant.isLocked
+    lockAIAssistant: state => {
+      state.aiAssistant.isLocked = !state.aiAssistant.isLocked;
     },
     setAIEmotion: (state, action: PayloadAction<EmotionType>) => {
-      state.aiAssistant.currentEmotion = action.payload
-      state.aiAssistant.lastInteraction = new Date().toISOString()
+      state.aiAssistant.currentEmotion = action.payload;
+      state.aiAssistant.lastInteraction = new Date().toISOString();
     },
 
     // 成长记录相关
     addGrowthRecord: (state, action: PayloadAction<GrowthRecord>) => {
-      state.growthRecords.unshift(action.payload)
+      state.growthRecords.unshift(action.payload);
     },
-    updateGrowthRecord: (state, action: PayloadAction<{ id: string; updates: Partial<GrowthRecord> }>) => {
-      const { id, updates } = action.payload
-      const recordIndex = state.growthRecords.findIndex(record => record.id === id)
+    updateGrowthRecord: (
+      state,
+      action: PayloadAction<{ id: string; updates: Partial<GrowthRecord> }>
+    ) => {
+      const { id, updates } = action.payload;
+      const recordIndex = state.growthRecords.findIndex(
+        record => record.id === id
+      );
       if (recordIndex !== -1) {
-        state.growthRecords[recordIndex] = { ...state.growthRecords[recordIndex], ...updates }
+        state.growthRecords[recordIndex] = {
+          ...state.growthRecords[recordIndex],
+          ...updates,
+        };
       }
     },
     deleteGrowthRecord: (state, action: PayloadAction<string>) => {
-      state.growthRecords = state.growthRecords.filter(record => record.id !== action.payload)
+      state.growthRecords = state.growthRecords.filter(
+        record => record.id !== action.payload
+      );
     },
 
     // 情感记忆相关
     addEmotionalMemory: (state, action: PayloadAction<EmotionalMemory>) => {
-      state.emotionalMemories.unshift(action.payload)
+      state.emotionalMemories.unshift(action.payload);
     },
 
     // 设置相关
     updateSettings: (state, action: PayloadAction<Partial<AppSettings>>) => {
-      state.settings = { ...state.settings, ...action.payload }
+      state.settings = { ...state.settings, ...action.payload };
     },
-    updateNotificationSettings: (state, action: PayloadAction<Partial<NotificationSettings>>) => {
-      state.settings.notifications = { ...state.settings.notifications, ...action.payload }
+    updateNotificationSettings: (
+      state,
+      action: PayloadAction<Partial<NotificationSettings>>
+    ) => {
+      state.settings.notifications = {
+        ...state.settings.notifications,
+        ...action.payload,
+      };
     },
-    updatePrivacySettings: (state, action: PayloadAction<Partial<PrivacySettings>>) => {
-      state.settings.privacy = { ...state.settings.privacy, ...action.payload }
+    updatePrivacySettings: (
+      state,
+      action: PayloadAction<Partial<PrivacySettings>>
+    ) => {
+      state.settings.privacy = { ...state.settings.privacy, ...action.payload };
     },
-    updateAccessibilitySettings: (state, action: PayloadAction<Partial<AccessibilitySettings>>) => {
-      state.settings.accessibility = { ...state.settings.accessibility, ...action.payload }
+    updateAccessibilitySettings: (
+      state,
+      action: PayloadAction<Partial<AccessibilitySettings>>
+    ) => {
+      state.settings.accessibility = {
+        ...state.settings.accessibility,
+        ...action.payload,
+      };
     },
 
     // UI状态相关
     setLoading: (state, action: PayloadAction<boolean>) => {
-      state.ui.isLoading = action.payload
+      state.ui.isLoading = action.payload;
     },
     setCurrentPage: (state, action: PayloadAction<string>) => {
-      state.ui.currentPage = action.payload
+      state.ui.currentPage = action.payload;
     },
-    toggleSidebar: (state) => {
-      state.ui.sidebarOpen = !state.ui.sidebarOpen
+    toggleSidebar: state => {
+      state.ui.sidebarOpen = !state.ui.sidebarOpen;
     },
-    openModal: (state, action: PayloadAction<keyof AppState['ui']['modals']>) => {
-      state.ui.modals[action.payload] = true
+    openModal: (
+      state,
+      action: PayloadAction<keyof AppState['ui']['modals']>
+    ) => {
+      state.ui.modals[action.payload] = true;
     },
-    closeModal: (state, action: PayloadAction<keyof AppState['ui']['modals']>) => {
-      state.ui.modals[action.payload] = false
+    closeModal: (
+      state,
+      action: PayloadAction<keyof AppState['ui']['modals']>
+    ) => {
+      state.ui.modals[action.payload] = false;
     },
-    addToast: (state, action: PayloadAction<Omit<ToastMessage, 'id' | 'timestamp'>>) => {
+    addToast: (
+      state,
+      action: PayloadAction<Omit<ToastMessage, 'id' | 'timestamp'>>
+    ) => {
       const toast: ToastMessage = {
         ...action.payload,
         id: Date.now().toString(),
-        timestamp: Date.now()
-      }
-      state.ui.toast.push(toast)
+        timestamp: Date.now(),
+      };
+      state.ui.toast.push(toast);
     },
     removeToast: (state, action: PayloadAction<string>) => {
-      state.ui.toast = state.ui.toast.filter(toast => toast.id !== action.payload)
+      state.ui.toast = state.ui.toast.filter(
+        toast => toast.id !== action.payload
+      );
     },
-    clearToast: (state) => {
-      state.ui.toast = []
-    }
+    clearToast: state => {
+      state.ui.toast = [];
+    },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       // 情感分析
-      .addCase(analyzeEmotion.pending, (state) => {
-        state.ui.isLoading = true
+      .addCase(analyzeEmotion.pending, state => {
+        state.ui.isLoading = true;
       })
       .addCase(analyzeEmotion.fulfilled, (state, action) => {
-        state.ui.isLoading = false
-        state.aiAssistant.currentEmotion = action.payload.primary
-        state.aiAssistant.lastInteraction = new Date().toISOString()
+        state.ui.isLoading = false;
+        state.aiAssistant.currentEmotion = action.payload.primary;
+        state.aiAssistant.lastInteraction = new Date().toISOString();
       })
-      .addCase(analyzeEmotion.rejected, (state) => {
-        state.ui.isLoading = false
+      .addCase(analyzeEmotion.rejected, state => {
+        state.ui.isLoading = false;
         state.ui.toast.push({
           id: Date.now().toString(),
           type: 'error',
           title: '情感分析失败',
           message: '请稍后重试',
           duration: 3000,
-          timestamp: Date.now()
-        })
+          timestamp: Date.now(),
+        });
       })
       // 保存成长记录
-      .addCase(saveGrowthRecord.pending, (state) => {
-        state.ui.isLoading = true
+      .addCase(saveGrowthRecord.pending, state => {
+        state.ui.isLoading = true;
       })
       .addCase(saveGrowthRecord.fulfilled, (state, action) => {
-        state.ui.isLoading = false
-        state.growthRecords.unshift(action.payload)
+        state.ui.isLoading = false;
+        state.growthRecords.unshift(action.payload);
         state.ui.toast.push({
           id: Date.now().toString(),
           type: 'success',
           title: '保存成功',
           message: '成长记录已保存',
           duration: 3000,
-          timestamp: Date.now()
-        })
+          timestamp: Date.now(),
+        });
       })
-      .addCase(saveGrowthRecord.rejected, (state) => {
-        state.ui.isLoading = false
+      .addCase(saveGrowthRecord.rejected, state => {
+        state.ui.isLoading = false;
         state.ui.toast.push({
           id: Date.now().toString(),
           type: 'error',
           title: '保存失败',
           message: '请检查网络连接',
           duration: 3000,
-          timestamp: Date.now()
-        })
+          timestamp: Date.now(),
+        });
       })
       // 加载儿童数据
       .addCase(loadChildren.fulfilled, (state, action) => {
-        state.children = action.payload
+        state.children = action.payload;
         if (action.payload.length > 0 && !state.currentChild) {
-          state.currentChild = action.payload[0]
+          state.currentChild = action.payload[0];
         }
-      })
-  }
-})
+      });
+  },
+});
 
 // 导出Actions
 export const {
@@ -484,8 +548,8 @@ export const {
   closeModal,
   addToast,
   removeToast,
-  clearToast
-} = appSlice.actions
+  clearToast,
+} = appSlice.actions;
 
 // 持久化配置
 const persistConfig = {
@@ -499,49 +563,51 @@ const persistConfig = {
     'aiAssistant',
     'growthRecords',
     'emotionalMemories',
-    'settings'
-  ]
-}
+    'settings',
+  ],
+};
 
 // 创建持久化Reducer
-const persistedReducer = persistReducer(persistConfig, appSlice.reducer)
+const persistedReducer = persistReducer(persistConfig, appSlice.reducer);
 
 // 创建Store
 export const store = configureStore({
   reducer: {
     app: persistedReducer,
-    aiAssistant: aiAssistantReducer
+    aiAssistant: aiAssistantReducer,
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER]
-      }
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
     }),
-  devTools: process.env.NODE_ENV !== 'production'
-})
+  devTools: process.env.NODE_ENV !== 'production',
+});
 
 // 创建持久化Store
-export const persistor = persistStore(store)
+export const persistor = persistStore(store);
 
 // 类型定义
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
 // 重新导出AI助手相关类型
-export type { AIAssistantState, AIMessage } from './slices/aiAssistantSlice'
+export type { AIAssistantState, AIMessage } from './slices/aiAssistantSlice';
 
 // 选择器
-export const selectCurrentUser = (state: RootState) => state.app.user
-export const selectCurrentChild = (state: RootState) => state.app.currentChild
-export const selectChildren = (state: RootState) => state.app.children
-export const selectAIAssistant = (state: RootState) => state.aiAssistant
-export const selectGrowthRecords = (state: RootState) => state.app.growthRecords
-export const selectEmotionalMemories = (state: RootState) => state.app.emotionalMemories
-export const selectSettings = (state: RootState) => state.app.settings
-export const selectUIState = (state: RootState) => state.app.ui
-export const selectIsLoading = (state: RootState) => state.app.ui.isLoading
-export const selectCurrentPage = (state: RootState) => state.app.ui.currentPage
-export const selectToastMessages = (state: RootState) => state.app.ui.toast
+export const selectCurrentUser = (state: RootState) => state.app.user;
+export const selectCurrentChild = (state: RootState) => state.app.currentChild;
+export const selectChildren = (state: RootState) => state.app.children;
+export const selectAIAssistant = (state: RootState) => state.aiAssistant;
+export const selectGrowthRecords = (state: RootState) =>
+  state.app.growthRecords;
+export const selectEmotionalMemories = (state: RootState) =>
+  state.app.emotionalMemories;
+export const selectSettings = (state: RootState) => state.app.settings;
+export const selectUIState = (state: RootState) => state.app.ui;
+export const selectIsLoading = (state: RootState) => state.app.ui.isLoading;
+export const selectCurrentPage = (state: RootState) => state.app.ui.currentPage;
+export const selectToastMessages = (state: RootState) => state.app.ui.toast;
 
-export default store
+export default store;

@@ -19,17 +19,24 @@ const HOST = process.env.HOST || '0.0.0.0';
 const app = new Hono();
 
 // 中间件
-app.use('*', cors({
-  origin: ['http://localhost:3000', 'http://localhost:1229', 'http://localhost:8080'],
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
+app.use(
+  '*',
+  cors({
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:1229',
+      'http://localhost:8080',
+    ],
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  })
+);
 
 app.use('*', logger());
 
 // 健康检查端点
-app.get('/health', async (c) => {
+app.get('/health', async c => {
   try {
     const ollamaHealth = await ollamaService.healthCheck();
     const metrics = await ollamaService.getMetrics();
@@ -43,41 +50,55 @@ app.get('/health', async (c) => {
           status: 'healthy',
           uptime: process.uptime(),
           memory: process.memoryUsage(),
-        }
+        },
       },
       metrics: {
         total_requests: metrics.total_requests,
         successful_requests: metrics.successful_requests,
         avg_response_time: Math.round(metrics.avg_response_time),
-      }
+      },
     });
   } catch (error) {
-    return c.json({
-      status: 'unhealthy',
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString(),
-    }, 503);
+    return c.json(
+      {
+        status: 'unhealthy',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      },
+      503
+    );
   }
 });
 
 // AI聊天端点
-app.post('/api/chat', async (c) => {
+app.post('/api/chat', async c => {
   try {
-    const { messages, options = {}, use_rag = false, user_context } = await c.req.json();
+    const {
+      messages,
+      options = {},
+      use_rag = false,
+      user_context,
+    } = await c.req.json();
 
     // 验证请求参数
     if (!messages || !Array.isArray(messages)) {
-      return c.json({
-        error: 'Invalid messages format',
-        code: 'INVALID_MESSAGES'
-      }, 400);
+      return c.json(
+        {
+          error: 'Invalid messages format',
+          code: 'INVALID_MESSAGES',
+        },
+        400
+      );
     }
 
     if (messages.length === 0) {
-      return c.json({
-        error: 'Messages cannot be empty',
-        code: 'EMPTY_MESSAGES'
-      }, 400);
+      return c.json(
+        {
+          error: 'Messages cannot be empty',
+          code: 'EMPTY_MESSAGES',
+        },
+        400
+      );
     }
 
     let response;
@@ -114,30 +135,35 @@ app.post('/api/chat', async (c) => {
       data: response,
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Chat API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'CHAT_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'CHAT_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 流式聊天端点
-app.post('/api/chat/stream', async (c) => {
+app.post('/api/chat/stream', async c => {
   try {
     const { messages, options = {} } = await c.req.json();
 
     // 验证请求参数
     if (!messages || !Array.isArray(messages)) {
-      return c.json({
-        error: 'Invalid messages format',
-        code: 'INVALID_MESSAGES'
-      }, 400);
+      return c.json(
+        {
+          error: 'Invalid messages format',
+          code: 'INVALID_MESSAGES',
+        },
+        400
+      );
     }
 
     // 设置响应头为流式
@@ -153,29 +179,34 @@ app.post('/api/chat/stream', async (c) => {
 
           // 发送开始事件
           controller.enqueue(`event: start\n`);
-          controller.enqueue(`data: ${JSON.stringify({
-            type: 'start',
-            requestId,
-            timestamp: new Date().toISOString(),
-          })}\n\n`);
+          controller.enqueue(
+            `data: ${JSON.stringify({
+              type: 'start',
+              requestId,
+              timestamp: new Date().toISOString(),
+            })}\n\n`
+          );
 
           // 调用Ollama流式API
-          const response = await fetch(`${process.env.OLLAMA_BASE_URL}/api/chat`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: options.model || process.env.DEFAULT_MODEL,
-              messages: messages,
-              stream: true,
-              options: {
-                temperature: options.temperature ?? 0.7,
-                top_p: options.top_p ?? 0.9,
-                num_predict: options.max_tokens ?? 2048,
-              }
-            }),
-          });
+          const response = await fetch(
+            `${process.env.OLLAMA_BASE_URL}/api/chat`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: options.model || process.env.DEFAULT_MODEL,
+                messages: messages,
+                stream: true,
+                options: {
+                  temperature: options.temperature ?? 0.7,
+                  top_p: options.top_p ?? 0.9,
+                  num_predict: options.max_tokens ?? 2048,
+                },
+              }),
+            }
+          );
 
           if (!response.ok) {
             throw new Error(`Ollama API error: ${response.statusText}`);
@@ -204,59 +235,66 @@ app.post('/api/chat/stream', async (c) => {
                   const data = line.slice(6);
                   if (data === '[DONE]') {
                     controller.enqueue(`event: end\n`);
-                    controller.enqueue(`data: ${JSON.stringify({
-                      type: 'end',
-                      requestId,
-                      timestamp: new Date().toISOString(),
-                    })}\n\n`);
+                    controller.enqueue(
+                      `data: ${JSON.stringify({
+                        type: 'end',
+                        requestId,
+                        timestamp: new Date().toISOString(),
+                      })}\n\n`
+                    );
                     break;
                   }
 
                   const parsed = JSON.parse(data);
                   controller.enqueue(`event: message\n`);
-                  controller.enqueue(`data: ${JSON.stringify({
-                    type: 'message',
-                    requestId,
-                    content: parsed.message?.content || '',
-                    done: parsed.done || false,
-                    timestamp: new Date().toISOString(),
-                  })}\n\n`);
+                  controller.enqueue(
+                    `data: ${JSON.stringify({
+                      type: 'message',
+                      requestId,
+                      content: parsed.message?.content || '',
+                      done: parsed.done || false,
+                      timestamp: new Date().toISOString(),
+                    })}\n\n`
+                  );
                 } catch (e) {
                   // 忽略解析错误
                 }
               }
             }
           }
-
         } catch (error) {
           controller.enqueue(`event: error\n`);
-          controller.enqueue(`data: ${JSON.stringify({
-            type: 'error',
-            error: error instanceof Error ? error.message : 'Unknown error',
-            timestamp: new Date().toISOString(),
-          })}\n\n`);
+          controller.enqueue(
+            `data: ${JSON.stringify({
+              type: 'error',
+              error: error instanceof Error ? error.message : 'Unknown error',
+              timestamp: new Date().toISOString(),
+            })}\n\n`
+          );
         } finally {
           controller.close();
         }
-      }
+      },
     });
 
     return new Response(stream);
-
   } catch (error) {
     console.error('Stream chat API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'STREAM_CHAT_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'STREAM_CHAT_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 模型管理端点
-app.get('/api/models', async (c) => {
+app.get('/api/models', async c => {
   try {
     const models = await ollamaService.listModels();
     const currentModel = ollamaService.getCurrentModel();
@@ -269,98 +307,116 @@ app.get('/api/models', async (c) => {
       },
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('List models API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'LIST_MODELS_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'LIST_MODELS_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 拉取模型端点
-app.post('/api/models/pull', async (c) => {
+app.post('/api/models/pull', async c => {
   try {
     const { model } = await c.req.json();
 
     if (!model) {
-      return c.json({
-        success: false,
-        error: 'Model name is required',
-        code: 'MISSING_MODEL_NAME',
-      }, 400);
+      return c.json(
+        {
+          success: false,
+          error: 'Model name is required',
+          code: 'MISSING_MODEL_NAME',
+        },
+        400
+      );
     }
 
     // 创建流式响应
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          await ollamaService.pullModel(model, (progress) => {
-            controller.enqueue(`data: ${JSON.stringify({
-              type: 'progress',
-              model,
-              status: progress.status,
-              completed: progress.completed,
-              total: progress.total,
-              percentage: progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0,
-              timestamp: new Date().toISOString(),
-            })}\n\n`);
+          await ollamaService.pullModel(model, progress => {
+            controller.enqueue(
+              `data: ${JSON.stringify({
+                type: 'progress',
+                model,
+                status: progress.status,
+                completed: progress.completed,
+                total: progress.total,
+                percentage:
+                  progress.total > 0
+                    ? Math.round((progress.completed / progress.total) * 100)
+                    : 0,
+                timestamp: new Date().toISOString(),
+              })}\n\n`
+            );
           });
 
-          controller.enqueue(`data: ${JSON.stringify({
-            type: 'completed',
-            model,
-            timestamp: new Date().toISOString(),
-          })}\n\n`);
-
+          controller.enqueue(
+            `data: ${JSON.stringify({
+              type: 'completed',
+              model,
+              timestamp: new Date().toISOString(),
+            })}\n\n`
+          );
         } catch (error) {
-          controller.enqueue(`data: ${JSON.stringify({
-            type: 'error',
-            error: error instanceof Error ? error.message : 'Unknown error',
-            model,
-            timestamp: new Date().toISOString(),
-          })}\n\n`);
+          controller.enqueue(
+            `data: ${JSON.stringify({
+              type: 'error',
+              error: error instanceof Error ? error.message : 'Unknown error',
+              model,
+              timestamp: new Date().toISOString(),
+            })}\n\n`
+          );
         } finally {
           controller.close();
         }
-      }
+      },
     });
 
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
       },
     });
-
   } catch (error) {
     console.error('Pull model API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'PULL_MODEL_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'PULL_MODEL_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 切换模型端点
-app.post('/api/models/switch', async (c) => {
+app.post('/api/models/switch', async c => {
   try {
     const { model } = await c.req.json();
 
     if (!model) {
-      return c.json({
-        success: false,
-        error: 'Model name is required',
-        code: 'MISSING_MODEL_NAME',
-      }, 400);
+      return c.json(
+        {
+          success: false,
+          error: 'Model name is required',
+          code: 'MISSING_MODEL_NAME',
+        },
+        400
+      );
     }
 
     await ollamaService.switchModel(model);
@@ -373,21 +429,23 @@ app.post('/api/models/switch', async (c) => {
       },
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Switch model API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'SWITCH_MODEL_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'SWITCH_MODEL_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 删除模型端点
-app.delete('/api/models/:model', async (c) => {
+app.delete('/api/models/:model', async c => {
   try {
     const model = c.req.param('model');
 
@@ -402,30 +460,40 @@ app.delete('/api/models/:model', async (c) => {
       },
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Delete model API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'DELETE_MODEL_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'DELETE_MODEL_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 知识检索端点
-app.post('/api/knowledge/search', async (c) => {
+app.post('/api/knowledge/search', async c => {
   try {
-    const { query, filters = {}, top_k = 5, similarity_threshold = 0.7 } = await c.req.json();
+    const {
+      query,
+      filters = {},
+      top_k = 5,
+      similarity_threshold = 0.7,
+    } = await c.req.json();
 
     if (!query) {
-      return c.json({
-        success: false,
-        error: 'Query is required',
-        code: 'MISSING_QUERY',
-      }, 400);
+      return c.json(
+        {
+          success: false,
+          error: 'Query is required',
+          code: 'MISSING_QUERY',
+        },
+        400
+      );
     }
 
     const results = await ragEngine.retrieveKnowledge({
@@ -444,30 +512,35 @@ app.post('/api/knowledge/search', async (c) => {
       },
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Knowledge search API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'KNOWLEDGE_SEARCH_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'KNOWLEDGE_SEARCH_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 添加知识文档端点
-app.post('/api/knowledge/documents', async (c) => {
+app.post('/api/knowledge/documents', async c => {
   try {
     const documents = await c.req.json();
 
     if (!Array.isArray(documents) || documents.length === 0) {
-      return c.json({
-        success: false,
-        error: 'Documents array is required',
-        code: 'MISSING_DOCUMENTS',
-      }, 400);
+      return c.json(
+        {
+          success: false,
+          error: 'Documents array is required',
+          code: 'MISSING_DOCUMENTS',
+        },
+        400
+      );
     }
 
     await ragEngine.addKnowledge(documents);
@@ -480,21 +553,23 @@ app.post('/api/knowledge/documents', async (c) => {
       },
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Add knowledge API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'ADD_KNOWLEDGE_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'ADD_KNOWLEDGE_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 知识统计端点
-app.get('/api/knowledge/stats', async (c) => {
+app.get('/api/knowledge/stats', async c => {
   try {
     const stats = await ragEngine.getKnowledgeStats();
 
@@ -503,21 +578,23 @@ app.get('/api/knowledge/stats', async (c) => {
       data: stats,
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Knowledge stats API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'KNOWLEDGE_STATS_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'KNOWLEDGE_STATS_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 性能指标端点
-app.get('/api/metrics', async (c) => {
+app.get('/api/metrics', async c => {
   try {
     const ollamaMetrics = await ollamaService.getMetrics();
     const health = await ollamaService.healthCheck();
@@ -537,38 +614,46 @@ app.get('/api/metrics', async (c) => {
       },
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Metrics API error:', error);
 
-    return c.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      code: 'METRICS_FAILED',
-      timestamp: new Date().toISOString(),
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        code: 'METRICS_FAILED',
+        timestamp: new Date().toISOString(),
+      },
+      500
+    );
   }
 });
 
 // 404处理
-app.notFound((c) => {
-  return c.json({
-    success: false,
-    error: 'Endpoint not found',
-    code: 'NOT_FOUND',
-    timestamp: new Date().toISOString(),
-  }, 404);
+app.notFound(c => {
+  return c.json(
+    {
+      success: false,
+      error: 'Endpoint not found',
+      code: 'NOT_FOUND',
+      timestamp: new Date().toISOString(),
+    },
+    404
+  );
 });
 
 // 错误处理
 app.onError((err, c) => {
   console.error('Server error:', err);
-  return c.json({
-    success: false,
-    error: 'Internal server error',
-    code: 'INTERNAL_ERROR',
-    timestamp: new Date().toISOString(),
-  }, 500);
+  return c.json(
+    {
+      success: false,
+      error: 'Internal server error',
+      code: 'INTERNAL_ERROR',
+      timestamp: new Date().toISOString(),
+    },
+    500
+  );
 });
 
 // 启动服务器

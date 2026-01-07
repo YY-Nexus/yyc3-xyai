@@ -3,7 +3,7 @@
  * 第六阶段：高级特性与生产准备
  */
 
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
@@ -15,27 +15,27 @@ jest.mock('next/navigation', () => ({
       back: jest.fn(),
       forward: jest.fn(),
       prefetch: jest.fn(),
-    }
+    };
   },
   usePathname() {
-    return '/'
+    return '/';
   },
   useSearchParams() {
-    return new URLSearchParams()
+    return new URLSearchParams();
   },
-}))
+}));
 
 // Mock Next.js internationalization
 jest.mock('next-intl', () => ({
-  useTranslations: () => (key) => key,
+  useTranslations: () => key => key,
   useLocale: () => 'zh',
-}))
+}));
 
 // Mock Next.js image optimization
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props) => <img {...props} />,
-}))
+  default: props => <img {...props} />,
+}));
 
 // Mock Framer Motion
 jest.mock('framer-motion', () => ({
@@ -48,19 +48,21 @@ jest.mock('framer-motion', () => ({
     h2: ({ children, ...props }) => <h2 {...props}>{children}</h2>,
     h3: ({ children, ...props }) => <h3 {...props}>{children}</h3>,
     p: ({ children, ...props }) => <p {...props}>{children}</p>,
-    section: ({ children, ...props }) => <section {...props}>{children}</section>,
+    section: ({ children, ...props }) => (
+      <section {...props}>{children}</section>
+    ),
   },
   AnimatePresence: ({ children }) => <>{children}</>,
-}))
+}));
 
 // Mock Vercel Analytics
 jest.mock('@vercel/analytics/next', () => ({
   Analytics: () => null,
-}))
+}));
 
 jest.mock('@vercel/speed-insights/next', () => ({
   SpeedInsights: () => null,
-}))
+}));
 
 // Mock Service Worker
 Object.defineProperty(window, 'serviceWorker', {
@@ -72,7 +74,7 @@ Object.defineProperty(window, 'serviceWorker', {
       showNotification: jest.fn(),
     }),
   },
-})
+});
 
 // Mock PushManager
 Object.defineProperty(window, 'PushManager', {
@@ -84,7 +86,7 @@ Object.defineProperty(window, 'PushManager', {
       getSubscription: jest.fn(() => Promise.resolve(null)),
     },
   },
-})
+});
 
 // Mock Notification
 Object.defineProperty(window, 'Notification', {
@@ -93,7 +95,7 @@ Object.defineProperty(window, 'Notification', {
     requestPermission: jest.fn(() => Promise.resolve('granted')),
     permission: 'granted',
   },
-})
+});
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -108,21 +110,21 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
-})
+});
 
 // Mock ResizeObserver
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}))
+}));
 
 // Mock IntersectionObserver
 global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}))
+}));
 
 // Mock localStorage
 const localStorageMock = {
@@ -130,8 +132,8 @@ const localStorageMock = {
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
-}
-global.localStorage = localStorageMock
+};
+global.localStorage = localStorageMock;
 
 // Mock sessionStorage
 const sessionStorageMock = {
@@ -139,8 +141,8 @@ const sessionStorageMock = {
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
-}
-global.sessionStorage = sessionStorageMock
+};
+global.sessionStorage = sessionStorageMock;
 
 // Mock window.fetch
 global.fetch = jest.fn(() =>
@@ -149,11 +151,11 @@ global.fetch = jest.fn(() =>
     status: 200,
     json: () => Promise.resolve({}),
   })
-)
+);
 
 // Mock console methods in tests
-const originalConsoleError = console.error
-const originalConsoleWarn = console.warn
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
 
 beforeAll(() => {
   console.error = (...args) => {
@@ -161,26 +163,26 @@ beforeAll(() => {
       typeof args[0] === 'string' &&
       args[0].includes('Warning: ReactDOM.render is deprecated')
     ) {
-      return
+      return;
     }
-    originalConsoleError.call(console, ...args)
-  }
+    originalConsoleError.call(console, ...args);
+  };
 
   console.warn = (...args) => {
     if (
       typeof args[0] === 'string' &&
       args[0].includes('componentWillReceiveProps has been renamed')
     ) {
-      return
+      return;
     }
-    originalConsoleWarn.call(console, ...args)
-  }
-})
+    originalConsoleWarn.call(console, ...args);
+  };
+});
 
 afterAll(() => {
-  console.error = originalConsoleError
-  console.warn = originalConsoleWarn
-})
+  console.error = originalConsoleError;
+  console.warn = originalConsoleWarn;
+});
 
 // Mock Intl APIs
 global.Intl = {
@@ -193,48 +195,48 @@ global.Intl = {
   })),
   Collator: jest.fn(),
   PluralRules: jest.fn(),
-}
+};
 
 // Add custom matchers
 expect.extend({
-  toBeInTheDocument: (received) => {
-    const pass = received && document.body.contains(received)
+  toBeInTheDocument: received => {
+    const pass = received && document.body.contains(received);
     return {
-      message: () =>
-        `expected ${received} to be in the document`,
+      message: () => `expected ${received} to be in the document`,
       pass,
-    }
+    };
   },
   toHaveClass: (received, className) => {
-    const pass = received && received.classList && received.classList.contains(className)
+    const pass =
+      received && received.classList && received.classList.contains(className);
     return {
       message: () =>
         `expected element ${pass ? 'not' : ''} to have class ${className}`,
       pass,
-    }
+    };
   },
-})
+});
 
 // Setup and teardown hooks
 beforeEach(() => {
   // Clear all mocks before each test
-  jest.clearAllMocks()
+  jest.clearAllMocks();
 
   // Reset localStorage
-  localStorageMock.getItem.mockClear()
-  localStorageMock.setItem.mockClear()
-  localStorageMock.removeItem.mockClear()
-  localStorageMock.clear.mockClear()
+  localStorageMock.getItem.mockClear();
+  localStorageMock.setItem.mockClear();
+  localStorageMock.removeItem.mockClear();
+  localStorageMock.clear.mockClear();
 
   // Reset sessionStorage
-  sessionStorageMock.getItem.mockClear()
-  sessionStorageMock.setItem.mockClear()
-  sessionStorageMock.removeItem.mockClear()
-  sessionStorageMock.clear.mockClear()
+  sessionStorageMock.getItem.mockClear();
+  sessionStorageMock.setItem.mockClear();
+  sessionStorageMock.removeItem.mockClear();
+  sessionStorageMock.clear.mockClear();
 
   // Reset fetch
-  global.fetch.mockClear?.()
+  global.fetch.mockClear?.();
 
   // Clear DOM
-  document.body.innerHTML = ''
-})
+  document.body.innerHTML = '';
+});

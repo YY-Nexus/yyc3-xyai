@@ -14,12 +14,78 @@ import { MediaFile, FilterParams, SortBy, SmartTagSuggestions } from './types';
  * 智能标签建议
  */
 export const smartTagSuggestions: SmartTagSuggestions = {
-  活动: ['生日', '派对', '旅行', '节日', '聚会', '运动', '游戏', '野餐', '参观', '演出'],
-  发展: ['爬行', '走路', '说话', '阅读', '绘画', '写字', '唱歌', '跳舞', '手工', '学习'],
-  场景: ['家庭', '公园', '学校', '医院', '动物园', '博物馆', '海滩', '山区', '商场', '餐厅'],
-  人物: ['爸爸', '妈妈', '爷爷', '奶奶', '外公', '外婆', '兄弟姐妹', '朋友', '老师', '同学'],
-  情绪: ['快乐', '悲伤', '惊讶', '愤怒', '害怕', '平静', '兴奋', '困惑', '害羞', '满足'],
-  其他: ['日常', '生活', '成长', '第一次', '纪念', '节日', '庆祝', '成就', '爱好', '休息']
+  活动: [
+    '生日',
+    '派对',
+    '旅行',
+    '节日',
+    '聚会',
+    '运动',
+    '游戏',
+    '野餐',
+    '参观',
+    '演出',
+  ],
+  发展: [
+    '爬行',
+    '走路',
+    '说话',
+    '阅读',
+    '绘画',
+    '写字',
+    '唱歌',
+    '跳舞',
+    '手工',
+    '学习',
+  ],
+  场景: [
+    '家庭',
+    '公园',
+    '学校',
+    '医院',
+    '动物园',
+    '博物馆',
+    '海滩',
+    '山区',
+    '商场',
+    '餐厅',
+  ],
+  人物: [
+    '爸爸',
+    '妈妈',
+    '爷爷',
+    '奶奶',
+    '外公',
+    '外婆',
+    '兄弟姐妹',
+    '朋友',
+    '老师',
+    '同学',
+  ],
+  情绪: [
+    '快乐',
+    '悲伤',
+    '惊讶',
+    '愤怒',
+    '害怕',
+    '平静',
+    '兴奋',
+    '困惑',
+    '害羞',
+    '满足',
+  ],
+  其他: [
+    '日常',
+    '生活',
+    '成长',
+    '第一次',
+    '纪念',
+    '节日',
+    '庆祝',
+    '成就',
+    '爱好',
+    '休息',
+  ],
 };
 
 /**
@@ -97,16 +163,20 @@ export const filterAndSortMediaFiles = (
   sortBy: SortBy
 ): MediaFile[] => {
   const { searchQuery, selectedTags, dateRange } = params;
-  
+
   let filtered = files.filter(file => {
     // 搜索过滤
-    const matchesSearch = searchQuery === '' ||
+    const matchesSearch =
+      searchQuery === '' ||
       file.filename.toLowerCase().includes(searchQuery.toLowerCase()) ||
       file.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      file.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      file.tags.some(tag =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
     // 标签过滤
-    const matchesTags = selectedTags.length === 0 ||
+    const matchesTags =
+      selectedTags.length === 0 ||
       selectedTags.some(tag => file.tags.includes(tag));
 
     // 日期范围过滤
@@ -135,5 +205,3 @@ export const filterAndSortMediaFiles = (
     }
   });
 };
-
-

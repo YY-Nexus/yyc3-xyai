@@ -82,13 +82,12 @@ export async function GET(request: NextRequest) {
     // 默认：获取所有勋章
     const badges = await badgeService.getAllBadges();
     return NextResponse.json({ success: true, data: badges });
-
   } catch (error) {
     console.error('Badges API error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Internal server error'
+        error: error instanceof Error ? error.message : 'Internal server error',
       },
       { status: 500 }
     );
@@ -113,13 +112,13 @@ export async function POST(request: NextRequest) {
       { success: false, error: 'Invalid action' },
       { status: 400 }
     );
-
   } catch (error) {
     console.error('Badges POST API error:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to process request'
+        error:
+          error instanceof Error ? error.message : 'Failed to process request',
       },
       { status: 500 }
     );

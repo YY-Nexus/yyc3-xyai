@@ -1,18 +1,18 @@
-'use client'
+'use client';
 
-import * as React from 'react'
-import { ThemeProvider as NextThemesProvider } from 'next-themes'
-import { theme } from '../src/foundation/styles/theme'
+import * as React from 'react';
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import { theme } from '../src/foundation/styles/theme';
 
 interface YYC3ThemeProviderProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function YYC3ThemeProvider({ children }: YYC3ThemeProviderProps) {
   return (
     <NextThemesProvider
-      attribute="class"
-      defaultTheme="light"
+      attribute='class'
+      defaultTheme='light'
       enableSystem
       disableTransitionOnChange
     >
@@ -27,7 +27,7 @@ export function YYC3ThemeProvider({ children }: YYC3ThemeProviderProps) {
           --color-warning: ${theme.colors.warning[500]};
           --color-error: ${theme.colors.error[500]};
           --color-info: ${theme.colors.info[500]};
-          
+
           /* 中性色 */
           --color-white: ${theme.colors.neutral[50]};
           --color-gray-100: ${theme.colors.neutral[100]};
@@ -40,7 +40,7 @@ export function YYC3ThemeProvider({ children }: YYC3ThemeProviderProps) {
           --color-gray-800: ${theme.colors.neutral[800]};
           --color-gray-900: ${theme.colors.neutral[900]};
           --color-black: ${theme.colors.neutral[950]};
-          
+
           /* 排版变量 */
           --font-family: ${theme.typography.fontFamily};
           --font-size-xs: ${theme.typography.fontSize.xs};
@@ -51,13 +51,13 @@ export function YYC3ThemeProvider({ children }: YYC3ThemeProviderProps) {
           --font-size-2xl: ${theme.typography.fontSize['2xl']};
           --font-size-3xl: ${theme.typography.fontSize['3xl']};
           --font-size-4xl: ${theme.typography.fontSize['4xl']};
-          
+
           --font-weight-light: ${theme.typography.fontWeight.light};
           --font-weight-normal: ${theme.typography.fontWeight.normal};
           --font-weight-medium: ${theme.typography.fontWeight.medium};
           --font-weight-semibold: ${theme.typography.fontWeight.semibold};
           --font-weight-bold: ${theme.typography.fontWeight.bold};
-          
+
           /* 间距变量 */
           --spacing-0: ${theme.spacing[0]};
           --spacing-1: ${theme.spacing[1]};
@@ -73,34 +73,34 @@ export function YYC3ThemeProvider({ children }: YYC3ThemeProviderProps) {
           --spacing-20: ${theme.spacing[20]};
           --spacing-24: ${theme.spacing[24]};
           --spacing-32: ${theme.spacing[32]};
-          
+
           /* 边框半径 */
           --border-radius-sm: ${theme.borderRadius.sm};
           --border-radius-md: ${theme.borderRadius.md};
           --border-radius-lg: ${theme.borderRadius.lg};
           --border-radius-xl: ${theme.borderRadius.xl};
           --border-radius-full: ${theme.borderRadius.full};
-          
+
           /* 阴影 */
           --shadow-sm: ${theme.shadow.sm};
           --shadow-md: ${theme.shadow.md};
           --shadow-lg: ${theme.shadow.lg};
           --shadow-xl: ${theme.shadow.xl};
         }
-        
+
         /* 全局基础样式 */
         * {
           margin: 0;
           padding: 0;
           box-sizing: border-box;
         }
-        
+
         html {
           font-size: 16px;
           font-family: var(--font-family);
           line-height: 1.5;
         }
-        
+
         body {
           color: var(--color-gray-900);
           background-color: var(--color-white);
@@ -109,5 +109,5 @@ export function YYC3ThemeProvider({ children }: YYC3ThemeProviderProps) {
       `}</style>
       {children}
     </NextThemesProvider>
-  )
+  );
 }

@@ -9,41 +9,64 @@
  * @license MIT
  */
 
-export type AIRole = "companion" | "recorder" | "guardian" | "listener" | "advisor" | "cultural"
+export type AIRole =
+  | 'companion'
+  | 'recorder'
+  | 'guardian'
+  | 'listener'
+  | 'advisor'
+  | 'cultural';
 
-export type VoiceStyle = "cheerful" | "calm" | "gentle" | "professional" | "warm" | "authoritative"
+export type VoiceStyle =
+  | 'cheerful'
+  | 'calm'
+  | 'gentle'
+  | 'professional'
+  | 'warm'
+  | 'authoritative';
 
-export type QueryComplexity = "simple" | "medium" | "complex"
+export type QueryComplexity = 'simple' | 'medium' | 'complex';
 
 export interface RoleConfig {
-  id: AIRole
-  name: string
-  icon: string
-  description: string
-  systemPrompt: string
-  color: string
-  voiceStyle: VoiceStyle
-  specialties: string[]
-  triggerKeywords: string[]
-  priority?: number
-  isActive?: boolean
-  responseLength?: "short" | "medium" | "long"
-  emojiSupport?: boolean
+  id: AIRole;
+  name: string;
+  icon: string;
+  description: string;
+  systemPrompt: string;
+  color: string;
+  voiceStyle: VoiceStyle;
+  specialties: string[];
+  triggerKeywords: string[];
+  priority?: number;
+  isActive?: boolean;
+  responseLength?: 'short' | 'medium' | 'long';
+  emojiSupport?: boolean;
 }
 
 export const AI_ROLES: Record<AIRole, RoleConfig> = {
   companion: {
-    id: "companion",
-    name: "陪伴者",
-    icon: "ri-heart-line",
-    description: "日常陪伴、情感支持",
-    color: "pink",
-    voiceStyle: "warm",
-    specialties: ["日常陪伴", "情感支持", "温暖互动", "情感慰藉", "陪伴聊天"],
-    triggerKeywords: ["陪伴", "聊天", "无聊", "寂寞", "心情", "情感", "安慰", "一起", "讲故事", "玩游戏"],
+    id: 'companion',
+    name: '陪伴者',
+    icon: 'ri-heart-line',
+    description: '日常陪伴、情感支持',
+    color: 'pink',
+    voiceStyle: 'warm',
+    specialties: ['日常陪伴', '情感支持', '温暖互动', '情感慰藉', '陪伴聊天'],
+    triggerKeywords: [
+      '陪伴',
+      '聊天',
+      '无聊',
+      '寂寞',
+      '心情',
+      '情感',
+      '安慰',
+      '一起',
+      '讲故事',
+      '玩游戏',
+    ],
     priority: 1,
     isActive: true,
-    responseLength: "medium",
+    responseLength: 'medium',
     emojiSupport: true,
     systemPrompt: `你是AI小语的"陪伴者"角色，专注于日常陪伴和情感支持。
 
@@ -72,17 +95,33 @@ export const AI_ROLES: Record<AIRole, RoleConfig> = {
   },
 
   recorder: {
-    id: "recorder",
-    name: "记录者",
-    icon: "ri-camera-line",
-    description: "自动记录成长事件",
-    color: "blue",
-    voiceStyle: "professional",
-    specialties: ["成长事件记录", "里程碑识别", "数据整理", "成长档案", "时间线管理"],
-    triggerKeywords: ["记录", "保存", "成长", "里程碑", "档案", "数据", "时间线", "事件", "历史"],
+    id: 'recorder',
+    name: '记录者',
+    icon: 'ri-camera-line',
+    description: '自动记录成长事件',
+    color: 'blue',
+    voiceStyle: 'professional',
+    specialties: [
+      '成长事件记录',
+      '里程碑识别',
+      '数据整理',
+      '成长档案',
+      '时间线管理',
+    ],
+    triggerKeywords: [
+      '记录',
+      '保存',
+      '成长',
+      '里程碑',
+      '档案',
+      '数据',
+      '时间线',
+      '事件',
+      '历史',
+    ],
     priority: 2,
     isActive: true,
-    responseLength: "long",
+    responseLength: 'long',
     emojiSupport: false,
     systemPrompt: `你是AI小语的"记录者"角色，专注于准确、全面、结构化地记录孩子的成长事件。
 
@@ -111,17 +150,27 @@ export const AI_ROLES: Record<AIRole, RoleConfig> = {
   },
 
   listener: {
-    id: "listener",
-    name: "聆听者",
-    icon: "ri-ear-line",
-    description: "情绪识别、心理分析",
-    color: "purple",
-    voiceStyle: "gentle",
-    specialties: ["情绪识别", "心理分析", "共情理解", "行为解读", "心理支持"],
-    triggerKeywords: ["情绪", "心情", "感觉", "心理", "分析", "理解", "为什么", "行为", "想法"],
+    id: 'listener',
+    name: '聆听者',
+    icon: 'ri-ear-line',
+    description: '情绪识别、心理分析',
+    color: 'purple',
+    voiceStyle: 'gentle',
+    specialties: ['情绪识别', '心理分析', '共情理解', '行为解读', '心理支持'],
+    triggerKeywords: [
+      '情绪',
+      '心情',
+      '感觉',
+      '心理',
+      '分析',
+      '理解',
+      '为什么',
+      '行为',
+      '想法',
+    ],
     priority: 1,
     isActive: true,
-    responseLength: "long",
+    responseLength: 'long',
     emojiSupport: true,
     systemPrompt: `你是AI小语的"聆听者"角色，擅长情绪识别和心理分析，具有强烈的共情能力。
 
@@ -150,17 +199,27 @@ export const AI_ROLES: Record<AIRole, RoleConfig> = {
   },
 
   advisor: {
-    id: "advisor",
-    name: "建议者",
-    icon: "ri-lightbulb-line",
-    description: "成长建议、教育指导",
-    color: "orange",
-    voiceStyle: "cheerful",
-    specialties: ["成长建议", "教育指导", "个性化方案", "科学育儿", "能力培养"],
-    triggerKeywords: ["建议", "指导", "怎么办", "如何", "方案", "方法", "策略", "培养", "教育"],
+    id: 'advisor',
+    name: '建议者',
+    icon: 'ri-lightbulb-line',
+    description: '成长建议、教育指导',
+    color: 'orange',
+    voiceStyle: 'cheerful',
+    specialties: ['成长建议', '教育指导', '个性化方案', '科学育儿', '能力培养'],
+    triggerKeywords: [
+      '建议',
+      '指导',
+      '怎么办',
+      '如何',
+      '方案',
+      '方法',
+      '策略',
+      '培养',
+      '教育',
+    ],
     priority: 3,
     isActive: true,
-    responseLength: "long",
+    responseLength: 'long',
     emojiSupport: false,
     systemPrompt: `你是AI小语的"建议者"角色，基于科学理论提供专业、个性化、科学的教育建议。
 
@@ -189,17 +248,27 @@ export const AI_ROLES: Record<AIRole, RoleConfig> = {
   },
 
   guardian: {
-    id: "guardian",
-    name: "守护者",
-    icon: "ri-shield-line",
-    description: "风险识别、主动预警",
-    color: "green",
-    voiceStyle: "authoritative",
-    specialties: ["风险识别", "安全预警", "健康监测", "保护措施", "安全指导"],
-    triggerKeywords: ["安全", "风险", "危险", "保护", "预警", "健康", "检查", "防护", "注意"],
+    id: 'guardian',
+    name: '守护者',
+    icon: 'ri-shield-line',
+    description: '风险识别、主动预警',
+    color: 'green',
+    voiceStyle: 'authoritative',
+    specialties: ['风险识别', '安全预警', '健康监测', '保护措施', '安全指导'],
+    triggerKeywords: [
+      '安全',
+      '风险',
+      '危险',
+      '保护',
+      '预警',
+      '健康',
+      '检查',
+      '防护',
+      '注意',
+    ],
     priority: 4,
     isActive: true,
-    responseLength: "short",
+    responseLength: 'short',
     emojiSupport: false,
     systemPrompt: `你是AI小语的"守护者"角色，专注于风险识别和主动预警，具有强烈的责任心。
 
@@ -228,17 +297,27 @@ export const AI_ROLES: Record<AIRole, RoleConfig> = {
   },
 
   cultural: {
-    id: "cultural",
-    name: "文化引导者",
-    icon: "ri-book-open-line",
-    description: "文化传承、价值观教育",
-    color: "indigo",
-    voiceStyle: "calm",
-    specialties: ["文化传承", "价值观教育", "传统节日", "礼仪培养", "品格塑造"],
-    triggerKeywords: ["文化", "传统", "节日", "礼仪", "品格", "价值观", "历史", "故事", "美德"],
+    id: 'cultural',
+    name: '文化引导者',
+    icon: 'ri-book-open-line',
+    description: '文化传承、价值观教育',
+    color: 'indigo',
+    voiceStyle: 'calm',
+    specialties: ['文化传承', '价值观教育', '传统节日', '礼仪培养', '品格塑造'],
+    triggerKeywords: [
+      '文化',
+      '传统',
+      '节日',
+      '礼仪',
+      '品格',
+      '价值观',
+      '历史',
+      '故事',
+      '美德',
+    ],
     priority: 2,
     isActive: true,
-    responseLength: "medium",
+    responseLength: 'medium',
     emojiSupport: true,
     systemPrompt: `你是AI小语的"文化引导者"角色，专注于文化传承和价值观教育。
 
@@ -265,11 +344,11 @@ export const AI_ROLES: Record<AIRole, RoleConfig> = {
 4. 培养孩子的品格和修养
 5. 增强文化认同和自豪感`,
   },
-}
+};
 
 // 根据上下文智能选择角色
 export function selectRoleByContext(userMessage: string): AIRole {
-  const lowerMessage = userMessage.toLowerCase()
+  const lowerMessage = userMessage.toLowerCase();
 
   const scores: Record<AIRole, number> = {
     recorder: 0,
@@ -278,76 +357,81 @@ export function selectRoleByContext(userMessage: string): AIRole {
     advisor: 0,
     cultural: 0,
     companion: 0,
-  }
+  };
 
   for (const [roleId, config] of Object.entries(AI_ROLES)) {
-    if (!config.isActive) continue
+    if (!config.isActive) continue;
     for (const keyword of config.triggerKeywords) {
       if (lowerMessage.includes(keyword)) {
-        scores[roleId as AIRole] += 1
+        scores[roleId as AIRole] += 1;
       }
     }
   }
 
-  let maxScore = 0
-  let selectedRole: AIRole = "advisor"
+  let maxScore = 0;
+  let selectedRole: AIRole = 'advisor';
 
   for (const [roleId, score] of Object.entries(scores)) {
     if (score > maxScore) {
-      maxScore = score
-      selectedRole = roleId as AIRole
+      maxScore = score;
+      selectedRole = roleId as AIRole;
     }
   }
 
-  return selectedRole
+  return selectedRole;
 }
 
-export function selectRoleByContextDetailed(userMessage: string): RoleSelectionResult {
-  const lowerMessage = userMessage.toLowerCase()
+export function selectRoleByContextDetailed(
+  userMessage: string
+): RoleSelectionResult {
+  const lowerMessage = userMessage.toLowerCase();
 
-  const roleScores: RoleScore[] = []
-  let maxScore = 0
-  let selectedRole: AIRole = "advisor"
+  const roleScores: RoleScore[] = [];
+  let maxScore = 0;
+  let selectedRole: AIRole = 'advisor';
 
   for (const [roleId, config] of Object.entries(AI_ROLES)) {
-    if (!config.isActive) continue
-    
-    const matchedKeywords: string[] = []
+    if (!config.isActive) continue;
+
+    const matchedKeywords: string[] = [];
     for (const keyword of config.triggerKeywords) {
       if (lowerMessage.includes(keyword)) {
-        matchedKeywords.push(keyword)
+        matchedKeywords.push(keyword);
       }
     }
 
-    const score = matchedKeywords.length
+    const score = matchedKeywords.length;
     roleScores.push({
       role: roleId as AIRole,
       score,
       matchedKeywords,
-    })
+    });
 
     if (score > maxScore) {
-      maxScore = score
-      selectedRole = roleId as AIRole
+      maxScore = score;
+      selectedRole = roleId as AIRole;
     }
   }
 
-  const confidence = maxScore > 0 ? Math.min(maxScore / 3, 1) : 0.5
+  const confidence = maxScore > 0 ? Math.min(maxScore / 3, 1) : 0.5;
 
   return {
     selectedRole,
     confidence,
     allScores: roleScores.sort((a, b) => b.score - a.score),
-    reason: maxScore > 0 ? `匹配到${maxScore}个关键词` : "默认选择建议者角色",
-  }
+    reason: maxScore > 0 ? `匹配到${maxScore}个关键词` : '默认选择建议者角色',
+  };
 }
 
 // 获取角色的完整系统提示词
-export function getRoleSystemPrompt(role: AIRole, childContext?: ChildContext): string {
-  const basePrompt = `你是AI小语，YYC³智能成长守护系统的AI助手。你服务的是一个温暖的家庭，致力于陪伴孩子健康成长。`
-  const roleConfig = AI_ROLES[role]
+export function getRoleSystemPrompt(
+  role: AIRole,
+  childContext?: ChildContext
+): string {
+  const basePrompt = `你是AI小语，YYC³智能成长守护系统的AI助手。你服务的是一个温暖的家庭，致力于陪伴孩子健康成长。`;
+  const roleConfig = AI_ROLES[role];
 
-  let contextPrompt = ""
+  let contextPrompt = '';
   if (childContext) {
     contextPrompt = `
 
@@ -355,7 +439,7 @@ export function getRoleSystemPrompt(role: AIRole, childContext?: ChildContext): 
 - 姓名：${childContext.name}
 - 年龄：${childContext.ageText}
 - 所处阶段：${childContext.stage}
-- 特点：${childContext.traits?.join("、") || "活泼可爱"}`
+- 特点：${childContext.traits?.join('、') || '活泼可爱'}`;
   }
 
   return `${basePrompt}${contextPrompt}
@@ -368,85 +452,122 @@ ${roleConfig.systemPrompt}
 - 关注孩子的年龄特点和个体差异
 - 尊重家长的教育理念
 - 保持积极、正面的态度
-- 回答控制在200字以内，除非用户要求详细说明`
+- 回答控制在200字以内，除非用户要求详细说明`;
 }
 
 // 角色协同机制 - 复杂问题多角色协作
 export interface CoordinatedResponse {
-  mainRole: AIRole
-  mainResponse: string
+  mainRole: AIRole;
+  mainResponse: string;
   supportingInsights?: {
-    role: AIRole
-    insight: string
-  }[]
-  suggestedActions?: string[]
+    role: AIRole;
+    insight: string;
+  }[];
+  suggestedActions?: string[];
 }
 
 export function analyzeQueryComplexity(query: string): QueryAnalysis {
-  const lowerQuery = query.toLowerCase()
-  const involvedRoles: AIRole[] = []
+  const lowerQuery = query.toLowerCase();
+  const involvedRoles: AIRole[] = [];
 
   for (const [roleId, config] of Object.entries(AI_ROLES)) {
-    if (!config.isActive) continue
-    const matchCount = config.triggerKeywords.filter((kw) => lowerQuery.includes(kw)).length
+    if (!config.isActive) continue;
+    const matchCount = config.triggerKeywords.filter(kw =>
+      lowerQuery.includes(kw)
+    ).length;
     if (matchCount > 0) {
-      involvedRoles.push(roleId as AIRole)
+      involvedRoles.push(roleId as AIRole);
     }
   }
 
-  let complexity: QueryComplexity = "simple"
+  let complexity: QueryComplexity = 'simple';
   if (involvedRoles.length >= 3) {
-    complexity = "complex"
+    complexity = 'complex';
   } else if (involvedRoles.length >= 2) {
-    complexity = "medium"
+    complexity = 'medium';
   }
 
-  const emotionalTone: "positive" | "negative" | "neutral" | "mixed" = (() => {
-    const positiveWords = ["开心", "高兴", "喜欢", "爱", "快乐", "幸福", "满意", "棒", "好"]
-    const negativeWords = ["难过", "伤心", "生气", "愤怒", "讨厌", "害怕", "担心", "焦虑", "痛苦"]
-    
-    const positiveCount = positiveWords.filter(word => lowerQuery.includes(word)).length
-    const negativeCount = negativeWords.filter(word => lowerQuery.includes(word)).length
-    
-    if (positiveCount > 0 && negativeCount > 0) return "mixed"
-    if (positiveCount > 0) return "positive"
-    if (negativeCount > 0) return "negative"
-    return "neutral"
-  })()
+  const emotionalTone: 'positive' | 'negative' | 'neutral' | 'mixed' = (() => {
+    const positiveWords = [
+      '开心',
+      '高兴',
+      '喜欢',
+      '爱',
+      '快乐',
+      '幸福',
+      '满意',
+      '棒',
+      '好',
+    ];
+    const negativeWords = [
+      '难过',
+      '伤心',
+      '生气',
+      '愤怒',
+      '讨厌',
+      '害怕',
+      '担心',
+      '焦虑',
+      '痛苦',
+    ];
 
-  const urgency: "low" | "medium" | "high" = (() => {
-    const urgentWords = ["紧急", "马上", "立即", "快点", "危险", "救命", "急"]
-    const urgentCount = urgentWords.filter(word => lowerQuery.includes(word)).length
-    if (urgentCount >= 2) return "high"
-    if (urgentCount >= 1) return "medium"
-    return "low"
-  })()
+    const positiveCount = positiveWords.filter(word =>
+      lowerQuery.includes(word)
+    ).length;
+    const negativeCount = negativeWords.filter(word =>
+      lowerQuery.includes(word)
+    ).length;
 
-  const suggestedResponseLength: "short" | "medium" | "long" = complexity === "simple" ? "short" : complexity === "medium" ? "medium" : "long"
+    if (positiveCount > 0 && negativeCount > 0) return 'mixed';
+    if (positiveCount > 0) return 'positive';
+    if (negativeCount > 0) return 'negative';
+    return 'neutral';
+  })();
+
+  const urgency: 'low' | 'medium' | 'high' = (() => {
+    const urgentWords = ['紧急', '马上', '立即', '快点', '危险', '救命', '急'];
+    const urgentCount = urgentWords.filter(word =>
+      lowerQuery.includes(word)
+    ).length;
+    if (urgentCount >= 2) return 'high';
+    if (urgentCount >= 1) return 'medium';
+    return 'low';
+  })();
+
+  const suggestedResponseLength: 'short' | 'medium' | 'long' =
+    complexity === 'simple'
+      ? 'short'
+      : complexity === 'medium'
+        ? 'medium'
+        : 'long';
 
   return {
     complexity,
-    involvedRoles: involvedRoles.length > 0 ? involvedRoles : ["advisor"],
+    involvedRoles: involvedRoles.length > 0 ? involvedRoles : ['advisor'],
     emotionalTone,
     urgency,
     suggestedResponseLength,
-  }
+  };
 }
 
 // 生成协同响应提示词
-export function getCoordinatedPrompt(query: string, involvedRoles: AIRole[], childContext?: ChildContext): string {
+export function getCoordinatedPrompt(
+  query: string,
+  involvedRoles: AIRole[],
+  childContext?: ChildContext
+): string {
   if (involvedRoles.length <= 1) {
-    return getRoleSystemPrompt(involvedRoles[0] || "advisor", childContext)
+    return getRoleSystemPrompt(involvedRoles[0] || 'advisor', childContext);
   }
 
   const roleDescriptions = involvedRoles
-    .map((roleId) => {
-      const config = AI_ROLES[roleId]
-      return `【${config.name}视角】${config.specialties.slice(0, 3).join("、")}`
+    .map(roleId => {
+      const config = AI_ROLES[roleId];
+      return `【${config.name}视角】${config.specialties.slice(0, 3).join('、')}`;
     })
-    .join("\n")
+    .join('\n');
 
-  let contextInfo = ""
+  let contextInfo = '';
   if (childContext) {
     contextInfo = `
 
@@ -454,7 +575,7 @@ export function getCoordinatedPrompt(query: string, involvedRoles: AIRole[], chi
 - 姓名：${childContext.name}
 - 年龄：${childContext.ageText}
 - 所处阶段：${childContext.stage}
-- 特点：${childContext.traits?.join("、") || "活泼可爱"}`
+- 特点：${childContext.traits?.join('、') || '活泼可爱'}`;
   }
 
   return `你是AI小语，需要综合多个角色视角回答用户问题。${contextInfo}
@@ -466,7 +587,7 @@ ${roleDescriptions}
 - 先从最相关的角度切入
 - 适当补充其他角度的见解
 - 给出具体可行的建议
-- 回答控制在300字以内`
+- 回答控制在300字以内`;
 }
 
 export function generateCoordinatedResponse(
@@ -474,127 +595,148 @@ export function generateCoordinatedResponse(
   analysis: QueryAnalysis,
   childContext?: ChildContext
 ): CoordinatedResponse {
-  const mainRole = analysis.involvedRoles[0] || "advisor"
-  const prompt = getCoordinatedPrompt(query, analysis.involvedRoles, childContext)
+  const mainRole = analysis.involvedRoles[0] || 'advisor';
+  const prompt = getCoordinatedPrompt(
+    query,
+    analysis.involvedRoles,
+    childContext
+  );
 
-  const supportingInsights = analysis.involvedRoles.slice(1).map((role) => ({
+  const supportingInsights = analysis.involvedRoles.slice(1).map(role => ({
     role,
     insight: `从${AI_ROLES[role].name}的角度，${AI_ROLES[role].specialties[0]}`,
     relevance: 0.7,
-  }))
+  }));
 
   return {
     mainRole,
     mainResponse: prompt,
     supportingInsights,
     suggestedActions: [],
-    confidence: analysis.complexity === "simple" ? 0.9 : analysis.complexity === "medium" ? 0.75 : 0.6,
-    estimatedResponseTime: analysis.complexity === "simple" ? 1000 : analysis.complexity === "medium" ? 2000 : 3000,
-  }
+    confidence:
+      analysis.complexity === 'simple'
+        ? 0.9
+        : analysis.complexity === 'medium'
+          ? 0.75
+          : 0.6,
+    estimatedResponseTime:
+      analysis.complexity === 'simple'
+        ? 1000
+        : analysis.complexity === 'medium'
+          ? 2000
+          : 3000,
+  };
 }
 
 export function updateRoleHistory(
   history: RoleHistory,
   newTransition: RoleTransition
 ): RoleHistory {
-  const updatedTransitions = [...history.transitions, newTransition]
-  const updatedUsageCount = { ...history.roleUsageCount }
-  updatedUsageCount[newTransition.toRole] = (updatedUsageCount[newTransition.toRole] || 0) + 1
+  const updatedTransitions = [...history.transitions, newTransition];
+  const updatedUsageCount = { ...history.roleUsageCount };
+  updatedUsageCount[newTransition.toRole] =
+    (updatedUsageCount[newTransition.toRole] || 0) + 1;
 
   return {
     transitions: updatedTransitions.slice(-100),
     currentRole: newTransition.toRole,
     roleUsageCount: updatedUsageCount,
     lastUpdated: new Date(),
-  }
+  };
 }
 
 export function getActiveRoles(): AIRole[] {
   return Object.entries(AI_ROLES)
     .filter(([_, config]) => config.isActive)
-    .map(([roleId]) => roleId as AIRole)
+    .map(([roleId]) => roleId as AIRole);
 }
 
 export function getRoleById(roleId: string): RoleConfig | undefined {
-  return AI_ROLES[roleId as AIRole]
+  return AI_ROLES[roleId as AIRole];
 }
 
 export function getRolesByPriority(): AIRole[] {
   return Object.entries(AI_ROLES)
     .filter(([_, config]) => config.isActive)
     .sort(([, a], [, b]) => (a.priority || 0) - (b.priority || 0))
-    .map(([roleId]) => roleId as AIRole)
+    .map(([roleId]) => roleId as AIRole);
 }
 
 // 儿童上下文信息
 export interface ChildContext {
-  name: string
-  ageText: string
-  stage: string
-  traits?: string[]
-  age?: number
-  gender?: "male" | "female"
-  interests?: string[]
-  developmentalMilestones?: string[]
-  emotionalState?: "happy" | "sad" | "excited" | "calm" | "frustrated" | "curious"
-  learningStyle?: "visual" | "auditory" | "kinesthetic" | "mixed"
+  name: string;
+  ageText: string;
+  stage: string;
+  traits?: string[];
+  age?: number;
+  gender?: 'male' | 'female';
+  interests?: string[];
+  developmentalMilestones?: string[];
+  emotionalState?:
+    | 'happy'
+    | 'sad'
+    | 'excited'
+    | 'calm'
+    | 'frustrated'
+    | 'curious';
+  learningStyle?: 'visual' | 'auditory' | 'kinesthetic' | 'mixed';
 }
 
 export interface RoleScore {
-  role: AIRole
-  score: number
-  matchedKeywords: string[]
+  role: AIRole;
+  score: number;
+  matchedKeywords: string[];
 }
 
 export interface RoleSelectionResult {
-  selectedRole: AIRole
-  confidence: number
-  allScores: RoleScore[]
-  reason?: string
+  selectedRole: AIRole;
+  confidence: number;
+  allScores: RoleScore[];
+  reason?: string;
 }
 
 export interface CoordinatedResponse {
-  mainRole: AIRole
-  mainResponse: string
+  mainRole: AIRole;
+  mainResponse: string;
   supportingInsights?: {
-    role: AIRole
-    insight: string
-    relevance: number
-  }[]
-  suggestedActions?: string[]
-  confidence?: number
-  estimatedResponseTime?: number
+    role: AIRole;
+    insight: string;
+    relevance: number;
+  }[];
+  suggestedActions?: string[];
+  confidence?: number;
+  estimatedResponseTime?: number;
 }
 
 export interface QueryAnalysis {
-  complexity: QueryComplexity
-  involvedRoles: AIRole[]
-  primaryIntent?: string
-  emotionalTone?: "positive" | "negative" | "neutral" | "mixed"
-  urgency?: "low" | "medium" | "high"
-  suggestedResponseLength?: "short" | "medium" | "long"
+  complexity: QueryComplexity;
+  involvedRoles: AIRole[];
+  primaryIntent?: string;
+  emotionalTone?: 'positive' | 'negative' | 'neutral' | 'mixed';
+  urgency?: 'low' | 'medium' | 'high';
+  suggestedResponseLength?: 'short' | 'medium' | 'long';
 }
 
 export interface RoleTransition {
-  fromRole: AIRole
-  toRole: AIRole
-  reason: string
-  timestamp: Date
-  confidence: number
+  fromRole: AIRole;
+  toRole: AIRole;
+  reason: string;
+  timestamp: Date;
+  confidence: number;
 }
 
 export interface RoleHistory {
-  transitions: RoleTransition[]
-  currentRole: AIRole
-  roleUsageCount: Record<AIRole, number>
-  lastUpdated: Date
+  transitions: RoleTransition[];
+  currentRole: AIRole;
+  roleUsageCount: Record<AIRole, number>;
+  lastUpdated: Date;
 }
 
 export interface RolePerformanceMetrics {
-  role: AIRole
-  totalInteractions: number
-  averageResponseTime: number
-  userSatisfactionScore: number
-  effectivenessRating: number
-  lastUpdated: Date
+  role: AIRole;
+  totalInteractions: number;
+  averageResponseTime: number;
+  userSatisfactionScore: number;
+  effectivenessRating: number;
+  lastUpdated: Date;
 }

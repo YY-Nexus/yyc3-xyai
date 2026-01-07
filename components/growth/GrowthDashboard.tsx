@@ -9,54 +9,63 @@
  * @license MIT
  */
 
-"use client"
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useDispatch } from 'react-redux'
-import { AppDispatch } from '@/lib/store'
-import { milestoneTracker, GrowthAssessment, DevelopmentLevel } from '@/lib/growth/milestone-tracker'
-import { emotionEngine } from '@/lib/ai/emotion-engine'
-import { voiceController, EmotionType } from '@/lib/ai/voice-interaction'
-import { addGrowthRecord } from '@/lib/store'
-import { Child } from '@/lib/store'
-import { characterManager } from '@/lib/character-manager'
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/lib/store';
+import {
+  milestoneTracker,
+  GrowthAssessment,
+  DevelopmentLevel,
+} from '@/lib/growth/milestone-tracker';
+import { emotionEngine } from '@/lib/ai/emotion-engine';
+import { voiceController, EmotionType } from '@/lib/ai/voice-interaction';
+import { addGrowthRecord } from '@/lib/store';
+import { Child } from '@/lib/store';
+import { characterManager } from '@/lib/character-manager';
 
 interface GrowthDashboardProps {
-  child: Child
+  child: Child;
 }
 
 export default function GrowthDashboard({ child }: GrowthDashboardProps) {
-  const dispatch = useDispatch<AppDispatch>()
-  const [assessment, setAssessment] = useState<GrowthAssessment | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'overview' | 'milestones' | 'emotions' | 'recommendations'>('overview')
-  const [isRecording, setIsRecording] = useState(false)
+  const dispatch = useDispatch<AppDispatch>();
+  const [assessment, setAssessment] = useState<GrowthAssessment | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'milestones' | 'emotions' | 'recommendations'
+  >('overview');
+  const [isRecording, setIsRecording] = useState(false);
 
   // 当前年龄（月）
-  const ageInMonths = child.age
+  const ageInMonths = child.age;
 
   useEffect(() => {
-    loadGrowthAssessment()
-  }, [child.id, ageInMonths])
+    loadGrowthAssessment();
+  }, [child.id, ageInMonths]);
 
   const loadGrowthAssessment = async () => {
     try {
-      setIsLoading(true)
-      const newAssessment = milestoneTracker.generateGrowthAssessment(child.id, ageInMonths)
-      setAssessment(newAssessment)
+      setIsLoading(true);
+      const newAssessment = milestoneTracker.generateGrowthAssessment(
+        child.id,
+        ageInMonths
+      );
+      setAssessment(newAssessment);
     } catch (error) {
-      console.error('加载成长评估失败:', error)
+      console.error('加载成长评估失败:', error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleEmotionAnalysis = async () => {
-    if (isRecording) return
+    if (isRecording) return;
 
     try {
-      setIsRecording(true)
+      setIsRecording(true);
 
       // 启动语音识别
       const result = await voiceController.startRecognition({
@@ -64,8 +73,8 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
         childAge: ageInMonths,
         emotion: EmotionType.HAPPINESS,
         sensitivity: 'medium',
-        language: 'zh-CN'
-      })
+        language: 'zh-CN',
+      });
 
       // 分析情感
       const emotionResult = await emotionEngine.analyzeEmotion({
@@ -74,31 +83,35 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
           age: ageInMonths,
           timeOfDay: new Date().getHours() < 12 ? 'morning' : 'afternoon',
           recentActivities: ['growth-assessment'],
-          environment: 'home'
-        }
-      })
+          environment: 'home',
+        },
+      });
 
       // 保存成长记录
-      dispatch(addGrowthRecord({
-        id: Date.now().toString(),
-        childId: child.id,
-        type: 'emotion',
-        title: '情感互动记录',
-        description: `${result.transcript} - 情感: ${emotionResult.primary}`,
-        date: new Date().toISOString(),
-        emotion: emotionResult,
-        tags: ['情感分析', '语音互动'],
-        isImportant: emotionResult.intensity > 0.7
-      }))
-
+      dispatch(
+        addGrowthRecord({
+          id: Date.now().toString(),
+          childId: child.id,
+          type: 'emotion',
+          title: '情感互动记录',
+          description: `${result.transcript} - 情感: ${emotionResult.primary}`,
+          date: new Date().toISOString(),
+          emotion: emotionResult,
+          tags: ['情感分析', '语音互动'],
+          isImportant: emotionResult.intensity > 0.7,
+        })
+      );
     } catch (error) {
-      console.error('情感分析失败:', error)
+      console.error('情感分析失败:', error);
     } finally {
-      setIsRecording(false)
+      setIsRecording(false);
     }
-  }
+  };
 
-  const handleMilestoneAchievement = async (milestoneId: string, achieved: boolean) => {
+  const handleMilestoneAchievement = async (
+    milestoneId: string,
+    achieved: boolean
+  ) => {
     try {
       if (achieved) {
         // 记录里程碑达成
@@ -112,113 +125,145 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
             confidence: 0.9,
             evaluator: 'parent' as const,
             feedback: ['家长观察确认'],
-            recommendations: ['继续观察相关发展']
+            recommendations: ['继续观察相关发展'],
           },
           notes: '通过家长观察确认达成',
           isEarly: false,
-          isDelayed: false
-        }
+          isDelayed: false,
+        };
 
-        milestoneTracker.recordAchievement(achievement)
+        milestoneTracker.recordAchievement(achievement);
 
         // 保存成长记录
-        dispatch(addGrowthRecord({
-          id: Date.now().toString(),
-          childId: child.id,
-          type: 'milestone',
-          title: '里程碑达成',
-          description: `达成发展里程碑: ${milestoneId}`,
-          date: new Date().toISOString(),
-          tags: ['里程碑', '发展记录'],
-          isImportant: true
-        }))
+        dispatch(
+          addGrowthRecord({
+            id: Date.now().toString(),
+            childId: child.id,
+            type: 'milestone',
+            title: '里程碑达成',
+            description: `达成发展里程碑: ${milestoneId}`,
+            date: new Date().toISOString(),
+            tags: ['里程碑', '发展记录'],
+            isImportant: true,
+          })
+        );
 
         // 重新加载评估
-        await loadGrowthAssessment()
+        await loadGrowthAssessment();
       }
     } catch (error) {
-      console.error('记录里程碑失败:', error)
+      console.error('记录里程碑失败:', error);
     }
-  }
+  };
 
   const getDevelopmentLevelColor = (level: DevelopmentLevel): string => {
     switch (level) {
-      case DevelopmentLevel.ADVANCED: return 'text-green-600 bg-green-100'
-      case DevelopmentLevel.ON_TRACK: return 'text-blue-600 bg-blue-100'
-      case DevelopmentLevel.MILD_DELAY: return 'text-yellow-600 bg-yellow-100'
-      case DevelopmentLevel.MODERATE_DELAY: return 'text-orange-600 bg-orange-100'
-      case DevelopmentLevel.SIGNIFICANT_DELAY: return 'text-red-600 bg-red-100'
-      default: return 'text-gray-600 bg-gray-100'
+      case DevelopmentLevel.ADVANCED:
+        return 'text-green-600 bg-green-100';
+      case DevelopmentLevel.ON_TRACK:
+        return 'text-blue-600 bg-blue-100';
+      case DevelopmentLevel.MILD_DELAY:
+        return 'text-yellow-600 bg-yellow-100';
+      case DevelopmentLevel.MODERATE_DELAY:
+        return 'text-orange-600 bg-orange-100';
+      case DevelopmentLevel.SIGNIFICANT_DELAY:
+        return 'text-red-600 bg-red-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
-  }
+  };
 
   const getDevelopmentLevelText = (level: DevelopmentLevel): string => {
     switch (level) {
-      case DevelopmentLevel.ADVANCED: return '提前发展'
-      case DevelopmentLevel.ON_TRACK: return '正常发展'
-      case DevelopmentLevel.MILD_DELAY: return '轻微延迟'
-      case DevelopmentLevel.MODERATE_DELAY: return '中度延迟'
-      case DevelopmentLevel.SIGNIFICANT_DELAY: return '显著延迟'
-      default: return '评估中'
+      case DevelopmentLevel.ADVANCED:
+        return '提前发展';
+      case DevelopmentLevel.ON_TRACK:
+        return '正常发展';
+      case DevelopmentLevel.MILD_DELAY:
+        return '轻微延迟';
+      case DevelopmentLevel.MODERATE_DELAY:
+        return '中度延迟';
+      case DevelopmentLevel.SIGNIFICANT_DELAY:
+        return '显著延迟';
+      default:
+        return '评估中';
     }
-  }
+  };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        <span className="ml-3 text-lg">正在加载成长数据...</span>
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500'></div>
+        <span className='ml-3 text-lg'>正在加载成长数据...</span>
       </div>
-    )
+    );
   }
 
   // 获取角色配置
-  const character = characterManager.getCharacterForUser(child as any)
-  const characterAvatar = characterManager.getCharacterImagePath(character, 'happy')
+  const character = characterManager.getCharacterForUser(child as any);
+  const characterAvatar = characterManager.getCharacterImagePath(
+    character,
+    'happy'
+  );
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className='max-w-7xl mx-auto p-6'>
       {/* 头部信息 */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
+      <div className='bg-white rounded-2xl shadow-sm p-6 mb-6'>
+        <div className='flex items-center justify-between mb-4'>
+          <div className='flex items-center gap-4'>
             {/* 角色头像 */}
-            <motion.div 
-              className="w-16 h-16 rounded-full overflow-hidden border-4 border-blue-100 shadow-md"
+            <motion.div
+              className='w-16 h-16 rounded-full overflow-hidden border-4 border-blue-100 shadow-md'
               whileHover={{ scale: 1.1 }}
             >
-              <img 
-                src={characterAvatar} 
-                alt={`${child.name || child.nickname} 的角色形象`} 
-                className="w-full h-full object-cover"
+              <img
+                src={characterAvatar}
+                alt={`${child.name || child.nickname} 的角色形象`}
+                className='w-full h-full object-cover'
               />
             </motion.div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className='text-2xl font-bold text-gray-800'>
                 {child.name || child.nickname} 的成长记录
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className='text-gray-600 mt-1'>
                 年龄: {ageInMonths} 个月 | 当前阶段: {child.currentStage}
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <div className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${getDevelopmentLevelColor(assessment?.overallDevelopment || DevelopmentLevel.ON_TRACK)}`}>
-              {getDevelopmentLevelText(assessment?.overallDevelopment || DevelopmentLevel.ON_TRACK)}
+          <div className='text-right'>
+            <div
+              className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${getDevelopmentLevelColor(assessment?.overallDevelopment || DevelopmentLevel.ON_TRACK)}`}
+            >
+              {getDevelopmentLevelText(
+                assessment?.overallDevelopment || DevelopmentLevel.ON_TRACK
+              )}
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              最后评估: {new Date(assessment?.assessmentDate || Date.now()).toLocaleDateString()}
+            <p className='text-sm text-gray-500 mt-2'>
+              最后评估:{' '}
+              {new Date(
+                assessment?.assessmentDate || Date.now()
+              ).toLocaleDateString()}
             </p>
           </div>
         </div>
       </div>
 
       {/* 标签页导航 */}
-      <div className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
-        {['overview', 'milestones', 'emotions', 'recommendations'].map((tab) => (
+      <div className='flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg'>
+        {['overview', 'milestones', 'emotions', 'recommendations'].map(tab => (
           <button
             key={tab}
-            onClick={() => setActiveTab(tab as 'overview' | 'milestones' | 'emotions' | 'recommendations')}
+            onClick={() =>
+              setActiveTab(
+                tab as
+                  | 'overview'
+                  | 'milestones'
+                  | 'emotions'
+                  | 'recommendations'
+              )
+            }
             className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
               activeTab === tab
                 ? 'bg-white text-blue-600 shadow-sm'
@@ -234,7 +279,7 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
       </div>
 
       {/* 内容区域 */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode='wait'>
         <motion.div
           key={activeTab}
           initial={{ opacity: 0, y: 20 }}
@@ -243,41 +288,81 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
           transition={{ duration: 0.3 }}
         >
           {activeTab === 'overview' && <OverviewTab assessment={assessment} />}
-          {activeTab === 'milestones' && <MilestonesTab child={child} onMilestoneAchievement={handleMilestoneAchievement} />}
-          {activeTab === 'emotions' && <EmotionsTab isRecording={isRecording} onStartRecording={handleEmotionAnalysis} />}
-          {activeTab === 'recommendations' && <RecommendationsTab assessment={assessment} />}
+          {activeTab === 'milestones' && (
+            <MilestonesTab
+              child={child}
+              onMilestoneAchievement={handleMilestoneAchievement}
+            />
+          )}
+          {activeTab === 'emotions' && (
+            <EmotionsTab
+              isRecording={isRecording}
+              onStartRecording={handleEmotionAnalysis}
+            />
+          )}
+          {activeTab === 'recommendations' && (
+            <RecommendationsTab assessment={assessment} />
+          )}
         </motion.div>
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 // 总览标签页
 function OverviewTab({ assessment }: { assessment: GrowthAssessment | null }) {
-  if (!assessment) return null
+  if (!assessment) return null;
 
   const domainScores = [
-    { name: '认知发展', score: assessment.domainScores.cognitive, color: 'bg-purple-500' },
-    { name: '语言发展', score: assessment.domainScores.language, color: 'bg-blue-500' },
-    { name: '运动发展', score: assessment.domainScores.motor, color: 'bg-green-500' },
-    { name: '社交发展', score: assessment.domainScores.social, color: 'bg-yellow-500' },
-    { name: '情感发展', score: assessment.domainScores.emotional, color: 'bg-pink-500' },
-    { name: '自理能力', score: assessment.domainScores.selfCare, color: 'bg-indigo-500' }
-  ]
+    {
+      name: '认知发展',
+      score: assessment.domainScores.cognitive,
+      color: 'bg-purple-500',
+    },
+    {
+      name: '语言发展',
+      score: assessment.domainScores.language,
+      color: 'bg-blue-500',
+    },
+    {
+      name: '运动发展',
+      score: assessment.domainScores.motor,
+      color: 'bg-green-500',
+    },
+    {
+      name: '社交发展',
+      score: assessment.domainScores.social,
+      color: 'bg-yellow-500',
+    },
+    {
+      name: '情感发展',
+      score: assessment.domainScores.emotional,
+      color: 'bg-pink-500',
+    },
+    {
+      name: '自理能力',
+      score: assessment.domainScores.selfCare,
+      color: 'bg-indigo-500',
+    },
+  ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
       {/* 领域得分 */}
-      <div className="bg-white rounded-2xl shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">发展领域得分</h2>
-        <div className="space-y-4">
-          {domainScores.map((domain) => (
+      <div className='bg-white rounded-2xl shadow-sm p-6'>
+        <h2 className='text-xl font-bold text-gray-800 mb-4'>发展领域得分</h2>
+        <div className='space-y-4'>
+          {domainScores.map(domain => (
             <div key={domain.name}>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">{domain.name}</span>
-                <span className="text-sm font-bold text-gray-900">{domain.score}%</span>
+              <div className='flex justify-between items-center mb-2'>
+                <span className='text-sm font-medium text-gray-700'>
+                  {domain.name}
+                </span>
+                <span className='text-sm font-bold text-gray-900'>
+                  {domain.score}%
+                </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className='w-full bg-gray-200 rounded-full h-2'>
                 <div
                   className={`${domain.color} h-2 rounded-full transition-all duration-500`}
                   style={{ width: `${domain.score}%` }}
@@ -289,16 +374,18 @@ function OverviewTab({ assessment }: { assessment: GrowthAssessment | null }) {
       </div>
 
       {/* 优势与成长领域 */}
-      <div className="bg-white rounded-2xl shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">发展分析</h2>
-        <div className="space-y-4">
+      <div className='bg-white rounded-2xl shadow-sm p-6'>
+        <h2 className='text-xl font-bold text-gray-800 mb-4'>发展分析</h2>
+        <div className='space-y-4'>
           <div>
-            <h3 className="text-sm font-semibold text-green-600 mb-2">优势领域</h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className='text-sm font-semibold text-green-600 mb-2'>
+              优势领域
+            </h3>
+            <div className='flex flex-wrap gap-2'>
               {assessment.strengths.map((strength, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm"
+                  className='px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm'
                 >
                   {strength}
                 </span>
@@ -306,12 +393,14 @@ function OverviewTab({ assessment }: { assessment: GrowthAssessment | null }) {
             </div>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-orange-600 mb-2">需要关注</h3>
-            <div className="flex flex-wrap gap-2">
+            <h3 className='text-sm font-semibold text-orange-600 mb-2'>
+              需要关注
+            </h3>
+            <div className='flex flex-wrap gap-2'>
               {assessment.areasForGrowth.map((area, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm"
+                  className='px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm'
                 >
                   {area}
                 </span>
@@ -321,49 +410,68 @@ function OverviewTab({ assessment }: { assessment: GrowthAssessment | null }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // 里程碑标签页
-function MilestonesTab({ child, onMilestoneAchievement }: { child: Child; onMilestoneAchievement: (id: string, achieved: boolean) => void }) {
-  const [milestones, setMilestones] = useState<any[]>([])
+function MilestonesTab({
+  child,
+  onMilestoneAchievement,
+}: {
+  child: Child;
+  onMilestoneAchievement: (id: string, achieved: boolean) => void;
+}) {
+  const [milestones, setMilestones] = useState<any[]>([]);
 
   useEffect(() => {
-    const ageAppropriate = milestoneTracker.getAgeAppropriateMilestones(child.age)
-    setMilestones(ageAppropriate)
-  }, [child.age])
+    const ageAppropriate = milestoneTracker.getAgeAppropriateMilestones(
+      child.age
+    );
+    setMilestones(ageAppropriate);
+  }, [child.age]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">发展里程碑</h2>
-      <div className="space-y-4">
-        {milestones.map((milestone) => (
+    <div className='bg-white rounded-2xl shadow-sm p-6'>
+      <h2 className='text-xl font-bold text-gray-800 mb-4'>发展里程碑</h2>
+      <div className='space-y-4'>
+        {milestones.map(milestone => (
           <div
             key={milestone.id}
-            className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+            className='border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow'
           >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-800">{milestone.title}</h3>
-                <p className="text-sm text-gray-600 mt-1">{milestone.description}</p>
-                <div className="mt-2">
-                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                    {milestone.ageRange.minMonths}-{milestone.ageRange.maxMonths}个月
+            <div className='flex items-start justify-between'>
+              <div className='flex-1'>
+                <h3 className='font-semibold text-gray-800'>
+                  {milestone.title}
+                </h3>
+                <p className='text-sm text-gray-600 mt-1'>
+                  {milestone.description}
+                </p>
+                <div className='mt-2'>
+                  <span className='text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded'>
+                    {milestone.ageRange.minMonths}-
+                    {milestone.ageRange.maxMonths}个月
                   </span>
-                  <span className={`text-xs ml-2 px-2 py-1 rounded ${
-                    milestone.importance === 'critical'
-                      ? 'bg-red-100 text-red-700'
+                  <span
+                    className={`text-xs ml-2 px-2 py-1 rounded ${
+                      milestone.importance === 'critical'
+                        ? 'bg-red-100 text-red-700'
+                        : milestone.importance === 'important'
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {milestone.importance === 'critical'
+                      ? '重要'
                       : milestone.importance === 'important'
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-gray-100 text-gray-700'
-                  }`}>
-                    {milestone.importance === 'critical' ? '重要' : milestone.importance === 'important' ? '关注' : '一般'}
+                        ? '关注'
+                        : '一般'}
                   </span>
                 </div>
               </div>
               <button
                 onClick={() => onMilestoneAchievement(milestone.id, true)}
-                className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                className='ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm'
               >
                 标记达成
               </button>
@@ -372,23 +480,29 @@ function MilestonesTab({ child, onMilestoneAchievement }: { child: Child; onMile
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 // 情感记录标签页
-function EmotionsTab({ isRecording, onStartRecording }: { isRecording: boolean; onStartRecording: () => void }) {
+function EmotionsTab({
+  isRecording,
+  onStartRecording,
+}: {
+  isRecording: boolean;
+  onStartRecording: () => void;
+}) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">情感互动记录</h2>
-      <div className="text-center">
-        <div className="mb-6">
+    <div className='bg-white rounded-2xl shadow-sm p-6'>
+      <h2 className='text-xl font-bold text-gray-800 mb-4'>情感互动记录</h2>
+      <div className='text-center'>
+        <div className='mb-6'>
           <img
-            src="/role-photos/girl/xiaoyu-lolita-blue-008.png"
-            alt="小语"
-            className="w-32 h-32 mx-auto rounded-full"
+            src='/role-photos/girl/xiaoyu-lolita-blue-008.png'
+            alt='小语'
+            className='w-32 h-32 mx-auto rounded-full'
           />
         </div>
-        <p className="text-gray-600 mb-6">
+        <p className='text-gray-600 mb-6'>
           点击下方按钮开始与小语进行语音互动，记录情感表达
         </p>
         <button
@@ -402,35 +516,39 @@ function EmotionsTab({ isRecording, onStartRecording }: { isRecording: boolean; 
         >
           {isRecording ? (
             <>
-              <div className="animate-pulse mr-2">🔴</div>
+              <div className='animate-pulse mr-2'>🔴</div>
               正在录音...
             </>
           ) : (
             <>
-              <div className="mr-2">🎤</div>
+              <div className='mr-2'>🎤</div>
               开始语音互动
             </>
           )}
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 // 成长建议标签页
-function RecommendationsTab({ assessment }: { assessment: GrowthAssessment | null }) {
+function RecommendationsTab({
+  assessment,
+}: {
+  assessment: GrowthAssessment | null;
+}) {
   if (!assessment || assessment.recommendations.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-6 text-center">
-        <p className="text-gray-600">暂无个性化成长建议</p>
+      <div className='bg-white rounded-2xl shadow-sm p-6 text-center'>
+        <p className='text-gray-600'>暂无个性化成长建议</p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">个性化成长建议</h2>
-      <div className="space-y-4">
+    <div className='bg-white rounded-2xl shadow-sm p-6'>
+      <h2 className='text-xl font-bold text-gray-800 mb-4'>个性化成长建议</h2>
+      <div className='space-y-4'>
         {assessment.recommendations.map((rec, index) => (
           <div
             key={index}
@@ -438,32 +556,38 @@ function RecommendationsTab({ assessment }: { assessment: GrowthAssessment | nul
               rec.priority === 'high'
                 ? 'border-red-500 bg-red-50'
                 : rec.priority === 'medium'
-                ? 'border-yellow-500 bg-yellow-50'
-                : 'border-blue-500 bg-blue-50'
+                  ? 'border-yellow-500 bg-yellow-50'
+                  : 'border-blue-500 bg-blue-50'
             }`}
           >
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="font-semibold text-gray-800">{rec.title}</h3>
-              <span className={`text-xs px-2 py-1 rounded ${
-                rec.priority === 'high'
-                  ? 'bg-red-100 text-red-700'
+            <div className='flex items-start justify-between mb-2'>
+              <h3 className='font-semibold text-gray-800'>{rec.title}</h3>
+              <span
+                className={`text-xs px-2 py-1 rounded ${
+                  rec.priority === 'high'
+                    ? 'bg-red-100 text-red-700'
+                    : rec.priority === 'medium'
+                      ? 'bg-yellow-100 text-yellow-700'
+                      : 'bg-blue-100 text-blue-700'
+                }`}
+              >
+                {rec.priority === 'high'
+                  ? '高优先级'
                   : rec.priority === 'medium'
-                  ? 'bg-yellow-100 text-yellow-700'
-                  : 'bg-blue-100 text-blue-700'
-              }`}>
-                {rec.priority === 'high' ? '高优先级' : rec.priority === 'medium' ? '中优先级' : '建议'}
+                    ? '中优先级'
+                    : '建议'}
               </span>
             </div>
-            <p className="text-gray-600 text-sm mb-2">{rec.description}</p>
-            <div className="flex items-center text-xs text-gray-500">
+            <p className='text-gray-600 text-sm mb-2'>{rec.description}</p>
+            <div className='flex items-center text-xs text-gray-500'>
               <span>频率: {rec.timeframe}</span>
               {rec.resources.length > 0 && (
-                <span className="ml-4">资源: {rec.resources.length} 个</span>
+                <span className='ml-4'>资源: {rec.resources.length} 个</span>
               )}
             </div>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }

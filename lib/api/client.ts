@@ -30,7 +30,7 @@ class APIClient {
       const token = localStorage.getItem('accessToken');
       if (token) {
         return {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         };
       }
     }
@@ -57,21 +57,27 @@ class APIClient {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          data.error || data.message || `HTTP error! status: ${response.status}`
+        );
       }
 
       return data;
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        error:
+          error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
 
   // Auth endpoints
   async login(email: string, password: string) {
-    return this.request<{ user: any; tokens: { accessToken: string; refreshToken: string } }>('/api/auth/login', {
+    return this.request<{
+      user: any;
+      tokens: { accessToken: string; refreshToken: string };
+    }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
@@ -84,7 +90,10 @@ class APIClient {
     lastName: string;
     phone?: string;
   }) {
-    return this.request<{ user: any; tokens: { accessToken: string; refreshToken: string } }>('/api/auth/register', {
+    return this.request<{
+      user: any;
+      tokens: { accessToken: string; refreshToken: string };
+    }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
@@ -117,7 +126,12 @@ class APIClient {
   async chat(data: {
     childId: string;
     message: string;
-    aiRole: 'recorder' | 'guardian' | 'listener' | 'advisor' | 'cultural_mentor';
+    aiRole:
+      | 'recorder'
+      | 'guardian'
+      | 'listener'
+      | 'advisor'
+      | 'cultural_mentor';
     sessionId?: string;
   }) {
     return this.request<{
@@ -134,11 +148,14 @@ class APIClient {
     });
   }
 
-  async getConversationHistory(childId: string, options: {
-    page?: number;
-    limit?: number;
-    sessionId?: string;
-  } = {}) {
+  async getConversationHistory(
+    childId: string,
+    options: {
+      page?: number;
+      limit?: number;
+      sessionId?: string;
+    } = {}
+  ) {
     const params = new URLSearchParams();
     if (options.page) params.append('page', options.page.toString());
     if (options.limit) params.append('limit', options.limit.toString());
@@ -217,7 +234,13 @@ class APIClient {
     childId: string;
     title: string;
     description?: string;
-    category: 'milestone' | 'daily' | 'achievement' | 'health' | 'education' | 'social';
+    category:
+      | 'milestone'
+      | 'daily'
+      | 'achievement'
+      | 'health'
+      | 'education'
+      | 'social';
     mediaUrls?: string[];
     tags?: string[];
     location?: string;
@@ -243,16 +266,19 @@ class APIClient {
     });
   }
 
-  async getGrowthRecords(childId: string, options: {
-    page?: number;
-    limit?: number;
-    category?: string;
-    tags?: string[];
-    startDate?: string;
-    endDate?: string;
-    sortBy?: string;
-    sortOrder?: string;
-  } = {}) {
+  async getGrowthRecords(
+    childId: string,
+    options: {
+      page?: number;
+      limit?: number;
+      category?: string;
+      tags?: string[];
+      startDate?: string;
+      endDate?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    } = {}
+  ) {
     const params = new URLSearchParams();
     if (options.page) params.append('page', options.page.toString());
     if (options.limit) params.append('limit', options.limit.toString());
@@ -306,15 +332,18 @@ class APIClient {
     }>(`/api/growth/${recordId}`);
   }
 
-  async updateGrowthRecord(recordId: string, data: {
-    title?: string;
-    description?: string;
-    category?: string;
-    mediaUrls?: string[];
-    tags?: string[];
-    location?: string;
-    isPublic?: boolean;
-  }) {
+  async updateGrowthRecord(
+    recordId: string,
+    data: {
+      title?: string;
+      description?: string;
+      category?: string;
+      mediaUrls?: string[];
+      tags?: string[];
+      location?: string;
+      isPublic?: boolean;
+    }
+  ) {
     return this.request<{
       growthRecord: {
         id: string;
@@ -339,11 +368,15 @@ class APIClient {
     });
   }
 
-  async searchGrowthRecords(childId: string, query: string, options: {
-    page?: number;
-    limit?: number;
-    category?: string;
-  } = {}) {
+  async searchGrowthRecords(
+    childId: string,
+    query: string,
+    options: {
+      page?: number;
+      limit?: number;
+      category?: string;
+    } = {}
+  ) {
     const params = new URLSearchParams();
     params.append('q', query);
     if (options.page) params.append('page', options.page.toString());

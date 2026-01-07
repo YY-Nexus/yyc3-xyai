@@ -1,0 +1,70 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.prettier": "explicit"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "tailwindCSS.experimental.classRegex": [
+    ["class:\s*'([^']*)'", "([^']*)"],
+    ["className:\s*'([^']*)'", "([^']*)"],
+    ["class:\s*\"([^\"]*)\"", "([^\"]*)"],
+    ["className:\s*\"([^\"]*)\"", "([^\"]*)"]
+  ],
+  "files.associations": {
+    "*.tsx": "typescriptreact"
+  },
+  "tailwindCSS.classAttributes": ["class", "className"],
+  "tailwindCSS.includeLanguages": {
+    "typescript": "javascript",
+    "typescriptreact": "javascript",
+    "typescript": "html"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  // 关闭Tailwind CSS的类名建议，减少警告
+  "tailwindCSS.suggestCanonicalClasses": false,
+  "tailwindCSS.suggestions": false,
+  // 禁用 Tailwind CSS 诊断建议
+  "tailwindCSS.lint.invalidConfig": "ignore",
+  "tailwindCSS.lint.invalidScreen": "ignore",
+  "tailwindCSS.lint.invalidVariant": "ignore",
+  "tailwindCSS.lint.invalidApply": "ignore",
+  "tailwindCSS.lint.invalidTailwindDirective": "ignore",
+  "tailwindCSS.lint.recommendedVariant": "ignore",
+  // 禁用 Tailwind CSS 智能提示和代码建议
+  "tailwindCSS.codeActions": false,
+  "tailwindCSS.hovers": false,
+  "tailwindCSS.intellisense": false,
+  "tailwindCSS.showPixelEquivalents": false,
+  "tailwindCSS.rootFontSize": 16,
+  "tailwindCSS.emmetCompletions": false,
+  // 忽略常见的未使用变量警告
+  "javascript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "single",
+  // 拼写检查字典 - 包含数据可视化相关术语
+  "cSpell.words": [
+    "sankey",
+    "treemap",
+    "Sankey",
+    "Treemap"
+  ]
+}

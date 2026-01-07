@@ -10,13 +10,13 @@ export enum LogLevel {
   HTTP = 'http',
   VERBOSE = 'verbose',
   DEBUG = 'debug',
-  SILLY = 'silly'
+  SILLY = 'silly',
 }
 
 // 日志格式
 const logFormat = winston.format.combine(
   winston.format.timestamp({
-    format: 'YYYY-MM-DD HH:mm:ss'
+    format: 'YYYY-MM-DD HH:mm:ss',
   }),
   winston.format.errors({ stack: true }),
   winston.format.json(),
@@ -25,31 +25,33 @@ const logFormat = winston.format.combine(
 
 // 控制台输出格式
 interface LogInfo {
-  timestamp: string
-  level: string
-  message: string
-  stack?: string
-  [key: string]: unknown
+  timestamp: string;
+  level: string;
+  message: string;
+  stack?: string;
+  [key: string]: unknown;
 }
 
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({
-    format: 'HH:mm:ss'
+    format: 'HH:mm:ss',
   }),
-  winston.format.printf(({ timestamp, level, message, stack, ...meta }: LogInfo) => {
-    let msg = `${timestamp} [${level}]: ${message}`;
+  winston.format.printf(
+    ({ timestamp, level, message, stack, ...meta }: LogInfo) => {
+      let msg = `${timestamp} [${level}]: ${message}`;
 
-    if (stack) {
-      msg += `\n${stack}`;
+      if (stack) {
+        msg += `\n${stack}`;
+      }
+
+      if (Object.keys(meta).length > 0) {
+        msg += `\n${JSON.stringify(meta, null, 2)}`;
+      }
+
+      return msg;
     }
-
-    if (Object.keys(meta).length > 0) {
-      msg += `\n${JSON.stringify(meta, null, 2)}`;
-    }
-
-    return msg;
-  })
+  )
 );
 
 // 从统一配置获取日志配置
@@ -62,7 +64,7 @@ const transports: winston.transport[] = [
     level: loggerConfig.level,
     format: consoleFormat,
     handleExceptions: true,
-    handleRejections: true
+    handleRejections: true,
   }),
 ];
 
@@ -151,11 +153,15 @@ export class Logger {
   }
 
   // 性能监控日志
-  public performance(operation: string, duration: number, meta?: Record<string, unknown>): void {
+  public performance(
+    operation: string,
+    duration: number,
+    meta?: Record<string, unknown>
+  ): void {
     this.baseLogger.info(`Performance: ${operation}`, {
       operation,
       duration: `${duration}ms`,
-      ...meta
+      ...meta,
     });
   }
 
@@ -164,58 +170,82 @@ export class Logger {
     this.baseLogger.warn(`Security: ${event}`, {
       event,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 
   // 业务日志
-  public business(action: string, userId?: string, meta?: Record<string, unknown>): void {
+  public business(
+    action: string,
+    userId?: string,
+    meta?: Record<string, unknown>
+  ): void {
     this.baseLogger.info(`Business: ${action}`, {
       action,
       userId,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 
   // API调用日志
-  public api(method: string, url: string, statusCode: number, duration: number, meta?: Record<string, unknown>): void {
+  public api(
+    method: string,
+    url: string,
+    statusCode: number,
+    duration: number,
+    meta?: Record<string, unknown>
+  ): void {
     this.baseLogger.http(`API: ${method} ${url}`, {
       method,
       url,
       statusCode,
       duration: `${duration}ms`,
-      ...meta
+      ...meta,
     });
   }
 
   // 数据库操作日志
-  public database(operation: string, table: string, duration: number, meta?: Record<string, unknown>): void {
+  public database(
+    operation: string,
+    table: string,
+    duration: number,
+    meta?: Record<string, unknown>
+  ): void {
     this.baseLogger.debug(`Database: ${operation} on ${table}`, {
       operation,
       table,
       duration: `${duration}ms`,
-      ...meta
+      ...meta,
     });
   }
 
   // 缓存操作日志
-  public cache(operation: string, key: string, hit?: boolean, meta?: Record<string, unknown>): void {
+  public cache(
+    operation: string,
+    key: string,
+    hit?: boolean,
+    meta?: Record<string, unknown>
+  ): void {
     this.baseLogger.debug(`Cache: ${operation} ${key}`, {
       operation,
       key,
       hit,
-      ...meta
+      ...meta,
     });
   }
 
   // 用户活动日志
-  public userActivity(userId: string, activity: string, meta?: Record<string, unknown>): void {
+  public userActivity(
+    userId: string,
+    activity: string,
+    meta?: Record<string, unknown>
+  ): void {
     this.baseLogger.info(`User Activity: ${activity}`, {
       userId,
       activity,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 
@@ -224,19 +254,23 @@ export class Logger {
     this.baseLogger.info(`System: ${event}`, {
       event,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 
   // 错误详情日志
-  public errorDetail(error: Error, context?: string, meta?: Record<string, unknown>): void {
+  public errorDetail(
+    error: Error,
+    context?: string,
+    meta?: Record<string, unknown>
+  ): void {
     this.baseLogger.error(`Error Detail: ${context || 'Unknown context'}`, {
       message: error.message,
       stack: error.stack,
       name: error.name,
       context,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 

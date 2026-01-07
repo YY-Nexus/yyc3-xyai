@@ -15,19 +15,26 @@ export function EnhancedCard({
   children,
   ...props
 }: EnhancedCardProps) {
-  const baseClasses = 'relative rounded-xl overflow-hidden transition-all duration-300';
+  const baseClasses =
+    'relative rounded-xl overflow-hidden transition-all duration-300';
 
   const variantClasses = {
     default: 'bg-white/95 backdrop-blur-sm border border-white/20',
     glass: 'bg-white/10 backdrop-blur-md border border-white/20',
-    colored: 'bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-md border border-white/30',
-    'q-style': gender === 'male' ? 'q-style-male' : gender === 'female' ? 'q-style-female' : 'bg-white/95 backdrop-blur-sm'
+    colored:
+      'bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-md border border-white/30',
+    'q-style':
+      gender === 'male'
+        ? 'q-style-male'
+        : gender === 'female'
+          ? 'q-style-female'
+          : 'bg-white/95 backdrop-blur-sm',
   };
 
   const genderClasses = {
     male: 'theme-male',
     female: 'theme-female',
-    neutral: ''
+    neutral: '',
   };
 
   return (

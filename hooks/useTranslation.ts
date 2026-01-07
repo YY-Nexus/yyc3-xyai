@@ -9,8 +9,8 @@
  * @license MIT
  */
 
-import { useTranslations, useLocale } from 'next-intl'
-import { useMemo } from 'react'
+import { useTranslations, useLocale } from 'next-intl';
+import { useMemo } from 'react';
 
 // 类型化的翻译键
 type TranslationKey =
@@ -53,17 +53,17 @@ type TranslationKey =
   | 'errors.networkError'
   | 'errors.pageError'
   | 'settings.title'
-  | 'language.switch'
+  | 'language.switch';
 
 export function useTypedTranslation() {
-  const t = useTranslations()
-  const locale = useLocale()
+  const t = useTranslations();
+  const locale = useLocale();
 
   const typedT = useMemo(() => {
     return (key: TranslationKey, values?: Record<string, string | number>) => {
-      return t(key, values)
-    }
-  }, [t])
+      return t(key, values);
+    };
+  }, [t]);
 
   return {
     t: typedT,
@@ -81,8 +81,8 @@ export function useTypedTranslation() {
     tp: (key: string) => t(`performance.${key}`),
     ter: (key: string) => t(`errors.${key}`),
     ts: (key: string) => t(`settings.${key}`),
-    tl: (key: string) => t(`language.${key}`)
-  }
+    tl: (key: string) => t(`language.${key}`),
+  };
 }
 
-export default useTypedTranslation
+export default useTypedTranslation;

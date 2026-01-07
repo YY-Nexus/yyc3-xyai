@@ -4,121 +4,124 @@
  */
 
 export interface Milestone {
-  id: string
-  title: string
-  description: string
-  category: MilestoneCategory
-  ageRange: AgeRange
-  importance: 'critical' | 'important' | 'normal'
-  indicators: MilestoneIndicator[]
-  achievements: Achievement[]
+  id: string;
+  title: string;
+  description: string;
+  category: MilestoneCategory;
+  ageRange: AgeRange;
+  importance: 'critical' | 'important' | 'normal';
+  indicators: MilestoneIndicator[];
+  achievements: Achievement[];
 }
 
 export enum MilestoneCategory {
-  COGNITIVE = 'cognitive',         // 认知发展
-  LANGUAGE = 'language',           // 语言发展
-  MOTOR = 'motor',                // 运动发展
-  SOCIAL = 'social',              // 社交发展
-  EMOTIONAL = 'emotional',         // 情感发展
-  SELF_CARE = 'self-care'         // 自理能力
+  COGNITIVE = 'cognitive', // 认知发展
+  LANGUAGE = 'language', // 语言发展
+  MOTOR = 'motor', // 运动发展
+  SOCIAL = 'social', // 社交发展
+  EMOTIONAL = 'emotional', // 情感发展
+  SELF_CARE = 'self-care', // 自理能力
 }
 
 export interface AgeRange {
-  minMonths: number
-  maxMonths: number
-  typicalAge: number
+  minMonths: number;
+  maxMonths: number;
+  typicalAge: number;
 }
 
 export interface MilestoneIndicator {
-  description: string
-  isObservable: boolean
-  assessmentMethod: 'parent-observation' | 'interactive-test' | 'expert-evaluation'
-  criteria: string[]
+  description: string;
+  isObservable: boolean;
+  assessmentMethod:
+    | 'parent-observation'
+    | 'interactive-test'
+    | 'expert-evaluation';
+  criteria: string[];
 }
 
 export interface Achievement {
-  childId: string
-  milestoneId: string
-  achievedDate: string
-  evidence: EvidenceData[]
-  assessment: AssessmentResult
-  notes: string
-  isEarly: boolean
-  isDelayed: boolean
+  childId: string;
+  milestoneId: string;
+  achievedDate: string;
+  evidence: EvidenceData[];
+  assessment: AssessmentResult;
+  notes: string;
+  isEarly: boolean;
+  isDelayed: boolean;
 }
 
 export interface EvidenceData {
-  type: 'photo' | 'video' | 'audio' | 'note'
-  url?: string
-  data?: string
-  timestamp: string
-  description: string
+  type: 'photo' | 'video' | 'audio' | 'note';
+  url?: string;
+  data?: string;
+  timestamp: string;
+  description: string;
 }
 
 export interface AssessmentResult {
-  score: number          // 0-100
-  confidence: number     // 0-1
-  evaluator: 'parent' | 'ai' | 'expert'
-  feedback: string[]
-  recommendations: string[]
+  score: number; // 0-100
+  confidence: number; // 0-1
+  evaluator: 'parent' | 'ai' | 'expert';
+  feedback: string[];
+  recommendations: string[];
 }
 
 export interface GrowthAssessment {
-  childId: string
-  assessmentDate: string
-  ageInMonths: number
-  domainScores: DomainScores
-  overallDevelopment: DevelopmentLevel
-  strengths: string[]
-  areasForGrowth: string[]
-  recommendations: Recommendation[]
-  nextMilestones: string[]
+  childId: string;
+  assessmentDate: string;
+  ageInMonths: number;
+  domainScores: DomainScores;
+  overallDevelopment: DevelopmentLevel;
+  strengths: string[];
+  areasForGrowth: string[];
+  recommendations: Recommendation[];
+  nextMilestones: string[];
 }
 
 export interface DomainScores {
-  cognitive: number      // 认知发展得分
-  language: number       // 语言发展得分
-  motor: number          // 运动发展得分
-  social: number         // 社交发展得分
-  emotional: number      // 情感发展得分
-  selfCare: number       // 自理能力得分
+  cognitive: number; // 认知发展得分
+  language: number; // 语言发展得分
+  motor: number; // 运动发展得分
+  social: number; // 社交发展得分
+  emotional: number; // 情感发展得分
+  selfCare: number; // 自理能力得分
 }
 
 export enum DevelopmentLevel {
-  ADVANCED = 'advanced',     // 提前发展
-  ON_TRACK = 'on-track',    // 正常发展
+  ADVANCED = 'advanced', // 提前发展
+  ON_TRACK = 'on-track', // 正常发展
   MILD_DELAY = 'mild-delay', // 轻微延迟
   MODERATE_DELAY = 'moderate-delay', // 中度延迟
-  SIGNIFICANT_DELAY = 'significant-delay' // 显著延迟
+  SIGNIFICANT_DELAY = 'significant-delay', // 显著延迟
 }
 
 export interface Recommendation {
-  category: 'activity' | 'exercise' | 'observation' | 'consultation'
-  title: string
-  description: string
-  priority: 'high' | 'medium' | 'low'
-  timeframe: string
-  resources: Resource[]
+  category: 'activity' | 'exercise' | 'observation' | 'consultation';
+  title: string;
+  description: string;
+  priority: 'high' | 'medium' | 'low';
+  timeframe: string;
+  resources: Resource[];
 }
 
 export interface Resource {
-  type: 'video' | 'article' | 'game' | 'exercise'
-  title: string
-  url?: string
-  description: string
-  ageRange: string
+  type: 'video' | 'article' | 'game' | 'exercise';
+  title: string;
+  url?: string;
+  description: string;
+  ageRange: string;
 }
 
 /**
  * 成长里程碑追踪器主类
  */
 export class MilestoneTracker {
-  private milestones: Map<string, Milestone> = new Map()
-  private achievements: Map<string, Achievement[]> = new Map()
-  private assessments: Map<string, GrowthAssessment[]> = new Map()
+  private milestones: Map<string, Milestone> = new Map();
+  private achievements: Map<string, Achievement[]> = new Map();
+  private assessments: Map<string, GrowthAssessment[]> = new Map();
 
   constructor() {
-    this.initializeMilestones()
+    this.initializeMilestones();
   }
 
   /**
@@ -138,17 +141,17 @@ export class MilestoneTracker {
           description: '看到人脸时微笑',
           isObservable: true,
           assessmentMethod: 'parent-observation',
-          criteria: ['微笑时眼睛明亮', '对特定人微笑更频繁']
+          criteria: ['微笑时眼睛明亮', '对特定人微笑更频繁'],
         },
         {
           description: '对熟悉声音反应',
           isObservable: true,
           assessmentMethod: 'parent-observation',
-          criteria: ['听到声音时转头', '安静下来倾听']
-        }
+          criteria: ['听到声音时转头', '安静下来倾听'],
+        },
       ],
-      achievements: []
-    })
+      achievements: [],
+    });
 
     // 3-6个月里程碑
     this.addMilestone({
@@ -163,17 +166,17 @@ export class MilestoneTracker {
           description: '俯卧时抬头',
           isObservable: true,
           assessmentMethod: 'parent-observation',
-          criteria: ['抬头能保持30秒以上', '手臂支撑身体']
+          criteria: ['抬头能保持30秒以上', '手臂支撑身体'],
         },
         {
           description: '转头追踪物体',
           isObservable: true,
           assessmentMethod: 'interactive-test',
-          criteria: ['左右转动180度', '追踪移动物体']
-        }
+          criteria: ['左右转动180度', '追踪移动物体'],
+        },
       ],
-      achievements: []
-    })
+      achievements: [],
+    });
 
     // 6-9个月里程碑
     this.addMilestone({
@@ -188,11 +191,11 @@ export class MilestoneTracker {
           description: '寻找被藏起来的玩具',
           isObservable: true,
           assessmentMethod: 'interactive-test',
-          criteria: ['主动寻找被遮盖的物体', '有目的的搜索行为']
-        }
+          criteria: ['主动寻找被遮盖的物体', '有目的的搜索行为'],
+        },
       ],
-      achievements: []
-    })
+      achievements: [],
+    });
 
     // 9-12个月里程碑
     this.addMilestone({
@@ -207,17 +210,17 @@ export class MilestoneTracker {
           description: '说"妈妈"或"爸爸"',
           isObservable: true,
           assessmentMethod: 'parent-observation',
-          criteria: ['有意识地称呼', '指向对应的人']
+          criteria: ['有意识地称呼', '指向对应的人'],
         },
         {
           description: '理解简单指令',
           isObservable: true,
           assessmentMethod: 'interactive-test',
-          criteria: ['能执行1步指令', '理解"不"的含义']
-        }
+          criteria: ['能执行1步指令', '理解"不"的含义'],
+        },
       ],
-      achievements: []
-    })
+      achievements: [],
+    });
 
     // 12-18个月里程碑
     this.addMilestone({
@@ -232,11 +235,11 @@ export class MilestoneTracker {
           description: '独立走几步',
           isObservable: true,
           assessmentMethod: 'parent-observation',
-          criteria: ['能连续走3步以上', '步伐稳定']
-        }
+          criteria: ['能连续走3步以上', '步伐稳定'],
+        },
       ],
-      achievements: []
-    })
+      achievements: [],
+    });
 
     // 18-24个月里程碑
     this.addMilestone({
@@ -251,11 +254,11 @@ export class MilestoneTracker {
           description: '说"我要抱"等短语',
           isObservable: true,
           assessmentMethod: 'parent-observation',
-          criteria: ['组合2个以上词语', '表达基本需求']
-        }
+          criteria: ['组合2个以上词语', '表达基本需求'],
+        },
       ],
-      achievements: []
-    })
+      achievements: [],
+    });
 
     // 24-36个月里程碑
     this.addMilestone({
@@ -270,86 +273,101 @@ export class MilestoneTracker {
           description: '主动分享玩具',
           isObservable: true,
           assessmentMethod: 'parent-observation',
-          criteria: ['主动给他人玩具', '享受分享过程']
-        }
+          criteria: ['主动给他人玩具', '享受分享过程'],
+        },
       ],
-      achievements: []
-    })
+      achievements: [],
+    });
   }
 
   /**
    * 添加里程碑
    */
   private addMilestone(milestone: Milestone): void {
-    this.milestones.set(milestone.id, milestone)
+    this.milestones.set(milestone.id, milestone);
   }
 
   /**
    * 获取适龄里程碑
    */
   getAgeAppropriateMilestones(ageInMonths: number): Milestone[] {
-    const ageAppropriate: Milestone[] = []
+    const ageAppropriate: Milestone[] = [];
 
     for (const milestone of this.milestones.values()) {
-      if (ageInMonths >= milestone.ageRange.minMonths - 2 &&
-          ageInMonths <= milestone.ageRange.maxMonths + 2) {
-        ageAppropriate.push(milestone)
+      if (
+        ageInMonths >= milestone.ageRange.minMonths - 2 &&
+        ageInMonths <= milestone.ageRange.maxMonths + 2
+      ) {
+        ageAppropriate.push(milestone);
       }
     }
 
-    return ageAppropriate.sort((a, b) => a.ageRange.typicalAge - b.ageRange.typicalAge)
+    return ageAppropriate.sort(
+      (a, b) => a.ageRange.typicalAge - b.ageRange.typicalAge
+    );
   }
 
   /**
    * 记录里程碑达成
    */
   recordAchievement(achievement: Achievement): void {
-    const childAchievements = this.achievements.get(achievement.childId) || []
+    const childAchievements = this.achievements.get(achievement.childId) || [];
 
     // 检查是否已经记录过
     const existingIndex = childAchievements.findIndex(
       a => a.milestoneId === achievement.milestoneId
-    )
+    );
 
     if (existingIndex >= 0) {
       // 更新现有记录
-      childAchievements[existingIndex] = achievement
+      childAchievements[existingIndex] = achievement;
     } else {
       // 添加新记录
-      childAchievements.push(achievement)
+      childAchievements.push(achievement);
     }
 
-    this.achievements.set(achievement.childId, childAchievements)
+    this.achievements.set(achievement.childId, childAchievements);
   }
 
   /**
    * 获取儿童的成长记录
    */
   getChildAchievements(childId: string): Achievement[] {
-    return this.achievements.get(childId) || []
+    return this.achievements.get(childId) || [];
   }
 
   /**
    * 生成成长评估报告
    */
-  generateGrowthAssessment(childId: string, ageInMonths: number): GrowthAssessment {
-    const achievements = this.getChildAchievements(childId)
-    const ageAppropriateMilestones = this.getAgeAppropriateMilestones(ageInMonths)
+  generateGrowthAssessment(
+    childId: string,
+    ageInMonths: number
+  ): GrowthAssessment {
+    const achievements = this.getChildAchievements(childId);
+    const ageAppropriateMilestones =
+      this.getAgeAppropriateMilestones(ageInMonths);
 
     // 计算各领域得分
-    const domainScores = this.calculateDomainScores(achievements, ageInMonths)
+    const domainScores = this.calculateDomainScores(achievements, ageInMonths);
 
     // 评估整体发展水平
-    const overallDevelopment = this.assessOverallDevelopment(domainScores, ageInMonths)
+    const overallDevelopment = this.assessOverallDevelopment(
+      domainScores,
+      ageInMonths
+    );
 
     // 识别优势和需要发展的领域
-    const { strengths, areasForGrowth } = this.identifyStrengthsAndGrowthAreas(domainScores)
+    const { strengths, areasForGrowth } =
+      this.identifyStrengthsAndGrowthAreas(domainScores);
 
     // 生成个性化建议
-    const recommendations = this.generateRecommendations(domainScores, ageInMonths)
+    const recommendations = this.generateRecommendations(
+      domainScores,
+      ageInMonths
+    );
 
     // 确定下一个阶段的里程碑
-    const nextMilestones = this.getNextMilestones(achievements, ageInMonths)
+    const nextMilestones = this.getNextMilestones(achievements, ageInMonths);
 
     return {
       childId,
@@ -360,22 +378,25 @@ export class MilestoneTracker {
       strengths,
       areasForGrowth,
       recommendations,
-      nextMilestones
-    }
+      nextMilestones,
+    };
   }
 
   /**
    * 计算各领域得分
    */
-  private calculateDomainScores(achievements: Achievement[], ageInMonths: number): DomainScores {
+  private calculateDomainScores(
+    achievements: Achievement[],
+    ageInMonths: number
+  ): DomainScores {
     const categories = [
       MilestoneCategory.COGNITIVE,
       MilestoneCategory.LANGUAGE,
       MilestoneCategory.MOTOR,
       MilestoneCategory.SOCIAL,
       MilestoneCategory.EMOTIONAL,
-      MilestoneCategory.SELF_CARE
-    ]
+      MilestoneCategory.SELF_CARE,
+    ];
 
     const scores: DomainScores = {
       cognitive: 0,
@@ -383,50 +404,55 @@ export class MilestoneTracker {
       motor: 0,
       social: 0,
       emotional: 0,
-      selfCare: 0
-    }
+      selfCare: 0,
+    };
 
     categories.forEach(category => {
       const categoryMilestones = Array.from(this.milestones.values())
         .filter(m => m.category === category)
-        .filter(m => ageInMonths >= m.ageRange.minMonths - 1)
+        .filter(m => ageInMonths >= m.ageRange.minMonths - 1);
 
       const categoryAchievements = achievements.filter(a => {
-        const milestone = this.milestones.get(a.milestoneId)
-        return milestone && milestone.category === category
-      })
+        const milestone = this.milestones.get(a.milestoneId);
+        return milestone && milestone.category === category;
+      });
 
       if (categoryMilestones.length > 0) {
-        const score = (categoryAchievements.length / categoryMilestones.length) * 100
-        scores[category as keyof DomainScores] = Math.min(100, score)
+        const score =
+          (categoryAchievements.length / categoryMilestones.length) * 100;
+        scores[category as keyof DomainScores] = Math.min(100, score);
       }
-    })
+    });
 
-    return scores
+    return scores;
   }
 
   /**
    * 评估整体发展水平
    */
-  private assessOverallDevelopment(scores: DomainScores, ageInMonths: number): DevelopmentLevel {
-    const averageScore = Object.values(scores).reduce((sum, score) => sum + score, 0) / 6
+  private assessOverallDevelopment(
+    scores: DomainScores,
+    ageInMonths: number
+  ): DevelopmentLevel {
+    const averageScore =
+      Object.values(scores).reduce((sum, score) => sum + score, 0) / 6;
 
-    if (averageScore >= 85) return DevelopmentLevel.ADVANCED
-    if (averageScore >= 70) return DevelopmentLevel.ON_TRACK
-    if (averageScore >= 55) return DevelopmentLevel.MILD_DELAY
-    if (averageScore >= 40) return DevelopmentLevel.MODERATE_DELAY
-    return DevelopmentLevel.SIGNIFICANT_DELAY
+    if (averageScore >= 85) return DevelopmentLevel.ADVANCED;
+    if (averageScore >= 70) return DevelopmentLevel.ON_TRACK;
+    if (averageScore >= 55) return DevelopmentLevel.MILD_DELAY;
+    if (averageScore >= 40) return DevelopmentLevel.MODERATE_DELAY;
+    return DevelopmentLevel.SIGNIFICANT_DELAY;
   }
 
   /**
    * 识别优势和需要发展的领域
    */
   private identifyStrengthsAndGrowthAreas(scores: DomainScores): {
-    strengths: string[]
-    areasForGrowth: string[]
+    strengths: string[];
+    areasForGrowth: string[];
   } {
-    const strengths: string[] = []
-    const areasForGrowth: string[] = []
+    const strengths: string[] = [];
+    const areasForGrowth: string[] = [];
 
     const categoryNames = {
       cognitive: '认知发展',
@@ -434,26 +460,30 @@ export class MilestoneTracker {
       motor: '运动发展',
       social: '社交发展',
       emotional: '情感发展',
-      selfCare: '自理能力'
-    }
+      selfCare: '自理能力',
+    };
 
     Object.entries(scores).forEach(([category, score]) => {
-      const categoryName = categoryNames[category as keyof typeof categoryNames]
+      const categoryName =
+        categoryNames[category as keyof typeof categoryNames];
       if (score >= 80) {
-        strengths.push(categoryName)
+        strengths.push(categoryName);
       } else if (score < 60) {
-        areasForGrowth.push(categoryName)
+        areasForGrowth.push(categoryName);
       }
-    })
+    });
 
-    return { strengths, areasForGrowth }
+    return { strengths, areasForGrowth };
   }
 
   /**
    * 生成个性化建议
    */
-  private generateRecommendations(scores: DomainScores, ageInMonths: number): Recommendation[] {
-    const recommendations: Recommendation[] = []
+  private generateRecommendations(
+    scores: DomainScores,
+    ageInMonths: number
+  ): Recommendation[] {
+    const recommendations: Recommendation[] = [];
 
     // 根据年龄和得分生成建议
     if (scores.language < 60) {
@@ -468,10 +498,10 @@ export class MilestoneTracker {
             type: 'article',
             title: '0-3岁语言发展指南',
             description: '专业的语言发展指导',
-            ageRange: '0-3岁'
-          }
-        ]
-      })
+            ageRange: '0-3岁',
+          },
+        ],
+      });
     }
 
     if (scores.motor < 60) {
@@ -486,10 +516,10 @@ export class MilestoneTracker {
             type: 'game',
             title: '宝宝运动游戏',
             description: '有趣的运动技能训练游戏',
-            ageRange: '0-3岁'
-          }
-        ]
-      })
+            ageRange: '0-3岁',
+          },
+        ],
+      });
     }
 
     if (scores.social < 60) {
@@ -504,42 +534,47 @@ export class MilestoneTracker {
             type: 'article',
             title: '婴幼儿社交发展',
             description: '社交技能培养方法',
-            ageRange: '0-3岁'
-          }
-        ]
-      })
+            ageRange: '0-3岁',
+          },
+        ],
+      });
     }
 
-    return recommendations
+    return recommendations;
   }
 
   /**
    * 获取下一个阶段的里程碑
    */
-  private getNextMilestones(achievements: Achievement[], ageInMonths: number): string[] {
-    const achievedMilestoneIds = new Set(achievements.map(a => a.milestoneId))
-    const upcomingMilestones = this.getAgeAppropriateMilestones(ageInMonths + 3)
+  private getNextMilestones(
+    achievements: Achievement[],
+    ageInMonths: number
+  ): string[] {
+    const achievedMilestoneIds = new Set(achievements.map(a => a.milestoneId));
+    const upcomingMilestones = this.getAgeAppropriateMilestones(
+      ageInMonths + 3
+    );
 
     return upcomingMilestones
       .filter(m => !achievedMilestoneIds.has(m.id))
       .slice(0, 5)
-      .map(m => m.id)
+      .map(m => m.id);
   }
 
   /**
    * 获取里程碑详情
    */
   getMilestone(milestoneId: string): Milestone | undefined {
-    return this.milestones.get(milestoneId)
+    return this.milestones.get(milestoneId);
   }
 
   /**
    * 获取所有里程碑
    */
   getAllMilestones(): Milestone[] {
-    return Array.from(this.milestones.values())
+    return Array.from(this.milestones.values());
   }
 }
 
 // 导出单例实例
-export const milestoneTracker = new MilestoneTracker()
+export const milestoneTracker = new MilestoneTracker();

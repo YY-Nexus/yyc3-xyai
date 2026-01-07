@@ -3,23 +3,23 @@
  * Phase 1 Week 5-6: 测试体系建设
  */
 
-import { expect, beforeEach, afterEach, describe, it } from 'bun:test'
-import { GlobalWindow, GlobalDocument, GlobalNode } from 'happy-dom'
+import { expect, beforeEach, afterEach, describe, it } from 'bun:test';
+import { GlobalWindow, GlobalDocument, GlobalNode } from 'happy-dom';
 
 // 设置测试环境
-global.expect = expect
+global.expect = expect;
 
 // 初始化 happy-dom
-const window = new GlobalWindow()
-const document = new GlobalDocument()
+const window = new GlobalWindow();
+const document = new GlobalDocument();
 
 // 全局对象设置
-global.window = window as any
-global.document = document as any
-global.HTMLElement = window.HTMLElement
-global.Element = window.Element
-global.Node = window.Node
-global.navigator = window.navigator
+global.window = window as any;
+global.document = document as any;
+global.HTMLElement = window.HTMLElement;
+global.Element = window.Element;
+global.Node = window.Node;
+global.navigator = window.navigator;
 
 // Mock localStorage
 const localStorageMock = {
@@ -27,9 +27,9 @@ const localStorageMock = {
   setItem: () => {},
   removeItem: () => {},
   clear: () => {},
-}
+};
 
-global.localStorage = localStorageMock as any
+global.localStorage = localStorageMock as any;
 
 // Mock sessionStorage
 const sessionStorageMock = {
@@ -37,44 +37,45 @@ const sessionStorageMock = {
   setItem: () => {},
   removeItem: () => {},
   clear: () => {},
-}
+};
 
-global.sessionStorage = sessionStorageMock
+global.sessionStorage = sessionStorageMock;
 
 // Mock fetch
-global.fetch = () => Promise.resolve({
-  ok: true,
-  status: 200,
-  json: () => Promise.resolve({}),
-  text: () => Promise.resolve(''),
-}) as Response
+global.fetch = () =>
+  Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({}),
+    text: () => Promise.resolve(''),
+  }) as Response;
 
 // Mock WebSocket
 global.WebSocket = class {
   constructor() {
-    this.readyState = 1
+    this.readyState = 1;
   }
   send() {}
   close() {}
-  onopen = null
-  onclose = null
-  onmessage = null
-  onerror = null
-} as any
+  onopen = null;
+  onclose = null;
+  onmessage = null;
+  onerror = null;
+} as any;
 
 // Mock ResizeObserver
 global.ResizeObserver = class {
   observe() {}
   unobserve() {}
   disconnect() {}
-} as any
+} as any;
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class {
   observe() {}
   unobserve() {}
   disconnect() {}
-} as any
+} as any;
 
 // Mock window.matchMedia
 Object.defineProperty(global, 'matchMedia', {
@@ -89,7 +90,7 @@ Object.defineProperty(global, 'matchMedia', {
     removeEventListener: () => {},
     dispatchEvent: () => {},
   }),
-})
+});
 
 // Mock document
 const documentMock = {
@@ -117,9 +118,9 @@ const documentMock = {
   },
   querySelector: () => null,
   querySelectorAll: () => [],
-}
+};
 
-global.document = documentMock
+global.document = documentMock;
 
 // Mock window
 global.window = {
@@ -132,7 +133,7 @@ global.window = {
   matchMedia: global.matchMedia,
   ResizeObserver: global.ResizeObserver,
   IntersectionObserver: global.IntersectionObserver,
-} as any
+} as any;
 
 // 全局测试工具函数
 global.createMockUser = (overrides = {}) => ({
@@ -145,7 +146,7 @@ global.createMockUser = (overrides = {}) => ({
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 global.createMockChild = (overrides = {}) => ({
   id: 'child-123',
@@ -156,7 +157,7 @@ global.createMockChild = (overrides = {}) => ({
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 global.createMockAIMessage = (overrides = {}) => ({
   id: 'message-123',
@@ -168,7 +169,7 @@ global.createMockAIMessage = (overrides = {}) => ({
   emotion: 'happy',
   createdAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 global.createMockGrowthRecord = (overrides = {}) => ({
   id: 'record-123',
@@ -184,21 +185,21 @@ global.createMockGrowthRecord = (overrides = {}) => ({
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 // 重置函数
 beforeEach(() => {
   // 清理localStorage
   Object.keys(localStorageMock).forEach(key => {
-    delete (localStorageMock as any)[key]
-  })
+    delete (localStorageMock as any)[key];
+  });
 
   // 清理sessionStorage
   Object.keys(sessionStorageMock).forEach(key => {
-    delete (sessionStorageMock as any)[key]
-  })
-})
+    delete (sessionStorageMock as any)[key];
+  });
+});
 
 afterEach(() => {
   // 清理工作
-})
+});

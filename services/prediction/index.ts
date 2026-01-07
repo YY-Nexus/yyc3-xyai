@@ -9,10 +9,14 @@
  * @license MIT
  */
 
-import { EnsembleEngine } from '@/lib/prediction/adaptive-ensemble'
-import { TimeSeriesEngine, AnomalyDetectionEngine, CausalInferenceEngine } from '@/lib/prediction/specialized-engines'
-import { DynamicModelSelector } from './model-selector'
-import { PredictionQualityMonitor } from './quality-monitor'
+import { EnsembleEngine } from '@/lib/prediction/adaptive-ensemble';
+import {
+  TimeSeriesEngine,
+  AnomalyDetectionEngine,
+  CausalInferenceEngine,
+} from '@/lib/prediction/specialized-engines';
+import { DynamicModelSelector } from './model-selector';
+import { PredictionQualityMonitor } from './quality-monitor';
 import type {
   PredictionData,
   PredictionConfig,
@@ -31,18 +35,19 @@ import type {
   DriftAlert,
   Recommendation,
   RiskAssessment,
-  KeyInsight
-} from '@/types/prediction/common'
+  KeyInsight,
+} from '@/types/prediction/common';
 
 /**
  * 智能预测服务主类
  */
 export class IntelligentPredictionService {
-  private ensembleEngine: EnsembleEngine
-  private modelSelector: DynamicModelSelector
-  private qualityMonitor: PredictionQualityMonitor
-  private activePredictors: Map<string, TaskInfo> = new Map()
-  private predictionHistory: PredictionResult[] = []
+  private ensembleEngine: EnsembleEngine;
+  private modelSelector: DynamicModelSelector;
+  private qualityMonitor: PredictionQualityMonitor;
+  private activePredictors: Map<string, TaskInfo> = new Map();
+  private realtimePredictors: Map<string, TimeSeriesEngine> = new Map();
+  private predictionHistory: PredictionResult[] = [];
 
   constructor() {
     this.ensembleEngine = new EnsembleEngine({
@@ -51,12 +56,12 @@ export class IntelligentPredictionService {
       parameters: {
         method: 'weighted',
         adaptationThreshold: 0.1,
-        maxPredictors: 10
-      }
-    })
+        maxPredictors: 10,
+      },
+    });
 
-    this.modelSelector = new DynamicModelSelector()
-    this.qualityMonitor = new PredictionQualityMonitor()
+    this.modelSelector = new DynamicModelSelector();
+    this.qualityMonitor = new PredictionQualityMonitor();
   }
 
   /**
@@ -66,23 +71,30 @@ export class IntelligentPredictionService {
     config: PredictionConfig,
     data: PredictionData
   ): Promise<PredictionTask> {
-    const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    const taskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // 自动确定任务类型
-    const taskType = this.inferTaskType(data)
+    const taskType = this.inferTaskType(data);
 
     // 智能选择最佳模型组合
     const modelSelection = await this.modelSelector.selectOptimalModel(
       data,
-      { id: taskId, type: taskType, description: '', priority: 'medium', constraints: config.constraints, requirements: config.requirements },
+      {
+        id: taskId,
+        type: taskType,
+        description: '',
+        priority: 'medium',
+        constraints: config.constraints,
+        requirements: config.requirements,
+      },
       config.constraints
-    )
+    );
 
     // 创建集成预测器
-    const ensemble = await this.buildOptimalEnsemble(modelSelection, config)
+    const ensemble = await this.buildOptimalEnsemble(modelSelection, config);
 
     // 初始化预测器
-    await this.initializePredictors(ensemble, data)
+    await this.initializePredictors(ensemble, data);
 
     const task: PredictionTask = {
       id: taskId,
@@ -91,8 +103,8 @@ export class IntelligentPredictionService {
       description: `基于${modelSelection.selectedModel}的智能预测`,
       priority: config.priority || 'medium',
       constraints: config.constraints,
-      requirements: config.requirements
-    }
+      requirements: config.requirements,
+    };
 
     // 保存任务信息
     this.activePredictors.set(taskId, {
@@ -100,10 +112,10 @@ export class IntelligentPredictionService {
       config,
       data,
       modelSelection,
-      createdAt: Date.now()
-    })
+      createdAt: Date.now(),
+    });
 
-    return task
+    return task;
   }
 
   /**
@@ -114,24 +126,24 @@ export class IntelligentPredictionService {
     data?: PredictionData,
     horizon?: number
   ): Promise<PredictionResult> {
-    const taskInfo = this.activePredictors.get(taskId)
+    const taskInfo = this.activePredictors.get(taskId);
     if (!taskInfo) {
-      throw new Error(`预测任务 ${taskId} 不存在`)
+      throw new Error(`预测任务 ${taskId} 不存在`);
     }
 
-    const { ensemble } = taskInfo
-    const predictionData = data || taskInfo.data
+    const { ensemble } = taskInfo;
+    const predictionData = data || taskInfo.data;
 
     // 执行预测
-    const result = await ensemble.predict(predictionData, horizon)
+    const result = await ensemble.predict(predictionData, horizon);
 
     // 保存预测历史
-    this.predictionHistory.push(result)
+    this.predictionHistory.push(result);
 
     // 质量监控
-    await this.qualityMonitor.recordPrediction(result)
+    await this.qualityMonitor.recordPrediction(result);
 
-    return result
+    return result;
   }
 
   /**
@@ -141,46 +153,53 @@ export class IntelligentPredictionService {
     stream: DataStream,
     modelId?: string
   ): Promise<StreamingPrediction> {
-    const startTime = Date.now()
+    const startTime = Date.now();
 
-    // 获取或创建适合流式预测的模型
-    let predictor = modelId ? this.activePredictors.get(modelId) : null
+    let predictor: TimeSeriesEngine | null = null;
+    let predictorId: string;
+
+    if (modelId) {
+      predictor = this.realtimePredictors.get(modelId) || null;
+      predictorId = modelId;
+    }
 
     if (!predictor) {
-      // 创建适合实时预测的时间序列模型
-      const timeSeriesConfig = {
+      const timeSeriesConfig: PredictorConfig = {
+        modelType: 'timeseries',
         name: 'realtime_timeseries',
         algorithm: 'exponential_smoothing',
         parameters: {
           alpha: 0.3,
           beta: 0.1,
-          windowSize: Math.min(50, stream.data.length)
-        }
-      }
+          windowSize: Math.min(50, stream.data.length),
+        },
+      };
 
-      predictor = new TimeSeriesEngine(timeSeriesConfig)
-      await predictor.train(stream)
+      predictor = new TimeSeriesEngine(timeSeriesConfig);
+      await predictor.train(stream.data);
 
-      const predictorId = `realtime_${Date.now()}`
-      this.activePredictors.set(predictorId, { predictor, config: timeSeriesConfig })
+      predictorId = `realtime_${Date.now()}`;
+      this.realtimePredictors.set(predictorId, predictor);
     }
 
-    // 执行预测
-    const prediction = await predictor.predictor.predict(stream, 1)
-
-    // 计算处理时间
-    const processingTime = Date.now() - startTime
+    const prediction = await predictor.predict(stream.data, 1);
+    const processingTime = Date.now() - startTime;
 
     const streamingPrediction: StreamingPrediction = {
-      timestamp: Date.now(),
-      prediction: Array.isArray(prediction.prediction) ? prediction.prediction[0] : prediction.prediction,
+      predictionId: predictorId,
+      result: prediction,
+      streamId: stream.streamId,
+      timestamp: new Date(),
+      prediction: Array.isArray(prediction.prediction)
+        ? prediction.prediction[0]
+        : prediction.prediction,
       confidence: prediction.confidence,
       processingTime,
       dataQuality: stream.qualityMetrics,
-      modelVersion: predictor.predictor.getModelInfo().modelId
-    }
+      modelVersion: predictor.getModelInfo().modelId,
+    };
 
-    return streamingPrediction
+    return streamingPrediction;
   }
 
   /**
@@ -190,46 +209,67 @@ export class IntelligentPredictionService {
     taskId: string,
     results?: PredictionResult[]
   ): Promise<PredictionInsights> {
-    const taskInfo = this.activePredictors.get(taskId)
-    const predictionResults = results || this.predictionHistory.slice(-10)
+    const taskInfo = this.activePredictors.get(taskId);
+    const predictionResults = results || this.predictionHistory.slice(-10);
 
     if (!taskInfo) {
-      throw new Error(`预测任务 ${taskId} 不存在`)
+      throw new Error(`预测任务 ${taskId} 不存在`);
     }
 
-    const performanceMetrics = await this.analyzePredictionPerformance(predictionResults)
+    const performanceMetrics =
+      await this.analyzePredictionPerformance(predictionResults);
 
     // 检测漂移
-    const driftAlerts = await this.detectPredictionDrift(predictionResults)
+    const driftAlerts = await this.detectPredictionDrift(predictionResults);
 
     // 生成推荐
-    const recommendations = await this.generateRecommendations(performanceMetrics, driftAlerts)
+    const recommendations = await this.generateRecommendations(
+      performanceMetrics,
+      driftAlerts
+    );
 
     // 风险评估
-    const riskAssessment = this.assessPredictionRisk(performanceMetrics, driftAlerts)
+    const riskAssessment = this.assessPredictionRisk(
+      performanceMetrics,
+      driftAlerts
+    );
 
     // 关键洞察点
-    const keyPoints = this.extractKeyInsights(predictionResults, performanceMetrics)
+    const keyPoints = this.extractKeyInsights(
+      predictionResults,
+      performanceMetrics
+    );
 
     return {
-      summary: this.generateInsightsSummary(performanceMetrics, driftAlerts, recommendations),
+      summary: this.generateInsightsSummary(
+        performanceMetrics,
+        driftAlerts,
+        recommendations
+      ),
       keyPoints,
       performanceMetrics,
       driftAlerts,
       recommendations,
       riskAssessment,
-      confidence: this.calculateOverallConfidence(performanceMetrics, driftAlerts)
-    }
+      confidence: this.calculateOverallConfidence(
+        performanceMetrics,
+        driftAlerts
+      ),
+    };
   }
 
   /**
    * 监控预测质量
    */
-  async monitorPredictionQuality(results: PredictionResult[]): Promise<QualityMetrics> {
+  async monitorPredictionQuality(
+    results: PredictionResult[]
+  ): Promise<QualityMetrics> {
     return this.qualityMonitor.monitorPredictionAccuracy(
       results,
-      results.map(r => Array.isArray(r.prediction) ? r.prediction[0] : r.prediction)
-    )
+      results.map(r =>
+        Array.isArray(r.prediction) ? r.prediction[0] : r.prediction
+      )
+    );
   }
 
   /**
@@ -239,56 +279,61 @@ export class IntelligentPredictionService {
     results: PredictionResult[],
     sensitiveAttributes: Record<string, unknown>
   ): Promise<BiasReport> {
-    return this.qualityMonitor.detectPredictionBias(results, sensitiveAttributes)
+    return this.qualityMonitor.detectPredictionBias(
+      results,
+      sensitiveAttributes
+    );
   }
 
   /**
    * 校准预测不确定性
    */
-  async calibratePredictionUncertainty(results: PredictionResult[]): Promise<CalibrationResult> {
-    return this.qualityMonitor.calibratePredictionUncertainty(results)
+  async calibratePredictionUncertainty(
+    results: PredictionResult[]
+  ): Promise<CalibrationResult> {
+    return this.qualityMonitor.calibratePredictionUncertainty(results);
   }
 
   /**
    * 更新模型
    */
   async updateModel(taskId: string, newData: PredictionData): Promise<void> {
-    const taskInfo = this.activePredictors.get(taskId)
+    const taskInfo = this.activePredictors.get(taskId);
     if (!taskInfo) {
-      throw new Error(`预测任务 ${taskId} 不存在`)
+      throw new Error(`预测任务 ${taskId} 不存在`);
     }
 
-    const { ensemble } = taskInfo
+    const { ensemble } = taskInfo;
 
     // 检测概念漂移
-    const driftDetection = await ensemble.detectConceptDrift?.(newData)
+    const driftDetection = await ensemble.detectConceptDrift?.(newData);
 
     if (driftDetection?.detected) {
-      console.log(`检测到概念漂移: ${driftDetection.driftType}, 重新训练模型`)
+      console.log(`检测到概念漂移: ${driftDetection.driftType}, 重新训练模型`);
     }
 
     // 重新训练模型
-    await ensemble.train(newData)
+    await ensemble.train(newData);
 
     // 更新任务信息
-    taskInfo.data = newData
-    taskInfo.lastUpdated = Date.now()
+    taskInfo.data = newData;
+    taskInfo.lastUpdated = Date.now();
   }
 
   /**
    * 获取任务状态
    */
   getTaskStatus(taskId: string): {
-    taskId: string
-    modelInfo: { modelId: string }
-    config: Record<string, unknown>
-    createdAt: number
-    lastUpdated?: number
-    predictionCount: number
+    taskId: string;
+    modelInfo: { modelId: string };
+    config: Record<string, unknown>;
+    createdAt: number;
+    lastUpdated?: number;
+    predictionCount: number;
   } | null {
-    const taskInfo = this.activePredictors.get(taskId)
+    const taskInfo = this.activePredictors.get(taskId);
     if (!taskInfo) {
-      return null
+      return null;
     }
 
     return {
@@ -297,41 +342,49 @@ export class IntelligentPredictionService {
       config: taskInfo.config,
       createdAt: taskInfo.createdAt,
       lastUpdated: taskInfo.lastUpdated,
-      predictionCount: this.predictionHistory.filter(r => r.modelId.includes(taskId)).length
-    }
+      predictionCount: this.predictionHistory.filter(r =>
+        r.modelId.includes(taskId)
+      ).length,
+    };
   }
 
   /**
    * 列出所有活动任务
    */
   listActiveTasks(): string[] {
-    return Array.from(this.activePredictors.keys())
+    return Array.from(this.activePredictors.keys());
   }
 
   /**
    * 删除任务
    */
   async deleteTask(taskId: string): Promise<void> {
-    this.activePredictors.delete(taskId)
+    this.activePredictors.delete(taskId);
     // 清理相关的预测历史
-    this.predictionHistory = this.predictionHistory.filter(r => !r.modelId.includes(taskId))
+    this.predictionHistory = this.predictionHistory.filter(
+      r => !r.modelId.includes(taskId)
+    );
   }
 
   // 私有辅助方法
 
-  private inferTaskType(data: PredictionData): 'regression' | 'classification' | 'forecasting' | 'anomaly_detection' {
+  private inferTaskType(
+    data: PredictionData
+  ): 'regression' | 'classification' | 'forecasting' | 'anomaly_detection' {
     if (data.dataType === 'timeseries') {
-      return 'forecasting'
+      return 'forecasting';
     }
 
-    const values = data.data.slice(0, 10).map((p: { value: number }) => p.value)
-    const uniqueValues = new Set(values)
+    const values = data.data
+      .slice(0, 10)
+      .map((p: { value: number }) => p.value);
+    const uniqueValues = new Set(values);
 
     if (uniqueValues.size <= 10 && values.length > 20) {
-      return 'classification'
+      return 'classification';
     }
 
-    return 'regression'
+    return 'regression';
   }
 
   private async buildOptimalEnsemble(
@@ -343,100 +396,118 @@ export class IntelligentPredictionService {
       algorithm: 'adaptive_ensemble',
       parameters: {
         method: 'weighted',
-        maxPredictors: config.constraints?.maxModels || 5
-      }
-    })
+        maxPredictors: config.constraints?.maxModels || 5,
+      },
+    });
 
     // 根据选择的模型创建基础预测器
-    for (const algorithm of [modelSelection.selectedModel, ...modelSelection.alternativeModels]) {
+    for (const algorithm of [
+      modelSelection.selectedModel,
+      ...modelSelection.alternativeModels,
+    ]) {
       try {
-        const predictor = this.createPredictor(algorithm, config)
-        ensemble.addPredictor(predictor)
+        const predictor = this.createPredictor(algorithm, config);
+        ensemble.addPredictor(predictor);
       } catch (error) {
-        console.warn(`创建预测器失败: ${algorithm}`, error)
+        console.warn(`创建预测器失败: ${algorithm}`, error);
       }
     }
 
-    return ensemble
+    return ensemble;
   }
 
   private async initializePredictors(
     ensemble: EnsembleEngine,
     data: PredictionData
   ): Promise<void> {
-    await ensemble.train(data)
+    await ensemble.train(data);
   }
 
-  private createPredictor(algorithm: string, config: PredictionConfig): Predictor {
+  private createPredictor(
+    algorithm: string,
+    config: PredictionConfig
+  ): Predictor {
     const baseConfig = {
       name: algorithm,
       algorithm,
       parameters: config.parameters || {},
       preprocessing: config.preprocessing,
-      validation: config.validation
-    }
+      validation: config.validation,
+    };
 
     switch (algorithm) {
       case 'time_series_exponential_smoothing':
-        return new TimeSeriesEngine(baseConfig)
+        return new TimeSeriesEngine(baseConfig);
       case 'statistical_anomaly_detection':
-        return new AnomalyDetectionEngine(baseConfig)
+        return new AnomalyDetectionEngine(baseConfig);
       case 'causal_inference':
-        return new CausalInferenceEngine(baseConfig)
+        return new CausalInferenceEngine(baseConfig);
       default:
-        return new TimeSeriesEngine(baseConfig)
+        return new TimeSeriesEngine(baseConfig);
     }
   }
 
-  private async analyzePredictionPerformance(results: PredictionResult[]): Promise<PerformanceMetrics> {
+  private async analyzePredictionPerformance(
+    results: PredictionResult[]
+  ): Promise<PerformanceMetrics> {
     if (results.length === 0) {
       return {
         accuracy: 0,
         confidence: 0,
         stability: 0,
-        avgLatency: 0
-      }
+        avgLatency: 0,
+      };
     }
 
-    const avgConfidence = results.reduce((sum, r) => sum + r.confidence, 0) / results.length
-    const avgLatency = 0
-    const stability = this.calculateStability(results)
+    const avgConfidence =
+      results.reduce((sum, r) => sum + r.confidence, 0) / results.length;
+    const avgLatency = 0;
+    const stability = this.calculateStability(results);
 
     return {
       accuracy: avgConfidence,
       confidence: avgConfidence,
       stability,
       avgLatency,
-      predictionCount: results.length
-    }
+      predictionCount: results.length,
+    };
   }
 
-  private async detectPredictionDrift(results: PredictionResult[]): Promise<DriftAlert[]> {
-    if (results.length < 10) return []
+  private async detectPredictionDrift(
+    results: PredictionResult[]
+  ): Promise<DriftAlert[]> {
+    if (results.length < 10) return [];
 
-    const alerts: DriftAlert[] = []
-    const recentResults = results.slice(-10)
-    const olderResults = results.slice(-20, -10)
+    const alerts: DriftAlert[] = [];
+    const recentResults = results.slice(-10);
+    const olderResults = results.slice(-20, -10);
 
     if (olderResults.length > 0) {
-      const recentAvgConfidence = recentResults.reduce((sum, r) => sum + r.confidence, 0) / recentResults.length
-      const olderAvgConfidence = olderResults.reduce((sum, r) => sum + r.confidence, 0) / olderResults.length
+      const recentAvgConfidence =
+        recentResults.reduce((sum, r) => sum + r.confidence, 0) /
+        recentResults.length;
+      const olderAvgConfidence =
+        olderResults.reduce((sum, r) => sum + r.confidence, 0) /
+        olderResults.length;
 
       if (recentAvgConfidence < olderAvgConfidence * 0.8) {
         alerts.push({
           type: 'performance',
           severity: 'medium',
           description: '预测置信度下降',
-          timestamp: Date.now()
-        })
+          timestamp: Date.now(),
+        });
       }
     }
 
-    return alerts
+    return alerts;
   }
 
-  private async generateRecommendations(metrics: PerformanceMetrics, alerts: DriftAlert[]): Promise<Recommendation[]> {
-    const recommendations: Recommendation[] = []
+  private async generateRecommendations(
+    metrics: PerformanceMetrics,
+    alerts: DriftAlert[]
+  ): Promise<Recommendation[]> {
+    const recommendations: Recommendation[] = [];
 
     if (metrics.confidence < 0.7) {
       recommendations.push({
@@ -444,8 +515,8 @@ export class IntelligentPredictionService {
         priority: 'high',
         description: '模型置信度较低，建议重新训练',
         expectedImpact: '提高预测准确度15-30%',
-        effort: 'medium'
-      })
+        effort: 'medium',
+      });
     }
 
     if (alerts.length > 0) {
@@ -454,49 +525,55 @@ export class IntelligentPredictionService {
         priority: 'medium',
         description: '检测到数据漂移，建议更新训练数据',
         expectedImpact: '改善模型适应性',
-        effort: 'high'
-      })
+        effort: 'high',
+      });
     }
 
-    return recommendations
+    return recommendations;
   }
 
-  private assessPredictionRisk(metrics: PerformanceMetrics, alerts: DriftAlert[]): RiskAssessment {
-    let overall: 'low' | 'medium' | 'high' = 'low'
-    const factors = []
-    const mitigation = []
-    const monitoring = []
+  private assessPredictionRisk(
+    metrics: PerformanceMetrics,
+    alerts: DriftAlert[]
+  ): RiskAssessment {
+    let overall: 'low' | 'medium' | 'high' = 'low';
+    const factors = [];
+    const mitigation = [];
+    const monitoring = [];
 
     if (metrics.confidence < 0.6) {
-      overall = 'high'
+      overall = 'high';
       factors.push({
         type: 'model_performance',
         severity: 'high',
         description: '预测置信度过低',
-        impact: '可能产生不可靠的预测结果'
-      })
-      mitigation.push('重新训练模型，增加数据量')
-      monitoring.push('持续监控预测准确度')
+        impact: '可能产生不可靠的预测结果',
+      });
+      mitigation.push('重新训练模型，增加数据量');
+      monitoring.push('持续监控预测准确度');
     }
 
     if (alerts.length > 2) {
-      overall = 'medium'
+      overall = 'medium';
       factors.push({
         type: 'model_drift',
         severity: 'medium',
         description: '检测到多个性能问题',
-        impact: '模型性能可能持续下降'
-      })
+        impact: '模型性能可能持续下降',
+      });
     }
 
-    return { overall, factors, mitigation, monitoring }
+    return { overall, factors, mitigation, monitoring };
   }
 
-  private extractKeyInsights(results: PredictionResult[], _metrics: PerformanceMetrics): KeyInsight[] {
-    const insights: KeyInsight[] = []
+  private extractKeyInsights(
+    results: PredictionResult[],
+    _metrics: PerformanceMetrics
+  ): KeyInsight[] {
+    const insights: KeyInsight[] = [];
 
     if (results.length > 0) {
-      const latestResult = results[results.length - 1]
+      const latestResult = results[results.length - 1];
 
       if (latestResult.confidence > 0.9) {
         insights.push({
@@ -504,8 +581,8 @@ export class IntelligentPredictionService {
           description: '最新预测具有高置信度，可以作为重要决策依据',
           severity: 'low',
           confidence: latestResult.confidence,
-          actionability: 'immediate'
-        })
+          actionability: 'immediate',
+        });
       }
 
       if (latestResult.confidence < 0.5) {
@@ -514,57 +591,73 @@ export class IntelligentPredictionService {
           description: '最新预测置信度较低，建议谨慎使用',
           severity: 'medium',
           confidence: 1 - latestResult.confidence,
-          actionability: 'short_term'
-        })
+          actionability: 'short_term',
+        });
       }
     }
 
-    return insights
+    return insights;
   }
 
-  private generateInsightsSummary(metrics: PerformanceMetrics, alerts: DriftAlert[], recommendations: Recommendation[]): string {
-    const summary = []
+  private generateInsightsSummary(
+    metrics: PerformanceMetrics,
+    alerts: DriftAlert[],
+    recommendations: Recommendation[]
+  ): string {
+    const summary = [];
 
     if (metrics.confidence > 0.8) {
-      summary.push('预测性能良好')
+      summary.push('预测性能良好');
     } else if (metrics.confidence < 0.6) {
-      summary.push('预测性能需要改进')
+      summary.push('预测性能需要改进');
     }
 
     if (alerts.length > 0) {
-      summary.push(`检测到${alerts.length}个性能问题`)
+      summary.push(`检测到${alerts.length}个性能问题`);
     }
 
     if (recommendations.length > 0) {
-      summary.push(`有${recommendations.length}个改进建议`)
+      summary.push(`有${recommendations.length}个改进建议`);
     }
 
-    return summary.join('，') + '。'
+    return summary.join('，') + '。';
   }
 
-  private calculateOverallConfidence(metrics: PerformanceMetrics, alerts: DriftAlert[]): number {
-    let confidence = metrics.confidence || 0
+  private calculateOverallConfidence(
+    metrics: PerformanceMetrics,
+    alerts: DriftAlert[]
+  ): number {
+    let confidence = metrics.confidence || 0;
 
     // 根据警报调整置信度
     if (alerts.length > 0) {
       const penalty = alerts.reduce((sum, alert) => {
-        return sum + (alert.severity === 'high' ? 0.2 : alert.severity === 'medium' ? 0.1 : 0.05)
-      }, 0)
-      confidence = Math.max(0, confidence - penalty)
+        return (
+          sum +
+          (alert.severity === 'high'
+            ? 0.2
+            : alert.severity === 'medium'
+              ? 0.1
+              : 0.05)
+        );
+      }, 0);
+      confidence = Math.max(0, confidence - penalty);
     }
 
-    return confidence
+    return confidence;
   }
 
   private calculateStability(results: PredictionResult[]): number {
-    if (results.length < 2) return 1
+    if (results.length < 2) return 1;
 
-    const confidences = results.map(r => r.confidence)
-    const mean = confidences.reduce((a, b) => a + b, 0) / confidences.length
-    const variance = confidences.reduce((sum, c) => sum + Math.pow(c - mean, 2), 0) / confidences.length
+    const confidences = results.map(r => r.confidence);
+    const mean = confidences.reduce((a, b) => a + b, 0) / confidences.length;
+    const variance =
+      confidences.reduce((sum, c) => sum + Math.pow(c - mean, 2), 0) /
+      confidences.length;
 
     // 稳定性 = 1 - 变异系数
-    const cv = Math.sqrt(variance) / mean
-    return Math.max(0, 1 - cv)
+    const cv = Math.sqrt(variance) / mean;
+    return Math.max(0, 1 - cv);
   }
 }

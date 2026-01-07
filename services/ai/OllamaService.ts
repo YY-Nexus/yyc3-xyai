@@ -113,7 +113,10 @@ export class OllamaService {
   /**
    * 执行AI聊天对话
    */
-  async chat(messages: ChatMessage[], options: ChatOptions = {}): Promise<ChatResponse> {
+  async chat(
+    messages: ChatMessage[],
+    options: ChatOptions = {}
+  ): Promise<ChatResponse> {
     const startTime = Date.now();
     const requestId = this.generateRequestId();
 
@@ -126,14 +129,14 @@ export class OllamaService {
         model: options.model || this.currentModel,
         messages: messages.map(msg => ({
           role: msg.role,
-          content: msg.content
+          content: msg.content,
         })),
         stream: options.stream || false,
         options: {
           temperature: options.temperature ?? 0.7,
           top_p: options.top_p ?? 0.9,
           num_predict: options.max_tokens ?? 2048,
-        }
+        },
       };
 
       // 创建取消控制器
@@ -151,7 +154,9 @@ export class OllamaService {
       });
 
       if (!response.ok) {
-        throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Ollama API error: ${response.status} ${response.statusText}`
+        );
       }
 
       const result = await response.json();
@@ -174,14 +179,14 @@ export class OllamaService {
         usage: {
           prompt_tokens: result.prompt_eval_count || 0,
           completion_tokens: result.eval_count || 0,
-          total_tokens: (result.prompt_eval_count || 0) + (result.eval_count || 0),
+          total_tokens:
+            (result.prompt_eval_count || 0) + (result.eval_count || 0),
         },
         model: result.model,
         created_at: result.created_at,
         done: result.done,
         thinking_time: responseTime,
       };
-
     } catch (error) {
       // 清理请求队列
       this.requestQueue.delete(requestId);
@@ -194,7 +199,9 @@ export class OllamaService {
       }
 
       console.error('Ollama chat error:', error);
-      throw new Error(`AI chat failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `AI chat failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -213,14 +220,23 @@ export class OllamaService {
       return result.models || [];
     } catch (error) {
       console.error('Failed to list models:', error);
-      throw new Error(`Failed to retrieve model list: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Failed to retrieve model list: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
   /**
    * 下载模型
    */
-  async pullModel(modelName: string, onProgress?: (progress: { status: string; completed: number; total: number }) => void): Promise<void> {
+  async pullModel(
+    modelName: string,
+    onProgress?: (progress: {
+      status: string;
+      completed: number;
+      total: number;
+    }) => void
+  ): Promise<void> {
     try {
       const response = await fetch(`${this.baseURL}/api/pull`, {
         method: 'POST',
@@ -269,7 +285,9 @@ export class OllamaService {
       }
     } catch (error) {
       console.error('Failed to pull model:', error);
-      throw new Error(`Model download failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Model download failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -283,12 +301,16 @@ export class OllamaService {
       const modelExists = models.some(model => model.name === modelName);
 
       if (!modelExists) {
-        throw new Error(`Model ${modelName} not found. Please download it first.`);
+        throw new Error(
+          `Model ${modelName} not found. Please download it first.`
+        );
       }
 
       // 预热模型
       const startTime = Date.now();
-      await this.chat([{ role: 'user', content: 'Hello' }], { model: modelName });
+      await this.chat([{ role: 'user', content: 'Hello' }], {
+        model: modelName,
+      });
       const loadTime = Date.now() - startTime;
 
       // 更新当前模型
@@ -298,7 +320,9 @@ export class OllamaService {
       console.log(`Switched to model: ${modelName} (load time: ${loadTime}ms)`);
     } catch (error) {
       console.error('Failed to switch model:', error);
-      throw new Error(`Model switch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Model switch failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -316,7 +340,7 @@ export class OllamaService {
     const now = Date.now();
 
     // 缓存健康检查结果（30秒内）
-    if (this.healthCache && (now - this.lastHealthCheck) < 30000) {
+    if (this.healthCache && now - this.lastHealthCheck < 30000) {
       return this.healthCache;
     }
 
@@ -325,7 +349,7 @@ export class OllamaService {
 
       // 检查Ollama服务可用性
       const response = await fetch(`${this.baseURL}/api/tags`, {
-        signal: AbortSignal.timeout(5000)
+        signal: AbortSignal.timeout(5000),
       });
 
       const checkTime = Date.now() - startTime;
@@ -361,7 +385,6 @@ export class OllamaService {
 
       this.lastHealthCheck = now;
       return this.healthCache;
-
     } catch (error) {
       console.error('Health check failed:', error);
 
@@ -429,13 +452,18 @@ export class OllamaService {
     const currentAvg = this.metrics.avg_response_time;
 
     // 计算新的平均响应时间
-    this.metrics.avg_response_time = (currentAvg * (total - 1) + responseTime) / total;
+    this.metrics.avg_response_time =
+      (currentAvg * (total - 1) + responseTime) / total;
   }
 
   /**
    * 估算内存使用情况
    */
-  private async estimateMemoryUsage(): Promise<{ used: number; total: number; percentage: number }> {
+  private async estimateMemoryUsage(): Promise<{
+    used: number;
+    total: number;
+    percentage: number;
+  }> {
     // 简化实现，实际应该读取系统内存信息
     const total = 16 * 1024; // 16GB
     const used = Math.floor(total * 0.3 + Math.random() * total * 0.2); // 30-50%
@@ -455,7 +483,10 @@ export class OllamaService {
   /**
    * 确定健康状态
    */
-  private determineHealthStatus(responseTime: number, memoryUsage: number): 'healthy' | 'degraded' | 'unhealthy' {
+  private determineHealthStatus(
+    responseTime: number,
+    memoryUsage: number
+  ): 'healthy' | 'degraded' | 'unhealthy' {
     if (responseTime > 10000 || memoryUsage > 90) {
       return 'unhealthy';
     }
@@ -477,7 +508,9 @@ export class OllamaService {
     this.metrics.memory_usage = memoryUsage.percentage;
 
     // 计算每分钟请求数（简化实现）
-    this.metrics.requests_per_minute = Math.floor(this.metrics.total_requests / 10); // 简化计算
+    this.metrics.requests_per_minute = Math.floor(
+      this.metrics.total_requests / 10
+    ); // 简化计算
   }
 }
 

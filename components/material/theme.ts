@@ -8,15 +8,15 @@
  * - 响应式设置
  */
 
-import { createTheme, responsiveFontSizes } from '@mui/material/styles'
-import { Roboto } from 'next/font/google'
+import { createTheme, responsiveFontSizes } from '@mui/material/styles';
+import { Roboto } from 'next/font/google';
 
 // 配置字体
 const roboto = Roboto({
   weight: ['300', '400', '500', '700'],
   subsets: ['latin'],
   display: 'swap',
-})
+});
 
 // 创建主题
 let theme = createTheme({
@@ -148,10 +148,10 @@ let theme = createTheme({
       },
     },
   },
-})
+});
 
 // 响应式字体
-theme = responsiveFontSizes(theme)
+theme = responsiveFontSizes(theme);
 
 // 导出主题
-export default theme
+export default theme;

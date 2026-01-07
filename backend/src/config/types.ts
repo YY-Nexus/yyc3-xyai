@@ -50,13 +50,23 @@ export type TableIdentifier = string;
 export type RecordId = string | number;
 
 export interface DatabaseOperations {
-  query: <T = any>(text: string, params?: QueryParams) => Promise<QueryResult<T>>;
+  query: <T = any>(
+    text: string,
+    params?: QueryParams
+  ) => Promise<QueryResult<T>>;
   transaction: <T = any>(callback: TransactionCallback<T>) => Promise<T>;
   one: <T = any>(text: string, params?: QueryParams) => Promise<T | undefined>;
   many: <T = any>(text: string, params?: QueryParams) => Promise<T[]>;
   insert: (table: TableIdentifier, data: InsertData) => Promise<RecordId>;
-  update: <T = any>(table: TableIdentifier, id: RecordId, data: UpdateData) => Promise<T>;
-  delete: <T = any>(table: TableIdentifier, id: RecordId) => Promise<T | undefined>;
+  update: <T = any>(
+    table: TableIdentifier,
+    id: RecordId,
+    data: UpdateData
+  ) => Promise<T>;
+  delete: <T = any>(
+    table: TableIdentifier,
+    id: RecordId
+  ) => Promise<T | undefined>;
 }
 
 export interface RedisOperations {
@@ -87,8 +97,17 @@ export interface RedisOperations {
   scard: (key: string) => Promise<number>;
   zadd: (key: string, score: number, member: any) => Promise<number>;
   zrem: (key: string, ...members: any[]) => Promise<number>;
-  zrange: <T = any>(key: string, start: number, stop: number, withScores?: boolean) => Promise<T[]>;
-  zrangebyscore: <T = any>(key: string, min: number, max: number) => Promise<T[]>;
+  zrange: <T = any>(
+    key: string,
+    start: number,
+    stop: number,
+    withScores?: boolean
+  ) => Promise<T[]>;
+  zrangebyscore: <T = any>(
+    key: string,
+    min: number,
+    max: number
+  ) => Promise<T[]>;
   zcard: (key: string) => Promise<number>;
   zscore: (key: string, member: any) => Promise<number | null>;
   zrank: (key: string, member: any) => Promise<number | null>;
@@ -102,7 +121,7 @@ export enum LogLevel {
   HTTP = 'http',
   VERBOSE = 'verbose',
   DEBUG = 'debug',
-  SILLY = 'silly'
+  SILLY = 'silly',
 }
 
 export interface LogMetadata {

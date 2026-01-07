@@ -9,61 +9,64 @@
  * @license MIT
  */
 
-'use client'
+'use client';
 
-import React, { Component, ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import React, { Component, ReactNode } from 'react';
+import { motion } from 'framer-motion';
 
 interface ErrorBoundaryState {
-  hasError: boolean
-  error: Error | null
-  errorInfo: React.ErrorInfo | null
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: React.ErrorInfo | null;
 }
 
 interface ErrorBoundaryProps {
-  children: ReactNode
-  fallback?: ReactNode
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
-  showError?: boolean
-  maxRetries?: number
+  children: ReactNode;
+  fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  showError?: boolean;
+  maxRetries?: number;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private retryCount = 0
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  private retryCount = 0;
 
   constructor(props: ErrorBoundaryProps) {
-    super(props)
+    super(props);
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null
-    }
+      errorInfo: null,
+    };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return {
       hasError: true,
       error,
-      errorInfo: null
-    }
+      errorInfo: null,
+    };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({
       error,
-      errorInfo
-    })
+      errorInfo,
+    });
 
     // 记录错误到外部服务
-    this.logErrorToService(error, errorInfo)
+    this.logErrorToService(error, errorInfo);
 
     // 调用父组件的错误处理函数
-    this.props.onError?.(error, errorInfo)
+    this.props.onError?.(error, errorInfo);
   }
 
   private logErrorToService = (error: Error, errorInfo: React.ErrorInfo) => {
     // 这里可以集成错误监控服务，如Sentry
-    console.error('Error Boundary caught an error:', error, errorInfo)
+    console.error('Error Boundary caught an error:', error, errorInfo);
 
     // 发送错误报告到服务器
     if (typeof window !== 'undefined') {
@@ -76,46 +79,46 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           error: {
             message: error.message,
             stack: error.stack,
-            name: error.name
+            name: error.name,
           },
           errorInfo: {
             componentStack: errorInfo.componentStack,
-            errorBoundaryStack: errorInfo.errorBoundaryStack
+            errorBoundaryStack: errorInfo.errorBoundaryStack,
           },
           userAgent: navigator.userAgent,
           url: window.location.href,
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+        }),
       }).catch(err => {
-        console.warn('Failed to send error report:', err)
-      })
+        console.warn('Failed to send error report:', err);
+      });
     }
-  }
+  };
 
   private handleRetry = () => {
-    this.retryCount++
+    this.retryCount++;
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null
-    })
-  }
+      errorInfo: null,
+    });
+  };
 
   private canRetry = (): boolean => {
-    const maxRetries = this.props.maxRetries || 3
-    return this.retryCount < maxRetries
-  }
+    const maxRetries = this.props.maxRetries || 3;
+    return this.retryCount < maxRetries;
+  };
 
   render() {
     if (this.state.hasError) {
       // 如果有自定义fallback，使用它
       if (this.props.fallback) {
-        return this.props.fallback
+        return this.props.fallback;
       }
 
       // 如果不显示错误，返回null
       if (!this.props.showError) {
-        return null
+        return null;
       }
 
       // 默认错误UI
@@ -123,16 +126,16 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center justify-center p-8 bg-red-50 rounded-lg border border-red-200 min-h-[200px]"
+          className='flex flex-col items-center justify-center p-8 bg-red-50 rounded-lg border border-red-200 min-h-[200px]'
         >
-          <div className="text-center">
-            <div className="text-red-500 mb-4">
-              <i className="ri-error-warning-line text-4xl" />
+          <div className='text-center'>
+            <div className='text-red-500 mb-4'>
+              <i className='ri-error-warning-line text-4xl' />
             </div>
-            <h3 className="text-lg font-semibold text-red-800 mb-2">
+            <h3 className='text-lg font-semibold text-red-800 mb-2'>
               出现了一些问题
             </h3>
-            <p className="text-sm text-red-600 mb-6 max-w-md">
+            <p className='text-sm text-red-600 mb-6 max-w-md'>
               抱歉，系统遇到了意外错误。请尝试刷新页面或稍后再试。
             </p>
 
@@ -141,28 +144,28 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={this.handleRetry}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                className='px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors'
               >
-                <i className="ri-refresh-line mr-1" />
+                <i className='ri-refresh-line mr-1' />
                 重试 ({this.retryCount})
               </motion.button>
             )}
 
             <button
               onClick={() => window.location.reload()}
-              className="ml-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              className='ml-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors'
             >
-              <i className="ri-restart-line mr-1" />
+              <i className='ri-restart-line mr-1' />
               刷新页面
             </button>
 
             {/* 开发环境下显示详细错误信息 */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mt-4 text-left">
-                <summary className="text-xs text-red-500 cursor-pointer">
+              <details className='mt-4 text-left'>
+                <summary className='text-xs text-red-500 cursor-pointer'>
                   查看错误详情
                 </summary>
-                <pre className="mt-2 p-2 bg-red-100 rounded text-xs overflow-auto max-h-32">
+                <pre className='mt-2 p-2 bg-red-100 rounded text-xs overflow-auto max-h-32'>
                   {this.state.error.toString()}
                   {this.state.errorInfo?.componentStack}
                 </pre>
@@ -170,47 +173,47 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             )}
           </div>
         </motion.div>
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }
 
 // 错误边界Hook
 export function useErrorHandler() {
-  const [error, setError] = React.useState<Error | null>(null)
+  const [error, setError] = React.useState<Error | null>(null);
 
   const handleError = React.useCallback((err: Error) => {
-    setError(err)
-    console.error('Error caught by useErrorHandler:', err)
-  }, [])
+    setError(err);
+    console.error('Error caught by useErrorHandler:', err);
+  }, []);
 
   const clearError = React.useCallback(() => {
-    setError(null)
-  }, [])
+    setError(null);
+  }, []);
 
   return {
     error,
     handleError,
     clearError,
-    hasError: !!error
-  }
+    hasError: !!error,
+  };
 }
 
 // 错误恢复组件
 export function ErrorRecovery({
   children,
   fallback,
-  error
+  error,
 }: {
-  children: ReactNode
-  fallback?: ReactNode
-  error?: Error | null
+  children: ReactNode;
+  fallback?: ReactNode;
+  error?: Error | null;
 }) {
   const handleRetry = () => {
-    window.location.reload()
-  }
+    window.location.reload();
+  };
 
   if (error) {
     return (
@@ -218,24 +221,22 @@ export function ErrorRecovery({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center p-6 bg-yellow-50 rounded-lg border border-yellow-200"
+          className='text-center p-6 bg-yellow-50 rounded-lg border border-yellow-200'
         >
-          <i className="ri-alert-line text-3xl text-yellow-600 mb-2" />
-          <p className="text-sm text-yellow-800 mb-2">
-            加载出现问题，请重试
-          </p>
+          <i className='ri-alert-line text-3xl text-yellow-600 mb-2' />
+          <p className='text-sm text-yellow-800 mb-2'>加载出现问题，请重试</p>
           <button
             onClick={handleRetry}
-            className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+            className='px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors'
           >
             重试
           </button>
         </motion.div>
       )
-    )
+    );
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 // 网络错误边界
@@ -244,11 +245,11 @@ export class NetworkErrorBoundary extends Component<
   { hasNetworkError: boolean; error: Error | null }
 > {
   constructor(props: { children: ReactNode; fallback?: ReactNode }) {
-    super(props)
+    super(props);
     this.state = {
       hasNetworkError: false,
-      error: null
-    }
+      error: null,
+    };
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -260,35 +261,38 @@ export class NetworkErrorBoundary extends Component<
     ) {
       return {
         hasNetworkError: true,
-        error
-      }
+        error,
+      };
     }
-    return null
+    return null;
   }
 
   componentDidMount() {
     // 监听网络状态
-    window.addEventListener('online', this.handleOnline)
-    window.addEventListener('offline', this.handleOffline)
+    window.addEventListener('online', this.handleOnline);
+    window.addEventListener('offline', this.handleOffline);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('online', this.handleOnline)
-    window.removeEventListener('offline', this.handleOffline)
+    window.removeEventListener('online', this.handleOnline);
+    window.removeEventListener('offline', this.handleOffline);
   }
 
   private handleOnline = () => {
-    this.setState({ hasNetworkError: false })
-  }
+    this.setState({ hasNetworkError: false });
+  };
 
   private handleOffline = () => {
-    this.setState({ hasNetworkError: true, error: new Error('Network offline') })
-  }
+    this.setState({
+      hasNetworkError: true,
+      error: new Error('Network offline'),
+    });
+  };
 
   private handleRetry = () => {
-    this.setState({ hasNetworkError: false, error: null })
-    window.location.reload()
-  }
+    this.setState({ hasNetworkError: false, error: null });
+    window.location.reload();
+  };
 
   render() {
     if (this.state.hasNetworkError) {
@@ -297,27 +301,27 @@ export class NetworkErrorBoundary extends Component<
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center p-8 bg-orange-50 rounded-lg border border-orange-200 min-h-[200px]"
+            className='flex flex-col items-center justify-center p-8 bg-orange-50 rounded-lg border border-orange-200 min-h-[200px]'
           >
-            <i className="ri-wifi-off-line text-4xl text-orange-500 mb-4" />
-            <h3 className="text-lg font-semibold text-orange-800 mb-2">
+            <i className='ri-wifi-off-line text-4xl text-orange-500 mb-4' />
+            <h3 className='text-lg font-semibold text-orange-800 mb-2'>
               网络连接问题
             </h3>
-            <p className="text-sm text-orange-600 mb-4 text-center">
+            <p className='text-sm text-orange-600 mb-4 text-center'>
               无法连接到服务器，请检查网络连接后重试。
             </p>
             <button
               onClick={this.handleRetry}
-              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              className='px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors'
             >
-              <i className="ri-refresh-line mr-1" />
+              <i className='ri-refresh-line mr-1' />
               重新连接
             </button>
           </motion.div>
         )
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }

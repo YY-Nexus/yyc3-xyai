@@ -51,11 +51,11 @@ interface SpeechRecognitionAlternative {
 interface Window {
   SpeechRecognition?: {
     prototype: SpeechRecognition;
-    new(): SpeechRecognition;
+    new (): SpeechRecognition;
   };
   webkitSpeechRecognition?: {
     prototype: SpeechRecognition;
-    new(): SpeechRecognition;
+    new (): SpeechRecognition;
   };
 }
 
@@ -65,5 +65,5 @@ export {
   SpeechRecognitionErrorEvent,
   SpeechRecognitionResult,
   SpeechRecognitionResultList,
-  SpeechRecognitionAlternative
+  SpeechRecognitionAlternative,
 };

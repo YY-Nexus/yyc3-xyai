@@ -21,7 +21,7 @@ import {
   ContentBasedFilteringResult,
   KnowledgePathResult,
   GraphNeuralNetworkInput,
-  GNNRecommendationResult
+  GNNRecommendationResult,
 } from './Neo4jService';
 
 // 推荐算法配置
@@ -157,7 +157,7 @@ export class RecommendationEngine {
       diversity_weight: 0.05,
       recency_weight: 0.05,
       max_recommendations: 10,
-      similarity_threshold: 0.1
+      similarity_threshold: 0.1,
     };
 
     this.userItemMatrix = new Map();
@@ -168,7 +168,9 @@ export class RecommendationEngine {
   /**
    * 获取个性化推荐
    */
-  async getRecommendations(request: RecommendationRequest): Promise<RecommendationResponse> {
+  async getRecommendations(
+    request: RecommendationRequest
+  ): Promise<RecommendationResponse> {
     const startTime = Date.now();
 
     // 合并配置
@@ -186,25 +188,36 @@ export class RecommendationEngine {
         collaborativeResults,
         contentBasedResults,
         gnnResults,
-        popularityResults
+        popularityResults,
       ] = await Promise.all([
         this.collaborativeFiltering(request.child_id, config),
         this.contentBasedFiltering(request.child_id, config),
         this.graphNeuralNetworkRecommendations(request.child_id, config),
-        this.popularityBasedRecommendations(request.child_id, config)
+        this.popularityBasedRecommendations(request.child_id, config),
       ]);
 
       // 混合推荐结果
       const mixedResults = this.mixRecommendations(
-        [collaborativeResults, contentBasedResults, gnnResults, popularityResults],
+        [
+          collaborativeResults,
+          contentBasedResults,
+          gnnResults,
+          popularityResults,
+        ],
         config
       );
 
       // 多样性优化
-      const diversifiedResults = this.diversifyRecommendations(mixedResults, config);
+      const diversifiedResults = this.diversifyRecommendations(
+        mixedResults,
+        config
+      );
 
       // 上下文过滤
-      const contextualResults = this.filterByContext(diversifiedResults, request.context);
+      const contextualResults = this.filterByContext(
+        diversifiedResults,
+        request.context
+      );
 
       // 构建响应
       const processingTime = Date.now() - startTime;
@@ -216,12 +229,11 @@ export class RecommendationEngine {
           processing_time: processingTime,
           confidence_score: this.calculateConfidenceScore(contextualResults),
           diversity_score: this.calculateDiversityScore(contextualResults),
-          explanation: this.generateExplanation(contextualResults, config)
-        }
+          explanation: this.generateExplanation(contextualResults, config),
+        },
       };
 
       return response;
-
     } catch (error) {
       console.error('Recommendation engine error:', error);
       throw new Error(`Failed to generate recommendations: ${error}`);
@@ -249,12 +261,13 @@ export class RecommendationEngine {
         // 获取相似儿童的知识和活动
         const [similarKnowledge, similarActivities] = await Promise.all([
           neo4jService.getChildKnowledge(similar.child_id),
-          neo4jService.getChildActivities(similar.child_id)
+          neo4jService.getChildActivities(similar.child_id),
         ]);
 
         // 基于相似度计算推荐分数
         for (const knowledge of similarKnowledge) {
-          const recommendationScore = similar.similarity_score * knowledge.mastery_level;
+          const recommendationScore =
+            similar.similarity_score * knowledge.mastery_level;
           results.push({
             item_id: knowledge.knowledge_id,
             item_type: 'knowledge',
@@ -267,13 +280,14 @@ export class RecommendationEngine {
               algorithm: 'collaborative_filtering',
               similar_user: similar.child_id,
               user_similarity: similar.similarity_score,
-              item_mastery: knowledge.mastery_level
-            }
+              item_mastery: knowledge.mastery_level,
+            },
           });
         }
 
         for (const activity of similarActivities) {
-          const recommendationScore = similar.similarity_score * activity.completion_rate;
+          const recommendationScore =
+            similar.similarity_score * activity.completion_rate;
           results.push({
             item_id: activity.activity_id,
             item_type: 'activity',
@@ -286,14 +300,15 @@ export class RecommendationEngine {
               algorithm: 'collaborative_filtering',
               similar_user: similar.child_id,
               user_similarity: similar.similarity_score,
-              activity_completion: activity.completion_rate
-            }
+              activity_completion: activity.completion_rate,
+            },
           });
         }
       }
 
-      return results.sort((a, b) => b.recommendation_score - a.recommendation_score);
-
+      return results.sort(
+        (a, b) => b.recommendation_score - a.recommendation_score
+      );
     } catch (error) {
       console.error('Collaborative filtering error:', error);
       return [];
@@ -316,7 +331,7 @@ export class RecommendationEngine {
 
       const [currentKnowledge, currentAbilities] = await Promise.all([
         neo4jService.getChildKnowledge(childId),
-        neo4jService.getChildAbilities(childId)
+        neo4jService.getChildAbilities(childId),
       ]);
 
       const results: RecommendationResult[] = [];
@@ -324,19 +339,23 @@ export class RecommendationEngine {
       // 基于当前知识推荐相关知识
       for (const knowledge of currentKnowledge) {
         // 查找相关但未掌握的知识
-        const relatedKnowledge = await neo4jService.query(`
+        const relatedKnowledge = await neo4jService.query(
+          `
           MATCH (current:Knowledge {id: $knowledgeId})-[:PREREQUISITE|RELATED_TO]->(related:Knowledge)
           WHERE NOT (:Child {id: $childId})-[:HAS_KNOWLEDGE]->(related)
           RETURN related, COUNT(*) as connection_strength
           ORDER BY connection_strength DESC
           LIMIT 5
-        `, { knowledgeId: knowledge.knowledge_id, childId });
+        `,
+          { knowledgeId: knowledge.knowledge_id, childId }
+        );
 
         for (const record of relatedKnowledge) {
           const relatedNode = record.get('related');
           const connectionStrength = record.get('connection_strength');
 
-          const recommendationScore = knowledge.mastery_level * (connectionStrength / 10);
+          const recommendationScore =
+            knowledge.mastery_level * (connectionStrength / 10);
 
           results.push({
             item_id: relatedNode.properties.id,
@@ -350,21 +369,24 @@ export class RecommendationEngine {
               algorithm: 'content_based',
               base_knowledge: knowledge.knowledge_id,
               connection_strength: connectionStrength,
-              mastery_prerequisite: knowledge.mastery_level
-            }
+              mastery_prerequisite: knowledge.mastery_level,
+            },
           });
         }
       }
 
       // 基于能力推荐相关活动
       for (const ability of currentAbilities) {
-        const relatedActivities = await neo4jService.query(`
+        const relatedActivities = await neo4jService.query(
+          `
           MATCH (current:Ability {id: $abilityId})<-[:DEVELOPS]-(activity:Activity)
           WHERE NOT (:Child {id: $childId})-[:PARTICIPATED_IN]->(activity)
           RETURN activity, activity.difficulty_level as difficulty
           ORDER BY difficulty ASC
           LIMIT 3
-        `, { abilityId: ability.ability_id, childId });
+        `,
+          { abilityId: ability.ability_id, childId }
+        );
 
         for (const record of relatedActivities) {
           const activityNode = record.get('activity');
@@ -386,14 +408,15 @@ export class RecommendationEngine {
               algorithm: 'content_based',
               base_ability: ability.ability_id,
               difficulty_match: difficultyMatch,
-              ability_level: ability.level
-            }
+              ability_level: ability.level,
+            },
           });
         }
       }
 
-      return results.sort((a, b) => b.recommendation_score - a.recommendation_score);
-
+      return results.sort(
+        (a, b) => b.recommendation_score - a.recommendation_score
+      );
     } catch (error) {
       console.error('Content-based filtering error:', error);
       return [];
@@ -419,7 +442,9 @@ export class RecommendationEngine {
       // 生成推荐
       const results: RecommendationResult[] = [];
 
-      for (const [itemId, embedding] of Object.entries(gnnEmbeddings.item_embeddings)) {
+      for (const [itemId, embedding] of Object.entries(
+        gnnEmbeddings.item_embeddings
+      )) {
         // 计算用户嵌入和物品嵌入的相似度
         const userEmbedding = gnnEmbeddings.user_embedding;
         const similarity = this.cosineSimilarity(userEmbedding, embedding);
@@ -429,7 +454,9 @@ export class RecommendationEngine {
           if (itemNode) {
             results.push({
               item_id: itemId,
-              item_type: itemNode.labels.includes('Knowledge') ? 'knowledge' : 'activity',
+              item_type: itemNode.labels.includes('Knowledge')
+                ? 'knowledge'
+                : 'activity',
               title: itemNode.properties.title,
               description: itemNode.properties.description,
               recommendation_score: similarity,
@@ -439,16 +466,16 @@ export class RecommendationEngine {
                 algorithm: 'graph_neural_network',
                 embedding_similarity: similarity,
                 user_embedding_dim: userEmbedding.length,
-                item_embedding_dim: embedding.length
-              }
+                item_embedding_dim: embedding.length,
+              },
             });
           }
         }
       }
 
-      return results.sort((a, b) => b.recommendation_score - a.recommendation_score)
-                   .slice(0, config.max_recommendations);
-
+      return results
+        .sort((a, b) => b.recommendation_score - a.recommendation_score)
+        .slice(0, config.max_recommendations);
     } catch (error) {
       console.error('GNN recommendation error:', error);
       return [];
@@ -468,7 +495,8 @@ export class RecommendationEngine {
       const results: RecommendationResult[] = [];
 
       // 热门知识推荐
-      const popularKnowledge = await neo4jService.query(`
+      const popularKnowledge = await neo4jService.query(
+        `
         MATCH (k:Knowledge)<-[hk:HAS_KNOWLEDGE]-(c:Child)
         WHERE hk.mastery_level > 0.7
         WITH k, AVG(hk.mastery_level) as avg_mastery, COUNT(DISTINCT c) as child_count
@@ -476,14 +504,17 @@ export class RecommendationEngine {
         RETURN k, avg_mastery, child_count
         ORDER BY avg_mastery DESC, child_count DESC
         LIMIT 5
-      `, { childId });
+      `,
+        { childId }
+      );
 
       for (const record of popularKnowledge) {
         const knowledgeNode = record.get('k');
         const avgMastery = record.get('avg_mastery');
         const childCount = record.get('child_count');
 
-        const popularityScore = (avgMastery * 0.6 + Math.min(childCount / 100, 1) * 0.4);
+        const popularityScore =
+          avgMastery * 0.6 + Math.min(childCount / 100, 1) * 0.4;
 
         results.push({
           item_id: knowledgeNode.properties.id,
@@ -497,13 +528,14 @@ export class RecommendationEngine {
             algorithm: 'popularity_based',
             avg_mastery: avgMastery,
             child_count: childCount,
-            popularity_score: popularityScore
-          }
+            popularity_score: popularityScore,
+          },
         });
       }
 
       // 热门活动推荐
-      const popularActivities = await neo4jService.query(`
+      const popularActivities = await neo4jService.query(
+        `
         MATCH (a:Activity)<-[pa:PARTICIPATED_IN]-(c:Child)
         WHERE pa.completion_rate > 0.8
         WITH a, AVG(pa.completion_rate) as avg_completion, COUNT(DISTINCT c) as child_count
@@ -511,14 +543,17 @@ export class RecommendationEngine {
         RETURN a, avg_completion, child_count
         ORDER BY avg_completion DESC, child_count DESC
         LIMIT 5
-      `, { childId });
+      `,
+        { childId }
+      );
 
       for (const record of popularActivities) {
         const activityNode = record.get('a');
         const avgCompletion = record.get('avg_completion');
         const childCount = record.get('child_count');
 
-        const popularityScore = (avgCompletion * 0.6 + Math.min(childCount / 100, 1) * 0.4);
+        const popularityScore =
+          avgCompletion * 0.6 + Math.min(childCount / 100, 1) * 0.4;
 
         results.push({
           item_id: activityNode.properties.id,
@@ -532,13 +567,14 @@ export class RecommendationEngine {
             algorithm: 'popularity_based',
             avg_completion: avgCompletion,
             child_count: childCount,
-            popularity_score: popularityScore
-          }
+            popularity_score: popularityScore,
+          },
         });
       }
 
-      return results.sort((a, b) => b.recommendation_score - a.recommendation_score);
-
+      return results.sort(
+        (a, b) => b.recommendation_score - a.recommendation_score
+      );
     } catch (error) {
       console.error('Popularity-based recommendation error:', error);
       return [];
@@ -558,7 +594,7 @@ export class RecommendationEngine {
       config.collaborative_weight,
       config.content_weight,
       config.gnn_weight,
-      config.popularity_weight
+      config.popularity_weight,
     ];
 
     const mixedResults = new Map<string, RecommendationResult>();
@@ -573,20 +609,24 @@ export class RecommendationEngine {
           // 如果已存在，合并权重
           const existing = mixedResults.get(key)!;
           existing.recommendation_score =
-            existing.recommendation_score + result.recommendation_score * weight;
-          existing.confidence = Math.max(existing.confidence, result.confidence);
+            existing.recommendation_score +
+            result.recommendation_score * weight;
+          existing.confidence = Math.max(
+            existing.confidence,
+            result.confidence
+          );
           existing.metadata = {
             ...existing.metadata,
             mixed_algorithms: [
               ...(existing.metadata.mixed_algorithms || []),
-              result.metadata.algorithm
-            ]
+              result.metadata.algorithm,
+            ],
           };
         } else {
           // 新增结果
           mixedResults.set(key, {
             ...result,
-            recommendation_score: result.recommendation_score * weight
+            recommendation_score: result.recommendation_score * weight,
           });
         }
       });
@@ -656,7 +696,10 @@ export class RecommendationEngine {
   /**
    * 检查活动是否适合特定时间
    */
-  private isSuitableForTime(result: RecommendationResult, timeOfDay: string): boolean {
+  private isSuitableForTime(
+    result: RecommendationResult,
+    timeOfDay: string
+  ): boolean {
     // 这里可以根据活动类型、难度等判断是否适合当前时间
     // 简化实现
     if (result.item_type === 'activity') {
@@ -671,7 +714,10 @@ export class RecommendationEngine {
   /**
    * 检查活动是否适合特定地点
    */
-  private isSuitableForLocation(result: RecommendationResult, location: string): boolean {
+  private isSuitableForLocation(
+    result: RecommendationResult,
+    location: string
+  ): boolean {
     // 简化实现
     if (result.item_type === 'activity') {
       if (location === 'home' && result.metadata.requires_outdoor_space) {
@@ -695,7 +741,7 @@ export class RecommendationEngine {
     const grouped = {
       knowledge: [] as RecommendationResult[],
       activity: [] as RecommendationResult[],
-      ability: [] as RecommendationResult[]
+      ability: [] as RecommendationResult[],
     };
 
     results.forEach(result => {
@@ -711,7 +757,9 @@ export class RecommendationEngine {
   private calculateConfidenceScore(results: RecommendationResult[]): number {
     if (results.length === 0) return 0;
 
-    const avgConfidence = results.reduce((sum, result) => sum + result.confidence, 0) / results.length;
+    const avgConfidence =
+      results.reduce((sum, result) => sum + result.confidence, 0) /
+      results.length;
     return Math.min(avgConfidence, 1.0);
   }
 
@@ -728,14 +776,20 @@ export class RecommendationEngine {
   /**
    * 生成推荐解释
    */
-  private generateExplanation(results: RecommendationResult[], config: RecommendationConfig): string[] {
+  private generateExplanation(
+    results: RecommendationResult[],
+    config: RecommendationConfig
+  ): string[] {
     const explanations: string[] = [];
 
-    const algorithmCounts = results.reduce((counts, result) => {
-      const algorithm = result.metadata.algorithm;
-      counts[algorithm] = (counts[algorithm] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
+    const algorithmCounts = results.reduce(
+      (counts, result) => {
+        const algorithm = result.metadata.algorithm;
+        counts[algorithm] = (counts[algorithm] || 0) + 1;
+        return counts;
+      },
+      {} as Record<string, number>
+    );
 
     for (const [algorithm, count] of Object.entries(algorithmCounts)) {
       const percentage = (count / results.length) * 100;
@@ -744,10 +798,14 @@ export class RecommendationEngine {
           explanations.push(`${percentage.toFixed(1)}% 基于相似用户的行为推荐`);
           break;
         case 'content_based':
-          explanations.push(`${percentage.toFixed(1)}% 基于您孩子的学习内容和能力匹配`);
+          explanations.push(
+            `${percentage.toFixed(1)}% 基于您孩子的学习内容和能力匹配`
+          );
           break;
         case 'graph_neural_network':
-          explanations.push(`${percentage.toFixed(1)}% 基于AI深度学习的智能分析`);
+          explanations.push(
+            `${percentage.toFixed(1)}% 基于AI深度学习的智能分析`
+          );
           break;
         case 'popularity_based':
           explanations.push(`${percentage.toFixed(1)}% 基于其他孩子的热门选择`);
@@ -761,15 +819,25 @@ export class RecommendationEngine {
   /**
    * 构建图神经网络输入
    */
-  private async buildGNNInput(childId: string): Promise<GraphNeuralNetworkInput> {
+  private async buildGNNInput(
+    childId: string
+  ): Promise<GraphNeuralNetworkInput> {
     // 获取用户的邻居节点和边
-    const neighbors = await neo4jService.query(`
+    const neighbors = await neo4jService.query(
+      `
       MATCH (child:Child {id: $childId})-[r]-(neighbor)
       RETURN child, r, neighbor, labels(neighbor) as neighbor_labels
-    `, { childId });
+    `,
+      { childId }
+    );
 
     const nodes = [childId];
-    const edges: Array<{source: string, target: string, type: string, weight: number}> = [];
+    const edges: Array<{
+      source: string;
+      target: string;
+      type: string;
+      weight: number;
+    }> = [];
     const features: Record<string, number[]> = {};
 
     // 构建节点特征
@@ -799,14 +867,14 @@ export class RecommendationEngine {
         source: childId,
         target: neighborId,
         type: relationship.type,
-        weight: relationship.properties.weight || 1.0
+        weight: relationship.properties.weight || 1.0,
       });
     }
 
     return {
       nodes,
       edges,
-      features
+      features,
     };
   }
 
@@ -814,8 +882,8 @@ export class RecommendationEngine {
    * 执行图神经网络推理
    */
   private async performGNNInference(input: GraphNeuralNetworkInput): Promise<{
-    user_embedding: number[],
-    item_embeddings: Record<string, number[]>
+    user_embedding: number[];
+    item_embeddings: Record<string, number[]>;
   }> {
     // 简化的GNN实现（实际应用中会使用TensorFlow.js或ONNX.js）
     const featureDim = 64; // 嵌入维度
@@ -823,7 +891,9 @@ export class RecommendationEngine {
 
     // 初始化随机嵌入
     for (const nodeId of input.nodes) {
-      embeddings[nodeId] = Array.from({ length: featureDim }, () => Math.random());
+      embeddings[nodeId] = Array.from({ length: featureDim }, () =>
+        Math.random()
+      );
     }
 
     // 模拟2层图卷积
@@ -833,7 +903,7 @@ export class RecommendationEngine {
       for (const nodeId of input.nodes) {
         const neighbors = input.edges
           .filter(edge => edge.target === nodeId || edge.source === nodeId)
-          .map(edge => edge.target === nodeId ? edge.source : edge.target);
+          .map(edge => (edge.target === nodeId ? edge.source : edge.target));
 
         // 聚合邻居嵌入
         let neighborSum = new Array(featureDim).fill(0);
@@ -849,7 +919,8 @@ export class RecommendationEngine {
         newEmbeddings[nodeId] = [];
         for (let i = 0; i < featureDim; i++) {
           newEmbeddings[nodeId][i] = Math.tanh(
-            currentEmbedding[i] * 0.5 + (neighborSum[i] / neighbors.length) * 0.5
+            currentEmbedding[i] * 0.5 +
+              (neighborSum[i] / neighbors.length) * 0.5
           );
         }
       }
@@ -868,7 +939,7 @@ export class RecommendationEngine {
 
     return {
       user_embedding: userEmbedding,
-      item_embeddings: itemEmbeddings
+      item_embeddings: itemEmbeddings,
     };
   }
 
@@ -887,10 +958,13 @@ export class RecommendationEngine {
    * 根据ID获取项目节点
    */
   private async getItemById(itemId: string): Promise<Neo4jNode | null> {
-    const result = await neo4jService.query(`
+    const result = await neo4jService.query(
+      `
       MATCH (n {id: $itemId})
       RETURN n, labels(n) as labels
-    `, { itemId });
+    `,
+      { itemId }
+    );
 
     return result.length > 0 ? result[0].get('n') : null;
   }
@@ -907,7 +981,7 @@ export class RecommendationEngine {
       child.age / 18, // 归一化年龄
       child.gender === 'male' ? 1 : 0,
       child.interests.length / 10, // 兴趣数量
-      ...new Array(61).fill(0) // 填充到64维
+      ...new Array(61).fill(0), // 填充到64维
     ];
   }
 
@@ -919,7 +993,7 @@ export class RecommendationEngine {
     return [
       props.difficulty_level || 0.5,
       props.importance || 0.5,
-      ...new Array(62).fill(0) // 填充到64维
+      ...new Array(62).fill(0), // 填充到64维
     ];
   }
 
@@ -932,7 +1006,7 @@ export class RecommendationEngine {
       props.difficulty_level || 0.5,
       (props.duration_minutes || 60) / 120, // 归一化时长
       props.energy_required || 0.5,
-      ...new Array(61).fill(0) // 填充到64维
+      ...new Array(61).fill(0), // 填充到64维
     ];
   }
 
@@ -944,7 +1018,7 @@ export class RecommendationEngine {
     return [
       props.level || 0.5,
       props.potential || 0.5,
-      ...new Array(62).fill(0) // 填充到64维
+      ...new Array(62).fill(0), // 填充到64维
     ];
   }
 
@@ -1002,13 +1076,19 @@ export class RecommendationEngine {
     const ratings2 = this.userItemMatrix.get(user2) || new Map();
 
     // 找到共同评分的物品
-    const commonItems = Array.from(ratings1.keys()).filter(item => ratings2.has(item));
+    const commonItems = Array.from(ratings1.keys()).filter(item =>
+      ratings2.has(item)
+    );
 
     if (commonItems.length === 0) return 0;
 
     // 计算皮尔逊相关系数
-    const avg1 = commonItems.reduce((sum, item) => sum + ratings1.get(item)!, 0) / commonItems.length;
-    const avg2 = commonItems.reduce((sum, item) => sum + ratings2.get(item)!, 0) / commonItems.length;
+    const avg1 =
+      commonItems.reduce((sum, item) => sum + ratings1.get(item)!, 0) /
+      commonItems.length;
+    const avg2 =
+      commonItems.reduce((sum, item) => sum + ratings2.get(item)!, 0) /
+      commonItems.length;
 
     let numerator = 0;
     let denominator1 = 0;
@@ -1030,47 +1110,61 @@ export class RecommendationEngine {
   /**
    * 实时推荐更新
    */
-  async updateRecommendations(childId: string, feedback: {
-    item_id: string;
-    item_type: 'knowledge' | 'activity' | 'ability';
-    rating: number; // 1-5
-    interaction_time: number; // 交互时长（秒）
-  }): Promise<void> {
+  async updateRecommendations(
+    childId: string,
+    feedback: {
+      item_id: string;
+      item_type: 'knowledge' | 'activity' | 'ability';
+      rating: number; // 1-5
+      interaction_time: number; // 交互时长（秒）
+    }
+  ): Promise<void> {
     try {
       // 更新用户-物品矩阵
-      await this.updateUserItemMatrix(childId, feedback.item_id, feedback.rating);
+      await this.updateUserItemMatrix(
+        childId,
+        feedback.item_id,
+        feedback.rating
+      );
 
       // 更新Neo4j中的关系权重
       if (feedback.item_type === 'knowledge') {
-        await neo4jService.query(`
+        await neo4jService.query(
+          `
           MATCH (child:Child {id: $childId})-[r:HAS_KNOWLEDGE]->(knowledge:Knowledge {id: $itemId})
           SET r.last_interaction = timestamp(),
               r.total_interaction_time = COALESCE(r.total_interaction_time, 0) + $interactionTime,
               r.interaction_count = COALESCE(r.interaction_count, 0) + 1,
               r.feedback_score = $rating
-        `, {
-          childId,
-          itemId: feedback.item_id,
-          interactionTime: feedback.interaction_time,
-          rating: feedback.rating
-        });
+        `,
+          {
+            childId,
+            itemId: feedback.item_id,
+            interactionTime: feedback.interaction_time,
+            rating: feedback.rating,
+          }
+        );
       } else if (feedback.item_type === 'activity') {
-        await neo4jService.query(`
+        await neo4jService.query(
+          `
           MATCH (child:Child {id: $childId})-[r:PARTICIPATED_IN]->(activity:Activity {id: $itemId})
           SET r.last_interaction = timestamp(),
               r.total_interaction_time = COALESCE(r.total_interaction_time, 0) + $interactionTime,
               r.interaction_count = COALESCE(r.interaction_count, 0) + 1,
               r.feedback_score = $rating
-        `, {
-          childId,
-          itemId: feedback.item_id,
-          interactionTime: feedback.interaction_time,
-          rating: feedback.rating
-        });
+        `,
+          {
+            childId,
+            itemId: feedback.item_id,
+            interactionTime: feedback.interaction_time,
+            rating: feedback.rating,
+          }
+        );
       }
 
-      console.log(`Updated recommendations for child ${childId} based on feedback`);
-
+      console.log(
+        `Updated recommendations for child ${childId} based on feedback`
+      );
     } catch (error) {
       console.error('Failed to update recommendations:', error);
       throw error;
@@ -1085,11 +1179,14 @@ export class RecommendationEngine {
     average_confidence: number;
     diversity_score: number;
     coverage_rate: number;
-    algorithm_performance: Record<string, {
-      usage_count: number;
-      average_score: number;
-      user_satisfaction: number;
-    }>;
+    algorithm_performance: Record<
+      string,
+      {
+        usage_count: number;
+        average_score: number;
+        user_satisfaction: number;
+      }
+    >;
   }> {
     try {
       // 这里应该从数据库中获取实际指标
@@ -1103,24 +1200,24 @@ export class RecommendationEngine {
           collaborative_filtering: {
             usage_count: 450,
             average_score: 0.78,
-            user_satisfaction: 0.81
+            user_satisfaction: 0.81,
           },
           content_based: {
             usage_count: 380,
             average_score: 0.85,
-            user_satisfaction: 0.83
+            user_satisfaction: 0.83,
           },
           graph_neural_network: {
             usage_count: 320,
             average_score: 0.89,
-            user_satisfaction: 0.87
+            user_satisfaction: 0.87,
           },
           popularity_based: {
             usage_count: 100,
             average_score: 0.72,
-            user_satisfaction: 0.75
-          }
-        }
+            user_satisfaction: 0.75,
+          },
+        },
       };
     } catch (error) {
       console.error('Failed to get recommendation metrics:', error);

@@ -11,7 +11,13 @@
 
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  ReactNode,
+} from 'react';
 import { apiClient } from '@/lib/api/client';
 
 // Types
@@ -153,7 +159,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '登录时发生错误';
+      const errorMessage =
+        error instanceof Error ? error.message : '登录时发生错误';
 
       setAuthState({
         user: null,
@@ -205,7 +212,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '注册时发生错误';
+      const errorMessage =
+        error instanceof Error ? error.message : '注册时发生错误';
 
       setAuthState({
         user: null,
@@ -273,7 +281,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '更新资料时发生错误';
+      const errorMessage =
+        error instanceof Error ? error.message : '更新资料时发生错误';
 
       setAuthState(prev => ({
         ...prev,
@@ -320,11 +329,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearError,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 // Hook to use auth context
@@ -395,7 +400,13 @@ interface UseAuthReturn {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signUp: (email: string, password: string, firstName?: string, lastName?: string, phone?: string) => Promise<boolean>;
+  signUp: (
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+    phone?: string
+  ) => Promise<boolean>;
   signIn: (email: string, password: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   updateProfile: (profileData: {
@@ -415,8 +426,20 @@ export function useAuthLegacy(): UseAuthReturn {
     user: auth.user,
     isLoading: auth.isLoading,
     isAuthenticated: auth.isAuthenticated,
-    signUp: async (email: string, password: string, firstName?: string, lastName?: string, phone?: string) => {
-      return auth.register({ email, password, firstName: firstName || '', lastName: lastName || '', phone });
+    signUp: async (
+      email: string,
+      password: string,
+      firstName?: string,
+      lastName?: string,
+      phone?: string
+    ) => {
+      return auth.register({
+        email,
+        password,
+        firstName: firstName || '',
+        lastName: lastName || '',
+        phone,
+      });
     },
     signIn: auth.login,
     signOut: auth.logout,

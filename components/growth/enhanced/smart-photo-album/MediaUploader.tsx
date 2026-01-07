@@ -9,7 +9,14 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Image, Video, X, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  Upload,
+  Image,
+  Video,
+  X,
+  CheckCircle,
+  AlertCircle,
+} from 'lucide-react';
 
 interface MediaUploaderProps {
   /** 上传文件回调 */
@@ -34,7 +41,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
   accept = 'image/*,video/*',
   maxFileSize = 1024 * 1024 * 50, // 50MB
   maxFiles = 10,
-  className = ''
+  className = '',
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -60,7 +67,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     processFiles(files);
   };
@@ -92,7 +99,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     try {
       // 模拟上传进度
       const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
+        setUploadProgress(prev => {
           if (prev >= 100) {
             clearInterval(progressInterval);
             return 100;
@@ -103,16 +110,18 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
 
       // 调用上传回调
       await onUpload(files);
-      
+
       setSuccessFiles(files);
       setUploadProgress(100);
-      
+
       // 3秒后清空成功消息
       setTimeout(() => {
         setSuccessFiles([]);
       }, 3000);
     } catch (error) {
-      setErrors([`上传失败: ${error instanceof Error ? error.message : '未知错误'}`]);
+      setErrors([
+        `上传失败: ${error instanceof Error ? error.message : '未知错误'}`,
+      ]);
     } finally {
       setUploading(false);
     }
@@ -130,7 +139,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
     }
 
     // 验证每个文件
-    files.forEach((file) => {
+    files.forEach(file => {
       // 检查文件类型
       if (!file.type.match(/(image|video)\//)) {
         newErrors.push(`${file.name}: 不支持的文件类型`);
@@ -139,7 +148,9 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
 
       // 检查文件大小
       if (file.size > maxFileSize) {
-        newErrors.push(`${file.name}: 文件大小超过限制（最大${formatFileSize(maxFileSize)}）`);
+        newErrors.push(
+          `${file.name}: 文件大小超过限制（最大${formatFileSize(maxFileSize)}）`
+        );
         return;
       }
 
@@ -169,9 +180,9 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
   // 获取文件类型图标
   const getFileIcon = (file: File) => {
     if (file.type.startsWith('image/')) {
-      return <Image className="w-4 h-4 text-blue-500" />;
+      return <Image className='w-4 h-4 text-blue-500' />;
     } else if (file.type.startsWith('video/')) {
-      return <Video className="w-4 h-4 text-red-500" />;
+      return <Video className='w-4 h-4 text-red-500' />;
     }
     return null;
   };
@@ -190,20 +201,24 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
         onDrop={handleDrop}
         onClick={handleUploadClick}
       >
-        <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">上传照片或视频</h3>
-        <p className="text-sm text-gray-500 mb-4">
-          拖拽文件到此处，或 <span className="text-purple-600 font-medium">点击上传</span>
+        <Upload className='w-12 h-12 mx-auto mb-4 text-gray-400' />
+        <h3 className='text-lg font-medium text-gray-900 mb-2'>
+          上传照片或视频
+        </h3>
+        <p className='text-sm text-gray-500 mb-4'>
+          拖拽文件到此处，或{' '}
+          <span className='text-purple-600 font-medium'>点击上传</span>
         </p>
-        <p className="text-xs text-gray-400">
-          支持 JPG、PNG、GIF、MP4 格式，单个文件最大 {formatFileSize(maxFileSize)}，最多上传 {maxFiles} 个文件
+        <p className='text-xs text-gray-400'>
+          支持 JPG、PNG、GIF、MP4 格式，单个文件最大{' '}
+          {formatFileSize(maxFileSize)}，最多上传 {maxFiles} 个文件
         </p>
         <input
           ref={fileInputRef}
-          type="file"
+          type='file'
           accept={accept}
           multiple
-          className="hidden"
+          className='hidden'
           onChange={handleFileSelect}
         />
       </div>
@@ -215,15 +230,17 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-white p-4 rounded-lg shadow-sm border border-gray-200"
+            className='bg-white p-4 rounded-lg shadow-sm border border-gray-200'
           >
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-900">上传中...</span>
-              <span className="text-sm text-gray-500">{uploadProgress}%</span>
+            <div className='mb-2 flex items-center justify-between'>
+              <span className='text-sm font-medium text-gray-900'>
+                上传中...
+              </span>
+              <span className='text-sm text-gray-500'>{uploadProgress}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div className='w-full bg-gray-200 rounded-full h-2.5'>
               <div
-                className="bg-purple-600 h-2.5 rounded-full transition-all duration-300"
+                className='bg-purple-600 h-2.5 rounded-full transition-all duration-300'
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
@@ -238,17 +255,24 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-green-50 border border-green-200 rounded-lg p-4"
+            className='bg-green-50 border border-green-200 rounded-lg p-4'
           >
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <span className="text-sm font-medium text-green-900">上传成功</span>
+            <div className='flex items-center gap-2 mb-2'>
+              <CheckCircle className='w-5 h-5 text-green-500' />
+              <span className='text-sm font-medium text-green-900'>
+                上传成功
+              </span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2'>
               {successFiles.map((file, index) => (
-                <div key={index} className="flex items-center gap-2 p-2 bg-white rounded border border-green-100">
+                <div
+                  key={index}
+                  className='flex items-center gap-2 p-2 bg-white rounded border border-green-100'
+                >
                   {getFileIcon(file)}
-                  <span className="text-xs text-gray-700 truncate">{file.name}</span>
+                  <span className='text-xs text-gray-700 truncate'>
+                    {file.name}
+                  </span>
                 </div>
               ))}
             </div>
@@ -263,24 +287,26 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="bg-red-50 border border-red-200 rounded-lg p-4"
+            className='bg-red-50 border border-red-200 rounded-lg p-4'
           >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                <span className="text-sm font-medium text-red-900">上传失败</span>
+            <div className='flex items-center justify-between mb-2'>
+              <div className='flex items-center gap-2'>
+                <AlertCircle className='w-5 h-5 text-red-500' />
+                <span className='text-sm font-medium text-red-900'>
+                  上传失败
+                </span>
               </div>
               <button
                 onClick={() => setErrors([])}
-                className="text-red-500 hover:text-red-700"
+                className='text-red-500 hover:text-red-700'
               >
-                <X className="w-4 h-4" />
+                <X className='w-4 h-4' />
               </button>
             </div>
-            <ul className="text-sm text-red-700 space-y-1">
+            <ul className='text-sm text-red-700 space-y-1'>
               {errors.map((error, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-red-500">•</span>
+                <li key={index} className='flex items-start gap-2'>
+                  <span className='text-red-500'>•</span>
                   <span>{error}</span>
                 </li>
               ))}

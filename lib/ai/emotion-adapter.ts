@@ -3,13 +3,15 @@
  * 统一不同模块的情感类型定义
  */
 
-import type { EmotionType as InteractionEmotion } from '@/types/interaction'
-import { InfantEmotionType } from './emotion-engine'
+import type { EmotionType as InteractionEmotion } from '@/types/interaction';
+import { InfantEmotionType } from './emotion-engine';
 
 /**
  * 将交互情感类型转换为婴幼儿情感类型
  */
-export function toInfantEmotion(interactionEmotion: InteractionEmotion): InfantEmotionType {
+export function toInfantEmotion(
+  interactionEmotion: InteractionEmotion
+): InfantEmotionType {
   const mapping: Record<InteractionEmotion, InfantEmotionType> = {
     happy: InfantEmotionType.HAPPINESS,
     sad: InfantEmotionType.SADNESS,
@@ -20,35 +22,39 @@ export function toInfantEmotion(interactionEmotion: InteractionEmotion): InfantE
     neutral: InfantEmotionType.NEUTRAL,
     excited: InfantEmotionType.COMFORT,
     calm: InfantEmotionType.COMFORT,
-    anxious: InfantEmotionType.DISCOMFORT
-  }
+    anxious: InfantEmotionType.DISCOMFORT,
+  };
 
-  return mapping[interactionEmotion] || InfantEmotionType.NEUTRAL
+  return mapping[interactionEmotion] || InfantEmotionType.NEUTRAL;
 }
 
 /**
  * 将婴幼儿情感类型转换为交互情感类型
  */
-export function toInteractionEmotion(infantEmotion: InfantEmotionType): InteractionEmotion {
+export function toInteractionEmotion(
+  infantEmotion: InfantEmotionType
+): InteractionEmotion {
   // 反向映射
-  if (infantEmotion === InfantEmotionType.HAPPINESS) return 'happy'
-  if (infantEmotion === InfantEmotionType.SADNESS) return 'sad'
-  if (infantEmotion === InfantEmotionType.ANGER) return 'angry'
-  if (infantEmotion === InfantEmotionType.FEAR) return 'fear'
-  if (infantEmotion === InfantEmotionType.SURPRISE) return 'surprise'
-  if (infantEmotion === InfantEmotionType.NEUTRAL) return 'neutral'
+  if (infantEmotion === InfantEmotionType.HAPPINESS) return 'happy';
+  if (infantEmotion === InfantEmotionType.SADNESS) return 'sad';
+  if (infantEmotion === InfantEmotionType.ANGER) return 'angry';
+  if (infantEmotion === InfantEmotionType.FEAR) return 'fear';
+  if (infantEmotion === InfantEmotionType.SURPRISE) return 'surprise';
+  if (infantEmotion === InfantEmotionType.NEUTRAL) return 'neutral';
 
   // 特殊情感映射到通用情感
-  if (infantEmotion === InfantEmotionType.COMFORT) return 'calm'
-  if (infantEmotion === InfantEmotionType.DISCOMFORT) return 'anxious'
+  if (infantEmotion === InfantEmotionType.COMFORT) return 'calm';
+  if (infantEmotion === InfantEmotionType.DISCOMFORT) return 'anxious';
 
-  return 'neutral'
+  return 'neutral';
 }
 
 /**
  * 获取情感的中文名称
  */
-export function getEmotionLabel(emotion: InfantEmotionType | InteractionEmotion): string {
+export function getEmotionLabel(
+  emotion: InfantEmotionType | InteractionEmotion
+): string {
   const labels: Record<string, string> = {
     [InfantEmotionType.HAPPINESS]: '快乐',
     [InfantEmotionType.SADNESS]: '悲伤',
@@ -72,8 +78,8 @@ export function getEmotionLabel(emotion: InfantEmotionType | InteractionEmotion)
     neutral: '平静',
     excited: '兴奋',
     calm: '平静',
-    anxious: '焦虑'
-  }
+    anxious: '焦虑',
+  };
 
-  return labels[emotion] || '未知'
+  return labels[emotion] || '未知';
 }

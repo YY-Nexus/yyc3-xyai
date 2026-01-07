@@ -5,18 +5,18 @@
  * @version 1.0.0
  */
 
-import { EventEmitter } from 'events'
-import { IntelligentPredictionService } from '../services/prediction/index'
-import { DynamicModelSelector } from '../services/prediction/model-selector'
-import { PredictionQualityMonitor } from '../services/prediction/quality-monitor'
+import { EventEmitter } from 'events';
+import { IntelligentPredictionService } from '../services/prediction/index';
+import { DynamicModelSelector } from '../services/prediction/model-selector';
+import { PredictionQualityMonitor } from '../services/prediction/quality-monitor';
 import type {
   PredictionData,
   PredictionTask,
   PredictionResult,
   PredictionConfig,
   ModelSelection,
-  PredictionInsights
-} from '../types/prediction/common'
+  PredictionInsights,
+} from '../types/prediction/common';
 
 export enum AgentState {
   IDLE = 'idle',
@@ -24,408 +24,425 @@ export enum AgentState {
   EXECUTING = 'executing',
   REFLECTING = 'reflecting',
   LEARNING = 'learning',
-  ERROR = 'error'
+  ERROR = 'error',
 }
 
 export interface AgentTask {
-  id: string
-  goal: string
-  type: 'prediction' | 'analysis' | 'optimization' | 'learning'
-  priority: 'low' | 'medium' | 'high' | 'urgent'
-  context: AgentContext
-  subtasks: Subtask[]
-  status: 'pending' | 'executing' | 'completed' | 'failed' | 'paused'
-  result?: TaskResult
-  metrics: TaskMetrics
-  constraints: TaskConstraints
-  createdAt: number
-  updatedAt: number
-  deadline?: number
+  id: string;
+  goal: string;
+  type: 'prediction' | 'analysis' | 'optimization' | 'learning';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  context: AgentContext;
+  subtasks: Subtask[];
+  status: 'pending' | 'executing' | 'completed' | 'failed' | 'paused';
+  result?: TaskResult;
+  metrics: TaskMetrics;
+  constraints: TaskConstraints;
+  createdAt: number;
+  updatedAt: number;
+  deadline?: number;
 }
 
 export interface TaskResult {
-  success: boolean
-  data?: unknown
-  predictions?: PredictionResult[]
-  analysis?: AnalysisResult
-  optimization?: OptimizationResult
-  error?: Error
-  metadata?: Record<string, unknown>
+  success: boolean;
+  data?: unknown;
+  predictions?: PredictionResult[];
+  analysis?: AnalysisResult;
+  optimization?: OptimizationResult;
+  error?: Error;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AnalysisResult {
-  metrics: Record<string, number>
-  insights: string[]
-  recommendations: string[]
+  metrics: Record<string, number>;
+  insights: string[];
+  recommendations: string[];
 }
 
 export interface OptimizationResult {
-  improvements: Record<string, number>
-  optimizedParameters: Record<string, unknown>
-  performanceGain: number
+  improvements: Record<string, number>;
+  optimizedParameters: Record<string, unknown>;
+  performanceGain: number;
 }
 
 export interface Subtask {
-  id: string
-  parentTaskId: string
-  description: string
-  type: 'data_preprocessing' | 'model_selection' | 'prediction' | 'evaluation' | 'optimization'
-  requiredTools: string[]
-  dependencies: string[]
-  status: 'pending' | 'executing' | 'completed' | 'failed'
-  result?: SubtaskResult
-  error?: string
-  estimatedTime?: number
-  actualTime?: number
-  confidence?: number
+  id: string;
+  parentTaskId: string;
+  description: string;
+  type:
+    | 'data_preprocessing'
+    | 'model_selection'
+    | 'prediction'
+    | 'evaluation'
+    | 'optimization';
+  requiredTools: string[];
+  dependencies: string[];
+  status: 'pending' | 'executing' | 'completed' | 'failed';
+  result?: SubtaskResult;
+  error?: string;
+  estimatedTime?: number;
+  actualTime?: number;
+  confidence?: number;
 }
 
 export interface SubtaskResult {
-  success: boolean
-  data?: unknown
-  predictions?: PredictionResult[]
-  modelSelection?: ModelSelection
-  evaluation?: EvaluationResult
-  preprocessing?: PreprocessingResult
-  error?: Error
-  metadata?: Record<string, unknown>
+  success: boolean;
+  data?: unknown;
+  predictions?: PredictionResult[];
+  modelSelection?: ModelSelection;
+  evaluation?: EvaluationResult;
+  preprocessing?: PreprocessingResult;
+  error?: Error;
+  metadata?: Record<string, unknown>;
 }
 
 export interface EvaluationResult {
-  accuracy: number
-  precision: number
-  recall: number
-  f1Score: number
-  confusionMatrix?: number[][]
-  additionalMetrics?: Record<string, number>
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1Score: number;
+  confusionMatrix?: number[][];
+  additionalMetrics?: Record<string, number>;
 }
 
 export interface PreprocessingResult {
-  processedDataCount: number
-  featuresExtracted: number
-  missingValuesHandled: number
-  outliersDetected: number
-  transformationsApplied: string[]
+  processedDataCount: number;
+  featuresExtracted: number;
+  missingValuesHandled: number;
+  outliersDetected: number;
+  transformationsApplied: string[];
 }
 
 export interface AgentContext {
-  sessionId: string
-  userId: string
-  workspaceId?: string
-  environment: 'web' | 'mobile' | 'desktop' | 'api'
-  permissions: string[]
-  conversationHistory: ConversationMessage[]
-  workingMemory: Record<string, WorkingMemoryItem>
-  userPreferences: UserPreferences
-  systemCapabilities: SystemCapabilities
+  sessionId: string;
+  userId: string;
+  workspaceId?: string;
+  environment: 'web' | 'mobile' | 'desktop' | 'api';
+  permissions: string[];
+  conversationHistory: ConversationMessage[];
+  workingMemory: Record<string, WorkingMemoryItem>;
+  userPreferences: UserPreferences;
+  systemCapabilities: SystemCapabilities;
 }
 
 export type WorkingMemoryItem =
   | { type: 'variable'; value: unknown; timestamp: number }
   | { type: 'fact'; statement: string; confidence: number; timestamp: number }
   | { type: 'observation'; data: Record<string, unknown>; timestamp: number }
-  | { type: 'inference'; conclusion: string; premises: string[]; confidence: number; timestamp: number }
+  | {
+      type: 'inference';
+      conclusion: string;
+      premises: string[];
+      confidence: number;
+      timestamp: number;
+    };
 
 export interface TaskConstraints {
-  maxExecutionTime?: number
-  maxMemoryUsage?: number
-  accuracyThreshold?: number
-  realTimeRequirement?: boolean
-  allowedModels?: string[]
-  forbiddenActions?: string[]
-  privacyConstraints?: string[]
+  maxExecutionTime?: number;
+  maxMemoryUsage?: number;
+  accuracyThreshold?: number;
+  realTimeRequirement?: boolean;
+  allowedModels?: string[];
+  forbiddenActions?: string[];
+  privacyConstraints?: string[];
 }
 
 export interface TaskMetrics {
-  startTime: number
-  endTime?: number
-  executionTime?: number
-  complexity: number
-  successRate?: number
-  accuracy?: number
-  efficiency?: number
-  resourceUsage: ResourceUsage
-  qualityScore?: number
-  userSatisfaction?: number
+  startTime: number;
+  endTime?: number;
+  executionTime?: number;
+  complexity: number;
+  successRate?: number;
+  accuracy?: number;
+  efficiency?: number;
+  resourceUsage: ResourceUsage;
+  qualityScore?: number;
+  userSatisfaction?: number;
+  error?: string;
 }
 
 export interface ResourceUsage {
-  cpu: number
-  memory: number
-  diskIO: number
-  networkIO: number
-  modelCalls: number
-  apiCalls: number
+  cpu: number;
+  memory: number;
+  diskIO: number;
+  networkIO: number;
+  modelCalls: number;
+  apiCalls: number;
 }
 
 export interface ConversationMessage {
-  id: string
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  timestamp: number
-  metadata?: ConversationMetadata
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: number;
+  metadata?: ConversationMetadata;
 }
 
 export interface ConversationMetadata {
-  intent?: string
-  confidence?: number
-  entities?: Record<string, unknown>
-  modelUsed?: string
-  processingTime?: number
-  additionalInfo?: Record<string, unknown>
+  intent?: string;
+  confidence?: number;
+  entities?: Record<string, unknown>;
+  modelUsed?: string;
+  processingTime?: number;
+  additionalInfo?: Record<string, unknown>;
 }
 
 export interface UserPreferences {
-  preferredAccuracy: 'high' | 'medium' | 'low'
-  preferredSpeed: 'fast' | 'balanced' | 'thorough'
-  visualizationStyle: 'detailed' | 'simple' | 'minimal'
-  notificationLevel: 'all' | 'important' | 'none'
-  autoOptimization: boolean
-  privacyMode: 'strict' | 'normal' | 'relaxed'
+  preferredAccuracy: 'high' | 'medium' | 'low';
+  preferredSpeed: 'fast' | 'balanced' | 'thorough';
+  visualizationStyle: 'detailed' | 'simple' | 'minimal';
+  notificationLevel: 'all' | 'important' | 'none';
+  autoOptimization: boolean;
+  privacyMode: 'strict' | 'normal' | 'relaxed';
 }
 
 export interface SystemCapabilities {
-  availableModels: string[]
-  maxConcurrentTasks: number
-  supportedDataTypes: string[]
-  integrations: string[]
-  performanceLevel: 'basic' | 'standard' | 'premium'
+  availableModels: string[];
+  maxConcurrentTasks: number;
+  supportedDataTypes: string[];
+  integrations: string[];
+  performanceLevel: 'basic' | 'standard' | 'premium';
 }
 
 export interface Goal {
-  id: string
-  description: string
-  objective: string
-  keyResults: KeyResult[]
-  priority: number
-  constraints: GoalConstraints
-  expectedValue: number
-  successCriteria: SuccessCriteria[]
-  dependencies: string[]
+  id: string;
+  description: string;
+  objective: string;
+  keyResults: KeyResult[];
+  priority: number;
+  constraints: GoalConstraints;
+  expectedValue: number;
+  successCriteria: SuccessCriteria[];
+  dependencies: string[];
 }
 
 export interface GoalConstraints {
-  maxExecutionTime?: number
-  maxBudget?: number
-  requiredAccuracy?: number
-  allowedModels?: string[]
-  forbiddenActions?: string[]
-  privacyLevel?: 'strict' | 'normal' | 'relaxed'
+  maxExecutionTime?: number;
+  maxBudget?: number;
+  requiredAccuracy?: number;
+  allowedModels?: string[];
+  forbiddenActions?: string[];
+  privacyLevel?: 'strict' | 'normal' | 'relaxed';
   resourceLimits?: {
-    cpu?: number
-    memory?: number
-    storage?: number
-  }
-  dependencies?: string[]
-  customConstraints?: Record<string, unknown>
+    cpu?: number;
+    memory?: number;
+    storage?: number;
+  };
+  dependencies?: string[];
+  customConstraints?: Record<string, unknown>;
 }
 
 export interface KeyResult {
-  id: string
-  description: string
-  target: number
-  current: number
-  unit: string
-  weight: number
-  progress: number
+  id: string;
+  description: string;
+  target: number;
+  current: number;
+  unit: string;
+  weight: number;
+  progress: number;
 }
 
 export interface SuccessCriteria {
-  id: string
-  description: string
-  metric: string
-  threshold: number
-  operator: 'gte' | 'lte' | 'eq' | 'gt' | 'lt'
-  weight: number
+  id: string;
+  description: string;
+  metric: string;
+  threshold: number;
+  operator: 'gte' | 'lte' | 'eq' | 'gt' | 'lt';
+  weight: number;
 }
 
 export interface AnalyzedIntent {
-  type: 'create_prediction' | 'analyze_performance' | 'optimize_model' | 'general_query'
-  confidence: number
-  entities: IntentEntities
-  constraints: IntentConstraints
-  context: IntentContext
-  suggestedActions: string[]
+  type:
+    | 'create_prediction'
+    | 'analyze_performance'
+    | 'optimize_model'
+    | 'general_query';
+  confidence: number;
+  entities: IntentEntities;
+  constraints: IntentConstraints;
+  context: IntentContext;
+  suggestedActions: string[];
 }
 
 export interface IntentEntities {
-  timeRange?: { days?: number; hours?: number; minutes?: number }
-  accuracy?: 'high' | 'medium' | 'low'
-  speed?: 'fast' | 'balanced' | 'thorough'
-  modelType?: string
-  dataset?: string
-  features?: string[]
-  targetVariable?: string
-  additionalInfo?: Record<string, unknown>
+  timeRange?: { days?: number; hours?: number; minutes?: number };
+  accuracy?: 'high' | 'medium' | 'low';
+  speed?: 'fast' | 'balanced' | 'thorough';
+  modelType?: string;
+  dataset?: string;
+  features?: string[];
+  targetVariable?: string;
+  additionalInfo?: Record<string, unknown>;
 }
 
 export interface IntentConstraints {
-  maxExecutionTime?: number
-  accuracyThreshold?: number
-  realTimeRequirement?: boolean
-  allowedModels?: string[]
-  forbiddenActions?: string[]
-  privacyConstraints?: string[]
+  maxExecutionTime?: number;
+  accuracyThreshold?: number;
+  realTimeRequirement?: boolean;
+  allowedModels?: string[];
+  forbiddenActions?: string[];
+  privacyConstraints?: string[];
   resourceConstraints?: {
-    cpu?: number
-    memory?: number
-    storage?: number
-  }
+    cpu?: number;
+    memory?: number;
+    storage?: number;
+  };
 }
 
 export interface IntentContext {
-  userInput: string
-  timestamp: number
-  sessionId?: string
-  userId?: string
-  previousIntents?: AnalyzedIntent[]
-  userPreferences?: UserPreferences
-  systemCapabilities?: SystemCapabilities
+  userInput: string;
+  timestamp: number;
+  sessionId?: string;
+  userId?: string;
+  previousIntents?: AnalyzedIntent[];
+  userPreferences?: UserPreferences;
+  systemCapabilities?: SystemCapabilities;
 }
 
 export interface ExtractedEntities {
-  days?: number
-  hours?: number
-  minutes?: number
-  accuracy?: 'high' | 'medium' | 'low'
-  speed?: 'fast' | 'balanced' | 'thorough'
-  [key: string]: unknown
+  days?: number;
+  hours?: number;
+  minutes?: number;
+  accuracy?: 'high' | 'medium' | 'low';
+  speed?: 'fast' | 'balanced' | 'thorough';
+  [key: string]: unknown;
 }
 
 export interface ExtractedConstraints {
-  maxExecutionTime?: number
-  accuracyThreshold?: number
-  realTimeRequirement?: boolean
-  [key: string]: unknown
+  maxExecutionTime?: number;
+  accuracyThreshold?: number;
+  realTimeRequirement?: boolean;
+  [key: string]: unknown;
 }
 
 export interface DataPreprocessingResult {
-  processed: boolean
-  featuresExtracted: number
-  dataQuality: number
-  preprocessingTime: number
+  processedDataCount: number;
+  featuresExtracted: number;
+  missingValuesHandled: number;
+  outliersDetected: number;
+  transformationsApplied: string[];
 }
 
 export interface EvaluationResultExtended extends EvaluationResult {
-  rmse?: number
-  mae?: number
-  evaluationTime: number
+  rmse?: number;
+  mae?: number;
+  evaluationTime: number;
 }
 
 export interface OptimizationResultExtended {
-  optimized: boolean
-  improvement: number
-  parametersAdjusted: number
-  optimizationTime: number
-  newAccuracy: number
+  optimized: boolean;
+  improvement: number;
+  parametersAdjusted: number;
+  optimizationTime: number;
+  newAccuracy: number;
 }
 
 export interface UserInput {
-  text: string
-  attachments?: UserInputAttachment[]
-  context?: UserInputContext
-  timestamp: number
-  sessionId?: string
-  userId?: string
+  text: string;
+  attachments?: UserInputAttachment[];
+  context?: UserInputContext;
+  timestamp: number;
+  sessionId?: string;
+  userId?: string;
 }
 
 export interface UserInputAttachment {
-  id: string
-  type: 'image' | 'document' | 'audio' | 'video' | 'data'
-  name: string
-  size: number
-  mimeType: string
-  url?: string
-  content?: Buffer | string
-  metadata?: Record<string, unknown>
+  id: string;
+  type: 'image' | 'document' | 'audio' | 'video' | 'data';
+  name: string;
+  size: number;
+  mimeType: string;
+  url?: string;
+  content?: Buffer | string;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UserInputContext {
-  source?: 'web' | 'mobile' | 'desktop' | 'api' | 'voice'
-  location?: { latitude: number; longitude: number }
-  deviceInfo?: { type: string; os: string; browser?: string }
-  additionalData?: Record<string, unknown>
+  source?: 'web' | 'mobile' | 'desktop' | 'api' | 'voice';
+  location?: { latitude: number; longitude: number };
+  deviceInfo?: { type: string; os: string; browser?: string };
+  additionalData?: Record<string, unknown>;
 }
 
 export interface AgentResponse {
-  taskId: string
-  status: 'accepted' | 'rejected' | 'requires_clarification'
-  message: string
-  estimatedTime?: number
-  nextSteps?: string[]
-  requiredInputs?: string[]
-  alternatives?: AlternativeOption[]
+  taskId: string;
+  status: 'accepted' | 'rejected' | 'requires_clarification';
+  message: string;
+  estimatedTime?: number;
+  nextSteps?: string[];
+  requiredInputs?: string[];
+  alternatives?: AlternativeOption[];
 }
 
 export interface AlternativeOption {
-  id: string
-  description: string
-  pros: string[]
-  cons: string[]
-  estimatedTime: number
-  confidence: number
-  resourceRequirements: ResourceUsage
+  id: string;
+  description: string;
+  pros: string[];
+  cons: string[];
+  estimatedTime: number;
+  confidence: number;
+  resourceRequirements: ResourceUsage;
 }
 
 export interface SystemStatus {
-  state: AgentState
-  activeTasks: number
-  queuedTasks: number
-  completedTasks: number
-  failedTasks: number
-  averageExecutionTime: number
-  successRate: number
-  memoryUsage: NodeJS.MemoryUsage
-  performanceMetrics: PerformanceMetrics
-  learningProgress: LearningProgress
+  state: AgentState;
+  activeTasks: number;
+  queuedTasks: number;
+  completedTasks: number;
+  failedTasks: number;
+  averageExecutionTime: number;
+  successRate: number;
+  memoryUsage: NodeJS.MemoryUsage;
+  performanceMetrics: PerformanceMetrics;
+  learningProgress: LearningProgress;
 }
 
 export interface PerformanceMetrics {
-  cpuUsage: number
-  memoryUsage: number
-  responseTime: number
-  throughput: number
-  errorRate: number
-  uptime: number
-  lastUpdated: number
+  cpuUsage: number;
+  memoryUsage: number;
+  responseTime: number;
+  throughput: number;
+  errorRate: number;
+  uptime: number;
+  lastUpdated: number;
 }
 
 export interface LearningProgress {
-  totalExperiences: number
-  learningRate: number
-  adaptationSpeed: number
-  knowledgeCoverage: number
-  modelImprovement: number
-  userSatisfactionScore: number
+  totalExperiences: number;
+  learningRate: number;
+  adaptationSpeed: number;
+  knowledgeCoverage: number;
+  modelImprovement: number;
+  userSatisfactionScore: number;
 }
 
 export interface AgentConfig {
-  maxConcurrentTasks?: number
-  defaultTimeout?: number
-  learningEnabled?: boolean
-  autoOptimization?: boolean
-  privacyMode?: 'strict' | 'normal' | 'relaxed'
-  logLevel?: 'debug' | 'info' | 'warn' | 'error'
+  maxConcurrentTasks?: number;
+  defaultTimeout?: number;
+  learningEnabled?: boolean;
+  autoOptimization?: boolean;
+  privacyMode?: 'strict' | 'normal' | 'relaxed';
+  logLevel?: 'debug' | 'info' | 'warn' | 'error';
 }
 
 export class AgenticCore extends EventEmitter {
-  private state: AgentState = AgentState.IDLE
-  private predictionService: IntelligentPredictionService
-  private modelSelector: DynamicModelSelector
-  private qualityMonitor: PredictionQualityMonitor
-  private activeTasks: Map<string, AgentTask> = new Map()
-  private taskQueue: AgentTask[] = []
-  private completedTasks: AgentTask[] = []
-  private contextManager: ContextManager
-  private goalManager: GoalManager
-  private learningSystem: LearningSystem
-  private orchestrator: TaskOrchestrator
+  private state: AgentState = AgentState.IDLE;
+  private predictionService: IntelligentPredictionService;
+  private modelSelector: DynamicModelSelector;
+  private qualityMonitor: PredictionQualityMonitor;
+  private activeTasks: Map<string, AgentTask> = new Map();
+  private taskQueue: AgentTask[] = [];
+  private completedTasks: AgentTask[] = [];
+  private contextManager: ContextManager;
+  private goalManager: GoalManager;
+  private learningSystem: LearningSystem;
+  private orchestrator: TaskOrchestrator;
 
   // 配置
-  private config: AgentConfig
+  private config: AgentConfig;
 
   constructor(config: AgentConfig = {}) {
-    super()
+    super();
 
     this.config = {
       maxConcurrentTasks: 5,
@@ -434,28 +451,30 @@ export class AgenticCore extends EventEmitter {
       autoOptimization: true,
       privacyMode: 'normal',
       logLevel: 'info',
-      ...config
-    }
+      ...config,
+    };
 
     // 初始化核心服务
-    this.predictionService = new IntelligentPredictionService()
-    this.modelSelector = new DynamicModelSelector()
-    this.qualityMonitor = new PredictionQualityMonitor()
+    this.predictionService = new IntelligentPredictionService();
+    this.modelSelector = new DynamicModelSelector();
+    this.qualityMonitor = new PredictionQualityMonitor();
 
     // 初始化子系统
-    this.contextManager = new ContextManager()
-    this.goalManager = new GoalManager()
-    this.learningSystem = new LearningSystem({ enabled: this.config.learningEnabled })
+    this.contextManager = new ContextManager();
+    this.goalManager = new GoalManager();
+    this.learningSystem = new LearningSystem({
+      enabled: this.config.learningEnabled ?? true,
+    });
     this.orchestrator = new TaskOrchestrator({
-      maxConcurrency: this.config.maxConcurrentTasks,
-      defaultTimeout: this.config.defaultTimeout
-    })
+      maxConcurrency: this.config.maxConcurrentTasks ?? 5,
+      defaultTimeout: this.config.defaultTimeout ?? 300000,
+    });
 
     // 设置事件监听
-    this.setupEventListeners()
+    this.setupEventListeners();
 
     // 启动任务处理循环
-    this.startTaskProcessingLoop()
+    this.startTaskProcessingLoop();
   }
 
   /**
@@ -463,17 +482,20 @@ export class AgenticCore extends EventEmitter {
    */
   async processInput(input: UserInput): Promise<AgentResponse> {
     try {
-      this.log('info', 'Processing user input', { input: input.text, timestamp: input.timestamp })
+      this.log('info', 'Processing user input', {
+        input: input.text,
+        timestamp: input.timestamp,
+      });
 
       // 1. 意图识别
-      const intent = await this.analyzeIntent(input)
+      const intent = await this.analyzeIntent(input);
 
       // 2. 上下文更新
-      await this.contextManager.updateContext(intent.context, input)
+      await this.contextManager.updateContext(intent.context, input);
 
       // 3. 目标生成与分解
-      const goal = await this.goalManager.createGoal(intent)
-      const subtasks = await this.orchestrator.decomposeGoal(goal)
+      const goal = await this.goalManager.createGoal(intent);
+      const subtasks = await this.orchestrator.decomposeGoal(goal);
 
       // 4. 创建任务
       const task: AgentTask = {
@@ -487,21 +509,24 @@ export class AgenticCore extends EventEmitter {
         metrics: {
           startTime: Date.now(),
           complexity: this.calculateComplexity(subtasks),
-          resourceUsage: this.estimateResourceUsage(subtasks)
+          resourceUsage: this.estimateResourceUsage(subtasks),
         },
         constraints: this.extractConstraints(intent),
         createdAt: Date.now(),
-        updatedAt: Date.now()
-      }
+        updatedAt: Date.now(),
+      };
 
       // 5. 添加到任务队列
-      this.activeTasks.set(task.id, task)
-      this.taskQueue.push(task)
+      this.activeTasks.set(task.id, task);
+      this.taskQueue.push(task);
 
       // 6. 触发任务处理
-      this.emit('taskCreated', task)
+      this.emit('taskCreated', task);
 
-      this.log('info', 'Task created successfully', { taskId: task.id, goal: task.goal })
+      this.log('info', 'Task created successfully', {
+        taskId: task.id,
+        goal: task.goal,
+      });
 
       return {
         taskId: task.id,
@@ -509,18 +534,21 @@ export class AgenticCore extends EventEmitter {
         message: `已接受任务: ${task.goal}`,
         estimatedTime: this.estimateCompletionTime(task),
         nextSteps: this.getNextStepsPreview(subtasks),
-        alternatives: await this.generateAlternatives(task)
-      }
-
+        alternatives: await this.generateAlternatives(task),
+      };
     } catch (error) {
-      this.log('error', 'Failed to process input', { error: error.message, input: input.text })
-      this.emit('error', error)
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.log('error', 'Failed to process input', {
+        error: errorMessage,
+        input: input.text,
+      });
+      this.emit('error', error);
 
       return {
         taskId: '',
         status: 'rejected',
-        message: `处理失败: ${error.message}`
-      }
+        message: `处理失败: ${errorMessage}`,
+      };
     }
   }
 
@@ -528,28 +556,36 @@ export class AgenticCore extends EventEmitter {
    * 意图分析
    */
   private async analyzeIntent(input: UserInput): Promise<AnalyzedIntent> {
-    const text = input.text.toLowerCase()
+    const text = input.text.toLowerCase();
 
     // 基于关键词的简单意图识别
-    let type: AnalyzedIntent['type'] = 'general_query'
-    let confidence = 0.5
+    let type: AnalyzedIntent['type'] = 'general_query';
+    let confidence = 0.5;
 
     if (text.includes('预测') || text.includes('forecast')) {
-      type = 'create_prediction'
-      confidence = 0.8
-    } else if (text.includes('分析') || text.includes('性能') || text.includes('准确')) {
-      type = 'analyze_performance'
-      confidence = 0.7
-    } else if (text.includes('优化') || text.includes('改进') || text.includes('调整')) {
-      type = 'optimize_model'
-      confidence = 0.7
+      type = 'create_prediction';
+      confidence = 0.8;
+    } else if (
+      text.includes('分析') ||
+      text.includes('性能') ||
+      text.includes('准确')
+    ) {
+      type = 'analyze_performance';
+      confidence = 0.7;
+    } else if (
+      text.includes('优化') ||
+      text.includes('改进') ||
+      text.includes('调整')
+    ) {
+      type = 'optimize_model';
+      confidence = 0.7;
     }
 
     // 提取实体
-    const entities = this.extractEntities(text)
+    const entities = this.extractEntities(text);
 
     // 生成建议动作
-    const suggestedActions = this.generateSuggestedActions(type, entities)
+    const suggestedActions = this.generateSuggestedActions(type, entities);
 
     return {
       type,
@@ -560,153 +596,171 @@ export class AgenticCore extends EventEmitter {
         userInput: input.text,
         timestamp: input.timestamp,
         sessionId: input.sessionId,
-        userId: input.userId
+        userId: input.userId,
       },
-      suggestedActions
-    }
+      suggestedActions,
+    };
   }
 
   /**
    * 提取实体
    */
   private extractEntities(text: string): ExtractedEntities {
-    const entities: ExtractedEntities = {}
+    const entities: ExtractedEntities = {};
 
     // 时间相关实体
     const timePatterns = [
       { pattern: /(\d+)\s*天/, key: 'days' },
       { pattern: /(\d+)\s*小时/, key: 'hours' },
-      { pattern: /(\d+)\s*分钟/, key: 'minutes' }
-    ]
+      { pattern: /(\d+)\s*分钟/, key: 'minutes' },
+    ];
 
     timePatterns.forEach(({ pattern, key }) => {
-      const match = text.match(pattern)
+      const match = text.match(pattern);
       if (match) {
-        entities[key] = parseInt(match[1])
+        entities[key] = parseInt(match[1]);
       }
-    })
+    });
 
     // 准确度要求
     if (text.includes('高精度') || text.includes('准确')) {
-      entities.accuracy = 'high'
+      entities.accuracy = 'high';
     } else if (text.includes('一般') || text.includes('中等')) {
-      entities.accuracy = 'medium'
+      entities.accuracy = 'medium';
     } else if (text.includes('快速') || text.includes('实时')) {
-      entities.speed = 'fast'
+      entities.speed = 'fast';
     }
 
-    return entities
+    return entities;
   }
 
   /**
    * 生成建议动作
    */
-  private generateSuggestedActions(type: AnalyzedIntent['type'], entities: ExtractedEntities): string[] {
-    const actions: string[] = []
+  private generateSuggestedActions(
+    type: AnalyzedIntent['type'],
+    entities: ExtractedEntities
+  ): string[] {
+    const actions: string[] = [];
 
     switch (type) {
       case 'create_prediction':
-        actions.push('创建预测任务', '选择数据集', '配置预测模型')
-        if (entities.days) actions.push(`设置${entities.days}天的预测周期`)
-        break
+        actions.push('创建预测任务', '选择数据集', '配置预测模型');
+        if (entities.days) actions.push(`设置${entities.days}天的预测周期`);
+        break;
       case 'analyze_performance':
-        actions.push('分析模型性能', '生成质量报告', '识别性能瓶颈')
-        break
+        actions.push('分析模型性能', '生成质量报告', '识别性能瓶颈');
+        break;
       case 'optimize_model':
-        actions.push('优化模型参数', '调整训练策略', '提升预测精度')
-        break
+        actions.push('优化模型参数', '调整训练策略', '提升预测精度');
+        break;
       default:
-        actions.push('分析需求', '制定执行计划', '开始执行')
+        actions.push('分析需求', '制定执行计划', '开始执行');
     }
 
-    return actions
+    return actions;
   }
 
   /**
    * 从输入中提取约束
    */
   private extractConstraintsFromInput(text: string): ExtractedConstraints {
-    const constraints: ExtractedConstraints = {}
+    const constraints: ExtractedConstraints = {};
 
     // 时间约束
-    const timeMatch = text.match(/(\d+)\s*(分钟|小时|天)/)
+    const timeMatch = text.match(/(\d+)\s*(分钟|小时|天)/);
     if (timeMatch) {
-      const value = parseInt(timeMatch[1])
-      const unit = timeMatch[2]
+      const value = parseInt(timeMatch[1]);
+      const unit = timeMatch[2];
 
-      if (unit === '分钟') constraints.maxExecutionTime = value * 60 * 1000
-      else if (unit === '小时') constraints.maxExecutionTime = value * 60 * 60 * 1000
-      else if (unit === '天') constraints.maxExecutionTime = value * 24 * 60 * 60 * 1000
+      if (unit === '分钟') constraints.maxExecutionTime = value * 60 * 1000;
+      else if (unit === '小时')
+        constraints.maxExecutionTime = value * 60 * 60 * 1000;
+      else if (unit === '天')
+        constraints.maxExecutionTime = value * 24 * 60 * 60 * 1000;
     }
 
     // 准确度约束
     if (text.includes('90%') || text.includes('90 percent')) {
-      constraints.accuracyThreshold = 0.9
+      constraints.accuracyThreshold = 0.9;
     } else if (text.includes('95%') || text.includes('95 percent')) {
-      constraints.accuracyThreshold = 0.95
+      constraints.accuracyThreshold = 0.95;
     }
 
     // 实时要求
     if (text.includes('实时') || text.includes('立即')) {
-      constraints.realTimeRequirement = true
+      constraints.realTimeRequirement = true;
     }
 
-    return constraints
+    return constraints;
   }
 
   /**
    * 映射意图到任务类型
    */
-  private mapIntentToTaskType(intentType: AnalyzedIntent['type']): AgentTask['type'] {
+  private mapIntentToTaskType(
+    intentType: AnalyzedIntent['type']
+  ): AgentTask['type'] {
     const mapping: Record<AnalyzedIntent['type'], AgentTask['type']> = {
-      'create_prediction': 'prediction',
-      'analyze_performance': 'analysis',
-      'optimize_model': 'optimization',
-      'general_query': 'learning'
-    }
+      create_prediction: 'prediction',
+      analyze_performance: 'analysis',
+      optimize_model: 'optimization',
+      general_query: 'learning',
+    };
 
-    return mapping[intentType] || 'learning'
+    return mapping[intentType] || 'learning';
   }
 
   /**
    * 确定任务优先级
    */
-  private determinePriority(intent: AnalyzedIntent, goal: Goal): AgentTask['priority'] {
+  private determinePriority(
+    intent: AnalyzedIntent,
+    goal: Goal
+  ): AgentTask['priority'] {
     // 基于意图置信度和目标优先级
-    if (intent.confidence > 0.8 && goal.priority > 7) return 'urgent'
-    if (intent.confidence > 0.6 && goal.priority > 5) return 'high'
-    if (goal.priority > 3) return 'medium'
-    return 'low'
+    if (intent.confidence > 0.8 && goal.priority > 7) return 'urgent';
+    if (intent.confidence > 0.6 && goal.priority > 5) return 'high';
+    if (goal.priority > 3) return 'medium';
+    return 'low';
   }
 
   /**
    * 计算复杂度
    */
   private calculateComplexity(subtasks: Subtask[]): number {
-    let complexity = 0
+    let complexity = 0;
 
     subtasks.forEach(subtask => {
       // 基础复杂度
-      let taskComplexity = 1
+      let taskComplexity = 1;
 
       // 根据子任务类型调整
       switch (subtask.type) {
-        case 'prediction': taskComplexity = 3; break
-        case 'optimization': taskComplexity = 4; break
-        case 'model_selection': taskComplexity = 2; break
-        case 'evaluation': taskComplexity = 2; break
+        case 'prediction':
+          taskComplexity = 3;
+          break;
+        case 'optimization':
+          taskComplexity = 4;
+          break;
+        case 'model_selection':
+          taskComplexity = 2;
+          break;
+        case 'evaluation':
+          taskComplexity = 2;
+          break;
       }
 
       // 根据依赖数量调整
-      taskComplexity += subtask.dependencies.length * 0.5
+      taskComplexity += subtask.dependencies.length * 0.5;
 
       // 根据所需工具数量调整
-      taskComplexity += subtask.requiredTools.length * 0.3
+      taskComplexity += subtask.requiredTools.length * 0.3;
 
-      complexity += taskComplexity
-    })
+      complexity += taskComplexity;
+    });
 
-    return Math.min(complexity / subtasks.length, 10) // 归一化到0-10
+    return Math.min(complexity / subtasks.length, 10); // 归一化到0-10
   }
 
   /**
@@ -719,30 +773,30 @@ export class AgenticCore extends EventEmitter {
       diskIO: 0,
       networkIO: 0,
       modelCalls: 0,
-      apiCalls: 0
-    }
+      apiCalls: 0,
+    };
 
     subtasks.forEach(subtask => {
       switch (subtask.type) {
         case 'prediction':
-          baseUsage.cpu += 0.3
-          baseUsage.memory += 50 * 1024 * 1024
-          baseUsage.modelCalls += 1
-          break
+          baseUsage.cpu += 0.3;
+          baseUsage.memory += 50 * 1024 * 1024;
+          baseUsage.modelCalls += 1;
+          break;
         case 'model_selection':
-          baseUsage.cpu += 0.5
-          baseUsage.memory += 200 * 1024 * 1024
-          baseUsage.modelCalls += 5
-          break
+          baseUsage.cpu += 0.5;
+          baseUsage.memory += 200 * 1024 * 1024;
+          baseUsage.modelCalls += 5;
+          break;
         case 'optimization':
-          baseUsage.cpu += 0.8
-          baseUsage.memory += 500 * 1024 * 1024
-          baseUsage.modelCalls += 10
-          break
+          baseUsage.cpu += 0.8;
+          baseUsage.memory += 500 * 1024 * 1024;
+          baseUsage.modelCalls += 10;
+          break;
       }
-    })
+    });
 
-    return baseUsage
+    return baseUsage;
   }
 
   /**
@@ -753,53 +807,72 @@ export class AgenticCore extends EventEmitter {
       maxExecutionTime: intent.constraints.maxExecutionTime,
       accuracyThreshold: intent.constraints.accuracyThreshold,
       realTimeRequirement: intent.constraints.realTimeRequirement,
-      allowedModels: intent.context.userPreferences?.privacyMode === 'strict' ?
-        ['time_series_exponential_smoothing', 'statistical_anomaly_detection'] : undefined,
-      privacyConstraints: intent.context.userPreferences?.privacyMode === 'strict' ?
-        ['no_data_sharing', 'local_processing'] : undefined
-    }
+      allowedModels:
+        intent.context.userPreferences?.privacyMode === 'strict'
+          ? [
+              'time_series_exponential_smoothing',
+              'statistical_anomaly_detection',
+            ]
+          : undefined,
+      privacyConstraints:
+        intent.context.userPreferences?.privacyMode === 'strict'
+          ? ['no_data_sharing', 'local_processing']
+          : undefined,
+    };
   }
 
   /**
    * 估算完成时间
    */
   private estimateCompletionTime(task: AgentTask): number {
-    let totalTime = 0
+    let totalTime = 0;
 
     task.subtasks.forEach(subtask => {
       // 基础时间估算（毫秒）
-      let estimatedTime = 5000
+      let estimatedTime = 5000;
 
       switch (subtask.type) {
-        case 'data_preprocessing': estimatedTime = 3000; break
-        case 'model_selection': estimatedTime = 10000; break
-        case 'prediction': estimatedTime = 5000; break
-        case 'evaluation': estimatedTime = 8000; break
-        case 'optimization': estimatedTime = 15000; break
+        case 'data_preprocessing':
+          estimatedTime = 3000;
+          break;
+        case 'model_selection':
+          estimatedTime = 10000;
+          break;
+        case 'prediction':
+          estimatedTime = 5000;
+          break;
+        case 'evaluation':
+          estimatedTime = 8000;
+          break;
+        case 'optimization':
+          estimatedTime = 15000;
+          break;
       }
 
       // 根据复杂度调整
-      estimatedTime *= (1 + task.metrics.complexity / 10)
+      estimatedTime *= 1 + task.metrics.complexity / 10;
 
-      totalTime += estimatedTime
-    })
+      totalTime += estimatedTime;
+    });
 
-    return totalTime
+    return totalTime;
   }
 
   /**
    * 获取下一步预览
    */
   private getNextStepsPreview(subtasks: Subtask[]): string[] {
-    const pendingTasks = subtasks.filter(t => t.status === 'pending')
-    return pendingTasks.slice(0, 3).map(t => t.description)
+    const pendingTasks = subtasks.filter(t => t.status === 'pending');
+    return pendingTasks.slice(0, 3).map(t => t.description);
   }
 
   /**
    * 生成替代方案
    */
-  private async generateAlternatives(task: AgentTask): Promise<AlternativeOption[]> {
-    const alternatives: AlternativeOption[] = []
+  private async generateAlternatives(
+    task: AgentTask
+  ): Promise<AlternativeOption[]> {
+    const alternatives: AlternativeOption[] = [];
 
     // 快速方案
     alternatives.push({
@@ -815,9 +888,9 @@ export class AgenticCore extends EventEmitter {
         diskIO: 0,
         networkIO: 0,
         modelCalls: 1,
-        apiCalls: 2
-      }
-    })
+        apiCalls: 2,
+      },
+    });
 
     // 精确方案
     alternatives.push({
@@ -833,11 +906,11 @@ export class AgenticCore extends EventEmitter {
         diskIO: task.metrics.resourceUsage.diskIO * 1.5,
         networkIO: task.metrics.resourceUsage.networkIO,
         modelCalls: 10,
-        apiCalls: 5
-      }
-    })
+        apiCalls: 5,
+      },
+    });
 
-    return alternatives
+    return alternatives;
   }
 
   /**
@@ -846,33 +919,37 @@ export class AgenticCore extends EventEmitter {
   private startTaskProcessingLoop(): void {
     setInterval(async () => {
       if (this.state === AgentState.IDLE && this.taskQueue.length > 0) {
-        await this.processNextTask()
+        await this.processNextTask();
       }
-    }, 1000)
+    }, 1000);
   }
 
   /**
    * 处理下一个任务
    */
   private async processNextTask(): Promise<void> {
-    if (this.activeTasks.size >= this.config.maxConcurrentTasks) return
+    if (this.activeTasks.size >= (this.config.maxConcurrentTasks ?? 5)) return;
 
-    const task = this.taskQueue.shift()
-    if (!task) return
+    const task = this.taskQueue.shift();
+    if (!task) return;
 
-    this.state = AgentState.EXECUTING
-    this.emit('taskStarted', task)
+    this.state = AgentState.EXECUTING;
+    this.emit('taskStarted', task);
 
     try {
-      await this.executeTask(task)
+      await this.executeTask(task);
     } catch (error) {
-      this.log('error', 'Task execution failed', { taskId: task.id, error: error.message })
-      task.status = 'failed'
-      task.metrics.endTime = Date.now()
-      task.metrics.error = error.message
-      this.emit('taskFailed', { task, error })
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.log('error', 'Task execution failed', {
+        taskId: task.id,
+        error: errorMessage,
+      });
+      task.status = 'failed';
+      task.metrics.endTime = Date.now();
+      task.metrics.error = errorMessage;
+      this.emit('taskFailed', { task, error });
     } finally {
-      this.state = AgentState.IDLE
+      this.state = AgentState.IDLE;
     }
   }
 
@@ -880,153 +957,184 @@ export class AgenticCore extends EventEmitter {
    * 执行任务
    */
   private async executeTask(task: AgentTask): Promise<void> {
-    task.status = 'executing'
-    task.updatedAt = Date.now()
+    task.status = 'executing';
+    task.updatedAt = Date.now();
 
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     // 执行子任务
     for (const subtask of task.subtasks) {
-      if (subtask.status !== 'pending') continue
+      if (subtask.status !== 'pending') continue;
 
-      subtask.status = 'executing'
-      const subtaskStartTime = Date.now()
+      subtask.status = 'executing';
+      const subtaskStartTime = Date.now();
 
       try {
-        const result = await this.executeSubtask(subtask, task)
+        const result = await this.executeSubtask(subtask, task);
 
-        subtask.status = 'completed'
-        subtask.result = result
-        subtask.actualTime = Date.now() - subtaskStartTime
-        subtask.confidence = this.calculateSubtaskConfidence(result)
+        subtask.status = 'completed';
+        subtask.result = result;
+        subtask.actualTime = Date.now() - subtaskStartTime;
+        subtask.confidence = this.calculateSubtaskConfidence(result);
 
         // 实时进度通知
-        this.emit('subtaskCompleted', { taskId: task.id, subtask, progress: this.calculateProgress(task) })
-
+        this.emit('subtaskCompleted', {
+          taskId: task.id,
+          subtask,
+          progress: this.calculateProgress(task),
+        });
       } catch (error) {
-        subtask.status = 'failed'
-        subtask.error = error.message
-        subtask.actualTime = Date.now() - subtaskStartTime
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        subtask.status = 'failed';
+        subtask.error = errorMessage;
+        subtask.actualTime = Date.now() - subtaskStartTime;
 
         this.log('error', 'Subtask failed', {
           taskId: task.id,
           subtaskId: subtask.id,
-          error: error.message
-        })
+          error: errorMessage,
+        });
 
         // 决定是否继续执行其他子任务
         if (this.shouldAbortTask(task, subtask)) {
-          break
+          break;
         }
       }
     }
 
     // 任务完成处理
-    const executionTime = Date.now() - startTime
-    task.status = 'completed'
-    task.metrics.endTime = Date.now()
-    task.metrics.executionTime = executionTime
-    task.metrics.successRate = this.calculateSuccessRate(task)
-    task.metrics.qualityScore = await this.calculateQualityScore(task)
+    const executionTime = Date.now() - startTime;
+    task.status = 'completed';
+    task.metrics.endTime = Date.now();
+    task.metrics.executionTime = executionTime;
+    task.metrics.successRate = this.calculateSuccessRate(task);
+    task.metrics.qualityScore = await this.calculateQualityScore(task);
 
     // 移动到已完成任务
-    this.activeTasks.delete(task.id)
-    this.completedTasks.push(task)
+    this.activeTasks.delete(task.id);
+    this.completedTasks.push(task);
 
     // 限制历史记录大小
     if (this.completedTasks.length > 1000) {
-      this.completedTasks = this.completedTasks.slice(-500)
+      this.completedTasks = this.completedTasks.slice(-500);
     }
 
     // 触发学习
     if (this.config.learningEnabled) {
-      await this.learningSystem.recordExperience(task)
+      await this.learningSystem.recordExperience(task);
     }
 
-    this.emit('taskCompleted', task)
+    this.emit('taskCompleted', task);
   }
 
   /**
    * 执行子任务
    */
-  private async executeSubtask(subtask: Subtask, task: AgentTask): Promise<SubtaskResult> {
+  private async executeSubtask(
+    subtask: Subtask,
+    task: AgentTask
+  ): Promise<SubtaskResult> {
     switch (subtask.type) {
       case 'data_preprocessing':
-        return this.executeDataPreprocessing(subtask, task)
+        return this.executeDataPreprocessing(subtask, task);
       case 'model_selection':
-        return this.executeModelSelection(subtask, task)
+        return this.executeModelSelection(subtask, task);
       case 'prediction':
-        return this.executePrediction(subtask, task)
+        return this.executePrediction(subtask, task);
       case 'evaluation':
-        return this.executeEvaluation(subtask, task)
+        return this.executeEvaluation(subtask, task);
       case 'optimization':
-        return this.executeOptimization(subtask, task)
+        return this.executeOptimization(subtask, task);
       default:
-        throw new Error(`Unknown subtask type: ${subtask.type}`)
+        throw new Error(`Unknown subtask type: ${subtask.type}`);
     }
   }
 
   /**
    * 执行数据预处理
    */
-  private async executeDataPreprocessing(subtask: Subtask, task: AgentTask): Promise<SubtaskResult> {
-    const preprocessingResult: DataPreprocessingResult = {
-      processed: true,
+  private async executeDataPreprocessing(
+    subtask: Subtask,
+    task: AgentTask
+  ): Promise<SubtaskResult> {
+    const preprocessingResult: PreprocessingResult = {
+      processedDataCount: Math.floor(Math.random() * 1000) + 100,
       featuresExtracted: Math.floor(Math.random() * 50) + 10,
-      dataQuality: 0.85 + Math.random() * 0.15,
-      preprocessingTime: Date.now()
-    }
+      missingValuesHandled: Math.floor(Math.random() * 50),
+      outliersDetected: Math.floor(Math.random() * 20),
+      transformationsApplied: ['normalization', 'encoding', 'scaling'],
+    };
 
     return {
       success: true,
-      preprocessing: preprocessingResult
-    }
+      preprocessing: preprocessingResult,
+    };
   }
 
   /**
    * 执行模型选择
    */
-  private async executeModelSelection(subtask: Subtask, task: AgentTask): Promise<ModelSelection> {
-    // 模拟模型选择过程
-    const availableModels = ['adaptive_ensemble', 'time_series_exponential_smoothing', 'statistical_anomaly_detection']
+  private async executeModelSelection(
+    subtask: Subtask,
+    task: AgentTask
+  ): Promise<SubtaskResult> {
+    const availableModels = [
+      'adaptive_ensemble',
+      'time_series_exponential_smoothing',
+      'statistical_anomaly_detection',
+    ];
+
+    const modelSelection: ModelSelection = {
+      selectedModel:
+        availableModels[Math.floor(Math.random() * availableModels.length)],
+      alternativeModels: availableModels
+        .filter(m => m !== 'adaptive_ensemble')
+        .slice(0, 3),
+      reasoning: '基于数据特征和性能要求的智能选择',
+      confidence: 0.8 + Math.random() * 0.2,
+      selectionReason: '基于数据特征和性能要求的智能选择',
+      expectedPerformance: 0.85 + Math.random() * 0.15,
+      fittingTime: 100 + Math.random() * 200,
+    };
 
     return {
-      selectedModel: availableModels[Math.floor(Math.random() * availableModels.length)],
-      alternativeModels: availableModels.filter(m => m !== 'adaptive_ensemble').slice(0, 3),
-      selectionReason: '基于数据特征和性能要求的智能选择',
-      expectedPerformance: 0.85 + Math.random() * 0.1,
-      confidence: 0.8 + Math.random() * 0.2,
-      fittingTime: Math.random() * 1000 + 500
-    }
+      success: true,
+      modelSelection,
+    };
   }
 
   /**
    * 执行预测
    */
-  private async executePrediction(subtask: Subtask, task: AgentTask): Promise<PredictionResult[]> {
-    // 模拟预测结果
-    const numPredictions = Math.floor(Math.random() * 10) + 5
-    const results: PredictionResult[] = []
+  private async executePrediction(
+    subtask: Subtask,
+    task: AgentTask
+  ): Promise<SubtaskResult> {
+    const numPredictions = Math.floor(Math.random() * 10) + 5;
+    const predictions: PredictionResult[] = [];
 
     for (let i = 0; i < numPredictions; i++) {
-      results.push({
+      predictions.push({
         id: `pred_${Date.now()}_${i}`,
         prediction: Math.random() * 100,
         confidence: 0.7 + Math.random() * 0.3,
         timestamp: Date.now() + i * 1000,
-        horizon: 1,
-        modelId: 'adaptive_ensemble',
-        methodology: 'ensemble_weighted'
-      })
+      });
     }
 
-    return results
+    return {
+      success: true,
+      predictions,
+    };
   }
 
   /**
    * 执行评估
    */
-  private async executeEvaluation(subtask: Subtask, task: AgentTask): Promise<SubtaskResult> {
+  private async executeEvaluation(
+    subtask: Subtask,
+    task: AgentTask
+  ): Promise<SubtaskResult> {
     const evaluationResult: EvaluationResultExtended = {
       accuracy: 0.85 + Math.random() * 0.1,
       precision: 0.8 + Math.random() * 0.15,
@@ -1034,57 +1142,66 @@ export class AgenticCore extends EventEmitter {
       f1Score: 0.8 + Math.random() * 0.15,
       rmse: Math.random() * 10,
       mae: Math.random() * 8,
-      evaluationTime: Date.now()
-    }
+      evaluationTime: Date.now(),
+    };
 
     return {
       success: true,
-      evaluation: evaluationResult
-    }
+      evaluation: evaluationResult,
+    };
   }
 
   /**
    * 执行优化
    */
-  private async executeOptimization(subtask: Subtask, task: AgentTask): Promise<SubtaskResult> {
+  private async executeOptimization(
+    subtask: Subtask,
+    task: AgentTask
+  ): Promise<SubtaskResult> {
     const optimizationResult: OptimizationResultExtended = {
       optimized: true,
       improvement: Math.random() * 0.2,
       parametersAdjusted: Math.floor(Math.random() * 5) + 1,
       optimizationTime: Date.now(),
-      newAccuracy: 0.9 + Math.random() * 0.08
-    }
+      newAccuracy: 0.9 + Math.random() * 0.08,
+    };
 
     return {
       success: true,
-      optimization: optimizationResult
-    }
+      data: optimizationResult,
+    };
   }
 
   /**
    * 计算子任务置信度
    */
   private calculateSubtaskConfidence(result: SubtaskResult): number {
-    if (!result) return 0
+    if (!result) return 0;
 
-    // 基于结果质量计算置信度
-    let confidence = 0.5
+    let confidence = 0.5;
 
-    if (result.evaluation?.accuracy) confidence += result.evaluation.accuracy * 0.3
-    if (result.preprocessing?.processedDataCount && result.preprocessing.processedDataCount > 0) confidence += 0.2
-    if (result.optimization?.performanceGain && result.optimization.performanceGain > 0) confidence += 0.2
-    if (result.modelSelection) confidence += 0.1
-    if (result.predictions && result.predictions.length > 0) confidence += 0.1
+    if (result.evaluation?.accuracy)
+      confidence += result.evaluation.accuracy * 0.3;
+    if (
+      result.preprocessing?.processedDataCount &&
+      result.preprocessing.processedDataCount > 0
+    )
+      confidence += 0.2;
+    if (result.data) confidence += 0.2;
+    if (result.modelSelection) confidence += 0.1;
+    if (result.predictions && result.predictions.length > 0) confidence += 0.1;
 
-    return Math.min(confidence, 1)
+    return Math.min(confidence, 1);
   }
 
   /**
    * 计算任务进度
    */
   private calculateProgress(task: AgentTask): number {
-    const completed = task.subtasks.filter(s => s.status === 'completed').length
-    return (completed / task.subtasks.length) * 100
+    const completed = task.subtasks.filter(
+      s => s.status === 'completed'
+    ).length;
+    return (completed / task.subtasks.length) * 100;
   }
 
   /**
@@ -1092,70 +1209,84 @@ export class AgenticCore extends EventEmitter {
    */
   private shouldAbortTask(task: AgentTask, failedSubtask: Subtask): boolean {
     // 关键子任务失败时中止
-    const criticalSubtasks = ['model_selection', 'prediction']
-    return criticalSubtasks.includes(failedSubtask.type)
+    const criticalSubtasks = ['model_selection', 'prediction'];
+    return criticalSubtasks.includes(failedSubtask.type);
   }
 
   /**
    * 计算成功率
    */
   private calculateSuccessRate(task: AgentTask): number {
-    const completed = task.subtasks.filter(s => s.status === 'completed').length
-    return completed / task.subtasks.length
+    const completed = task.subtasks.filter(
+      s => s.status === 'completed'
+    ).length;
+    return completed / task.subtasks.length;
   }
 
   /**
    * 计算质量分数
    */
   private async calculateQualityScore(task: AgentTask): Promise<number> {
-    let score = 0
-    let count = 0
+    let score = 0;
+    let count = 0;
 
     task.subtasks.forEach(subtask => {
       if (subtask.confidence) {
-        score += subtask.confidence
-        count++
+        score += subtask.confidence;
+        count++;
       }
-    })
+    });
 
-    return count > 0 ? score / count : 0
+    return count > 0 ? score / count : 0;
   }
 
   /**
    * 获取系统状态
    */
   getSystemStatus(): SystemStatus {
-    const totalTasks = this.completedTasks.length + this.activeTasks.size
-    const successfulTasks = this.completedTasks.filter(t => t.status === 'completed').length
+    const totalTasks = this.completedTasks.length + this.activeTasks.size;
+    const successfulTasks = this.completedTasks.filter(
+      t => t.status === 'completed'
+    ).length;
 
     return {
       state: this.state,
       activeTasks: this.activeTasks.size,
       queuedTasks: this.taskQueue.length,
       completedTasks: this.completedTasks.length,
-      failedTasks: this.completedTasks.filter(t => t.status === 'failed').length,
+      failedTasks: this.completedTasks.filter(t => t.status === 'failed')
+        .length,
       averageExecutionTime: this.calculateAverageExecutionTime(),
       successRate: totalTasks > 0 ? successfulTasks / totalTasks : 0,
-      memoryUsage: typeof process !== 'undefined' && process.memoryUsage ? process.memoryUsage() : { 
-        rss: 0, 
-        heapTotal: 0, 
-        heapUsed: 0, 
-        external: 0 
-      },
+      memoryUsage:
+        typeof process !== 'undefined' && process.memoryUsage
+          ? process.memoryUsage()
+          : {
+              rss: 0,
+              heapTotal: 0,
+              heapUsed: 0,
+              external: 0,
+              arrayBuffers: 0,
+            },
       performanceMetrics: this.collectPerformanceMetrics(),
-      learningProgress: this.learningSystem.getProgress()
-    }
+      learningProgress: this.learningSystem.getProgress(),
+    };
   }
 
   /**
    * 计算平均执行时间
    */
   private calculateAverageExecutionTime(): number {
-    const completedTasks = this.completedTasks.filter(t => t.metrics.executionTime)
-    if (completedTasks.length === 0) return 0
+    const completedTasks = this.completedTasks.filter(
+      t => t.metrics.executionTime
+    );
+    if (completedTasks.length === 0) return 0;
 
-    const totalTime = completedTasks.reduce((sum, task) => sum + (task.metrics.executionTime || 0), 0)
-    return totalTime / completedTasks.length
+    const totalTime = completedTasks.reduce(
+      (sum, task) => sum + (task.metrics.executionTime || 0),
+      0
+    );
+    return totalTime / completedTasks.length;
   }
 
   /**
@@ -1163,67 +1294,84 @@ export class AgenticCore extends EventEmitter {
    */
   private collectPerformanceMetrics(): PerformanceMetrics {
     // 兼容浏览器环境的内存使用率计算
-    const memoryUsage = typeof process !== 'undefined' && process.memoryUsage 
-      ? process.memoryUsage() 
-      : { heapUsed: 0, heapTotal: 1 }; // 避免除零错误
-    
+    const memoryUsage =
+      typeof process !== 'undefined' && process.memoryUsage
+        ? process.memoryUsage()
+        : { heapUsed: 0, heapTotal: 1 }; // 避免除零错误
+
     return {
-      cpuUsage: typeof process !== 'undefined' && process.cpuUsage ? process.cpuUsage().user : 0,
+      cpuUsage:
+        typeof process !== 'undefined' && process.cpuUsage
+          ? process.cpuUsage().user
+          : 0,
       memoryUsage: memoryUsage.heapUsed / memoryUsage.heapTotal,
       responseTime: this.calculateAverageExecutionTime(),
-      throughput: this.completedTasks.length / (typeof process !== 'undefined' && process.uptime ? process.uptime() / 1000 : 1),
+      throughput:
+        this.completedTasks.length /
+        (typeof process !== 'undefined' && process.uptime
+          ? process.uptime() / 1000
+          : 1),
       errorRate: this.calculateErrorRate(),
-      uptime: typeof process !== 'undefined' && process.uptime ? process.uptime() : 0,
-      lastUpdated: Date.now()
-    }
+      uptime:
+        typeof process !== 'undefined' && process.uptime ? process.uptime() : 0,
+      lastUpdated: Date.now(),
+    };
   }
 
   /**
    * 计算错误率
    */
   private calculateErrorRate(): number {
-    const totalTasks = this.completedTasks.length
-    if (totalTasks === 0) return 0
+    const totalTasks = this.completedTasks.length;
+    if (totalTasks === 0) return 0;
 
-    const failedTasks = this.completedTasks.filter(t => t.status === 'failed').length
-    return failedTasks / totalTasks
+    const failedTasks = this.completedTasks.filter(
+      t => t.status === 'failed'
+    ).length;
+    return failedTasks / totalTasks;
   }
 
   /**
    * 设置事件监听器
    */
   private setupEventListeners(): void {
-    this.on('error', (error) => {
-      this.log('error', 'Agent error', { error: error.message })
-    })
+    this.on('error', error => {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.log('error', 'Agent error', { error: errorMessage });
+    });
 
-    this.on('taskCompleted', (task) => {
+    this.on('taskCompleted', task => {
       this.log('info', 'Task completed', {
         taskId: task.id,
         executionTime: task.metrics.executionTime,
-        successRate: task.metrics.successRate
-      })
-    })
+        successRate: task.metrics.successRate,
+      });
+    });
 
     this.on('taskFailed', ({ task, error }) => {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       this.log('error', 'Task failed', {
         taskId: task.id,
-        error: error.message
-      })
-    })
+        error: errorMessage,
+      });
+    });
   }
 
   /**
    * 日志记录
    */
-  private log(level: 'info' | 'warn' | 'error', message: string, data?: unknown): void {
-    const timestamp = new Date().toISOString()
-    const logMessage = `[${timestamp}] [${level.toUpperCase()}] AgenticCore: ${message}`
+  private log(
+    level: 'info' | 'warn' | 'error',
+    message: string,
+    data?: unknown
+  ): void {
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] [${level.toUpperCase()}] AgenticCore: ${message}`;
 
     if (data) {
-      console.log(logMessage, data)
+      console.log(logMessage, data);
     } else {
-      console.log(logMessage)
+      console.log(logMessage);
     }
   }
 
@@ -1231,18 +1379,20 @@ export class AgenticCore extends EventEmitter {
    * 生成任务ID
    */
   private generateTaskId(): string {
-    return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
 // 支持类
 class ContextManager {
-  private currentContext: AgentContext
+  private currentContext: AgentContext;
 
   constructor() {
     this.currentContext = {
       sessionId: '',
       userId: '',
+      environment: 'web',
+      permissions: [],
       conversationHistory: [],
       workingMemory: {},
       userPreferences: {
@@ -1251,37 +1401,40 @@ class ContextManager {
         visualizationStyle: 'detailed',
         notificationLevel: 'important',
         autoOptimization: true,
-        privacyMode: 'normal'
+        privacyMode: 'normal',
       },
       systemCapabilities: {
         availableModels: [],
         maxConcurrentTasks: 5,
         supportedDataTypes: ['timeseries', 'tabular'],
         integrations: [],
-        performanceLevel: 'standard'
-      }
-    }
+        performanceLevel: 'standard',
+      },
+    };
   }
 
-  async updateContext(updates: Partial<AgentContext>, input?: UserInput): Promise<void> {
-    Object.assign(this.currentContext, updates)
+  async updateContext(
+    updates: Partial<AgentContext>,
+    input?: UserInput
+  ): Promise<void> {
+    Object.assign(this.currentContext, updates);
 
     if (input) {
       this.currentContext.conversationHistory.push({
         id: this.generateMessageId(),
         role: 'user',
         content: input.text,
-        timestamp: input.timestamp
-      })
+        timestamp: input.timestamp,
+      });
     }
   }
 
   getCurrentContext(): AgentContext {
-    return { ...this.currentContext }
+    return { ...this.currentContext };
   }
 
   private generateMessageId(): string {
-    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 }
 
@@ -1296,12 +1449,12 @@ class GoalManager {
       constraints: intent.constraints,
       expectedValue: this.calculateExpectedValue(intent),
       successCriteria: this.defineSuccessCriteria(intent),
-      dependencies: []
-    }
+      dependencies: [],
+    };
   }
 
   private extractObjective(intent: AnalyzedIntent): string {
-    return `完成${intent.type}相关的智能任务`
+    return `完成${intent.type}相关的智能任务`;
   }
 
   private generateKeyResults(intent: AnalyzedIntent): KeyResult[] {
@@ -1313,17 +1466,17 @@ class GoalManager {
         current: 0,
         unit: 'percent',
         weight: 0.6,
-        progress: 0
-      }
-    ]
+        progress: 0,
+      },
+    ];
   }
 
   private calculatePriority(intent: AnalyzedIntent): number {
-    return Math.floor(intent.confidence * 10)
+    return Math.floor(intent.confidence * 10);
   }
 
   private calculateExpectedValue(intent: AnalyzedIntent): number {
-    return intent.confidence * 100
+    return intent.confidence * 100;
   }
 
   private defineSuccessCriteria(intent: AnalyzedIntent): SuccessCriteria[] {
@@ -1334,22 +1487,22 @@ class GoalManager {
         metric: 'success_rate',
         threshold: 0.8,
         operator: 'gte',
-        weight: 1
-      }
-    ]
+        weight: 1,
+      },
+    ];
   }
 }
 
 class LearningSystem {
-  private enabled: boolean
-  private experiences: LearningExperience[] = []
+  private enabled: boolean;
+  private experiences: LearningExperience[] = [];
 
   constructor(config: { enabled: boolean }) {
-    this.enabled = config.enabled
+    this.enabled = config.enabled;
   }
 
   async recordExperience(task: AgentTask): Promise<void> {
-    if (!this.enabled) return
+    if (!this.enabled) return;
 
     this.experiences.push({
       taskId: task.id,
@@ -1363,13 +1516,13 @@ class LearningSystem {
         type: st.type,
         status: st.status,
         confidence: st.confidence,
-        actualTime: st.actualTime
-      }))
-    })
+        actualTime: st.actualTime,
+      })),
+    });
 
     // 保持经验记录在合理范围内
     if (this.experiences.length > 1000) {
-      this.experiences = this.experiences.slice(-500)
+      this.experiences = this.experiences.slice(-500);
     }
   }
 
@@ -1380,34 +1533,34 @@ class LearningSystem {
       adaptationSpeed: 0.8,
       knowledgeCoverage: 0.6,
       modelImprovement: 0.15,
-      userSatisfactionScore: 0.85
-    }
+      userSatisfactionScore: 0.85,
+    };
   }
 }
 
 export interface LearningExperience {
-  taskId: string
-  taskType: AgentTask['type']
-  goal: string
-  timestamp: number
-  outcome: AgentTask['status']
-  performance: TaskMetrics
+  taskId: string;
+  taskType: AgentTask['type'];
+  goal: string;
+  timestamp: number;
+  outcome: AgentTask['status'];
+  performance: TaskMetrics;
   subtaskResults: {
-    subtaskId: string
-    type: Subtask['type']
-    status: Subtask['status']
-    confidence?: number
-    actualTime?: number
-  }[]
+    subtaskId: string;
+    type: Subtask['type'];
+    status: Subtask['status'];
+    confidence?: number;
+    actualTime?: number;
+  }[];
 }
 
 class TaskOrchestrator {
-  private maxConcurrency: number
-  private defaultTimeout: number
+  private maxConcurrency: number;
+  private defaultTimeout: number;
 
-  constructor(config: { maxConcurrency: number, defaultTimeout: number }) {
-    this.maxConcurrency = config.maxConcurrency
-    this.defaultTimeout = config.defaultTimeout
+  constructor(config: { maxConcurrency: number; defaultTimeout: number }) {
+    this.maxConcurrency = config.maxConcurrency;
+    this.defaultTimeout = config.defaultTimeout;
   }
 
   async decomposeGoal(goal: Goal): Promise<Subtask[]> {
@@ -1419,7 +1572,7 @@ class TaskOrchestrator {
         type: 'data_preprocessing',
         requiredTools: ['data_cleaner', 'feature_extractor'],
         dependencies: [],
-        status: 'pending'
+        status: 'pending',
       },
       {
         id: 'st_model_selection',
@@ -1428,7 +1581,7 @@ class TaskOrchestrator {
         type: 'model_selection',
         requiredTools: ['model_selector'],
         dependencies: ['st_preprocessing'],
-        status: 'pending'
+        status: 'pending',
       },
       {
         id: 'st_prediction',
@@ -1437,7 +1590,7 @@ class TaskOrchestrator {
         type: 'prediction',
         requiredTools: ['prediction_engine'],
         dependencies: ['st_model_selection'],
-        status: 'pending'
+        status: 'pending',
       },
       {
         id: 'st_evaluation',
@@ -1446,10 +1599,10 @@ class TaskOrchestrator {
         type: 'evaluation',
         requiredTools: ['quality_monitor'],
         dependencies: ['st_prediction'],
-        status: 'pending'
-      }
-    ]
+        status: 'pending',
+      },
+    ];
   }
 }
 
-export default AgenticCore
+export default AgenticCore;

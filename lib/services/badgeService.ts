@@ -3,8 +3,19 @@
  * @description 勋章系统服务 - 处理勋章相关的业务逻辑
  */
 
-import type { Badge, BadgeSeries, BadgeCategory, BadgeStats, SeriesProgress, BadgeService as BadgeServiceInterface } from '@/types';
-import { allBadges, badgeGroups, earnedBadgeIds } from '@/lib/data/badgeMockData';
+import type {
+  Badge,
+  BadgeSeries,
+  BadgeCategory,
+  BadgeStats,
+  SeriesProgress,
+  BadgeService as BadgeServiceInterface,
+} from '@/types';
+import {
+  allBadges,
+  badgeGroups,
+  earnedBadgeIds,
+} from '@/lib/data/badgeMockData';
 // badgeStats is available but not currently used in this implementation
 
 class BadgeService implements BadgeServiceInterface {
@@ -58,7 +69,7 @@ class BadgeService implements BadgeServiceInterface {
       .map(badge => ({
         ...badge,
         earnedDate: '2024-01-15', // 模拟获得日期
-        progress: 100
+        progress: 100,
       }));
   }
 
@@ -73,7 +84,7 @@ class BadgeService implements BadgeServiceInterface {
         ...badge,
         title: '???',
         description: badge.hiddenDescription || '???',
-        icon: '/badges/hidden/locked.png'
+        icon: '/badges/hidden/locked.png',
       }));
   }
 
@@ -89,8 +100,13 @@ class BadgeService implements BadgeServiceInterface {
     }
 
     // 检查前置条件
-    if (badge.prerequisiteBadge && !this.earnedBadges.has(badge.prerequisiteBadge)) {
-      throw new Error(`Prerequisite badge ${badge.prerequisiteBadge} not earned`);
+    if (
+      badge.prerequisiteBadge &&
+      !this.earnedBadges.has(badge.prerequisiteBadge)
+    ) {
+      throw new Error(
+        `Prerequisite badge ${badge.prerequisiteBadge} not earned`
+      );
     }
 
     // 检查解锁条件
@@ -105,14 +121,16 @@ class BadgeService implements BadgeServiceInterface {
     return {
       ...badge,
       earnedDate: new Date().toISOString(),
-      progress: 100
+      progress: 100,
     };
   }
 
   /**
    * 检查解锁条件
    */
-  async checkUnlockConditions(badge: Badge): Promise<{ canUnlock: boolean; progress: number }> {
+  async checkUnlockConditions(
+    badge: Badge
+  ): Promise<{ canUnlock: boolean; progress: number }> {
     await this.delay(200);
 
     // 如果已经解锁，直接返回
@@ -127,7 +145,7 @@ class BadgeService implements BadgeServiceInterface {
 
     return {
       canUnlock: progress === 100,
-      progress
+      progress,
     };
   }
 
@@ -148,7 +166,7 @@ class BadgeService implements BadgeServiceInterface {
       byLevel: this.calculateByLevel(earned),
       totalPoints: earned.reduce((sum, b) => sum + b.metadata.points, 0),
       ranking: 156,
-      recentBadges: earned.slice(-5).reverse()
+      recentBadges: earned.slice(-5).reverse(),
     };
   }
 
@@ -164,9 +182,12 @@ class BadgeService implements BadgeServiceInterface {
     }
 
     const earnedInSeries = await this.getBadgesBySeries(series);
-    const earnedBadgesInSeries = earnedInSeries.filter(b => this.earnedBadges.has(b.id));
+    const earnedBadgesInSeries = earnedInSeries.filter(b =>
+      this.earnedBadges.has(b.id)
+    );
 
-    const progressPercentage = (earnedBadgesInSeries.length / group.badgeCount) * 100;
+    const progressPercentage =
+      (earnedBadgesInSeries.length / group.badgeCount) * 100;
 
     return {
       seriesId: series,
@@ -179,27 +200,37 @@ class BadgeService implements BadgeServiceInterface {
           level: 'bronze',
           requiredBadges: 1,
           reward: { type: 'points', value: 100, description: '100积分' },
-          unlocked: earnedBadgesInSeries.length >= 1
+          unlocked: earnedBadgesInSeries.length >= 1,
         },
         {
           level: 'silver',
           requiredBadges: Math.ceil(group.badgeCount * 0.33),
           reward: { type: 'points', value: 300, description: '300积分' },
-          unlocked: earnedBadgesInSeries.length >= Math.ceil(group.badgeCount * 0.33)
+          unlocked:
+            earnedBadgesInSeries.length >= Math.ceil(group.badgeCount * 0.33),
         },
         {
           level: 'gold',
           requiredBadges: Math.ceil(group.badgeCount * 0.66),
-          reward: { type: 'title', value: `${group.name}大师`, description: '专属称号' },
-          unlocked: earnedBadgesInSeries.length >= Math.ceil(group.badgeCount * 0.66)
+          reward: {
+            type: 'title',
+            value: `${group.name}大师`,
+            description: '专属称号',
+          },
+          unlocked:
+            earnedBadgesInSeries.length >= Math.ceil(group.badgeCount * 0.66),
         },
         {
           level: 'platinum',
           requiredBadges: group.badgeCount,
-          reward: { type: 'badge', value: `${series}_master`, description: '大师徽章' },
-          unlocked: earnedBadgesInSeries.length >= group.badgeCount
-        }
-      ]
+          reward: {
+            type: 'badge',
+            value: `${series}_master`,
+            description: '大师徽章',
+          },
+          unlocked: earnedBadgesInSeries.length >= group.badgeCount,
+        },
+      ],
     };
   }
 
@@ -211,10 +242,11 @@ class BadgeService implements BadgeServiceInterface {
     void query; // Currently unused, will be used in future implementation
 
     return allBadges
-      .filter(badge =>
-        badge.title.toLowerCase().includes(query.toLowerCase()) ||
-        badge.description.toLowerCase().includes(query.toLowerCase()) ||
-        badge.series.includes(query.toLowerCase() as BadgeSeries)
+      .filter(
+        badge =>
+          badge.title.toLowerCase().includes(query.toLowerCase()) ||
+          badge.description.toLowerCase().includes(query.toLowerCase()) ||
+          badge.series.includes(query.toLowerCase() as BadgeSeries)
       )
       .map(badge => this.enrichBadge(badge));
   }
@@ -239,7 +271,7 @@ class BadgeService implements BadgeServiceInterface {
     return {
       ...badge,
       progress: isEarned ? 100 : Math.floor(Math.random() * 80),
-      earnedDate: isEarned ? '2024-01-15' : undefined
+      earnedDate: isEarned ? '2024-01-15' : undefined,
     };
   }
 

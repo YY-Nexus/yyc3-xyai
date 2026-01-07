@@ -72,7 +72,10 @@ export const closeDatabase = async (): Promise<void> => {
 export const isDatabaseConnected = (): boolean => isConnected;
 
 // 数据库健康检查
-export const healthCheck = async (): Promise<{ postgres: boolean; redis: boolean }> => {
+export const healthCheck = async (): Promise<{
+  postgres: boolean;
+  redis: boolean;
+}> => {
   const health = {
     postgres: false,
     redis: false,
@@ -158,10 +161,16 @@ export const db = {
   },
 
   // 更新记录
-  update: async (table: string, id: string | number, data: Record<string, any>) => {
+  update: async (
+    table: string,
+    id: string | number,
+    data: Record<string, any>
+  ) => {
     const keys = Object.keys(data);
     const values = Object.values(data);
-    const setClause = keys.map((key, index) => `${key} = $${index + 2}`).join(', ');
+    const setClause = keys
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
 
     const query = `
       UPDATE ${table}

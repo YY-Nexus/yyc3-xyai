@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * Material-UI Theme Provider
@@ -7,20 +7,18 @@
  * 都能使用统一的主题配置。
  */
 
-import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles'
-import CssBaseline from '@mui/material/CssBaseline'
-import theme from './theme'
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from './theme';
 
 /**
  * Material-UI Theme Provider 组件
  */
 export function MuiThemeProvider({ children }: { children: React.ReactNode }) {
   return (
-    <MuiThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       {children}
-    </MuiThemeProvider>
-  )
+    </ThemeProvider>
+  );
 }
-
-export default MuiThemeProvider

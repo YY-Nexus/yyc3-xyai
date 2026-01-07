@@ -9,8 +9,8 @@
  * @license MIT
  */
 
-import { KnowledgeBase } from './KnowledgeBase'
-import { EventEmitter } from 'events'
+import { KnowledgeBase } from './KnowledgeBase';
+import { EventEmitter } from 'events';
 import type {
   KnowledgeItem,
   KnowledgeQuery,
@@ -24,50 +24,49 @@ import type {
   KnowledgeSyncResult,
   KnowledgeExportOptions,
   KnowledgeImportOptions,
-  RAGConfig
-} from '../types/knowledge/common'
+  RAGConfig,
+} from '../types/knowledge/common';
 
 /**
  * 知识管理器
  * 提供知识系统的高级管理接口
  */
 export class KnowledgeManager extends EventEmitter {
-  private knowledgeBase: KnowledgeBase
-  private categories: Map<string, KnowledgeCategory> = new Map()
-  private tags: Map<string, KnowledgeTag> = new Map()
-  private isInitialized = false
+  private knowledgeBase: KnowledgeBase;
+  private categories: Map<string, KnowledgeCategory> = new Map();
+  private tags: Map<string, KnowledgeTag> = new Map();
+  private isInitialized = false;
 
   constructor(config: RAGConfig = {}) {
-    super()
-    this.knowledgeBase = new KnowledgeBase(config)
+    super();
+    this.knowledgeBase = new KnowledgeBase(config);
 
-    this.setupEventHandlers()
+    this.setupEventHandlers();
   }
 
   /**
    * 初始化知识管理器
    */
   async initialize(): Promise<void> {
-    if (this.isInitialized) return
+    if (this.isInitialized) return;
 
     try {
-      console.log('🧠 初始化知识管理器...')
+      console.log('🧠 初始化知识管理器...');
 
       // 初始化知识库
-      await this.knowledgeBase.initialize()
+      await this.knowledgeBase.initialize();
 
       // 加载分类和标签
-      await this.loadCategories()
-      await this.loadTags()
+      await this.loadCategories();
+      await this.loadTags();
 
-      this.isInitialized = true
-      console.log('✅ 知识管理器初始化完成')
-      this.emit('initialized')
-
+      this.isInitialized = true;
+      console.log('✅ 知识管理器初始化完成');
+      this.emit('initialized');
     } catch (error) {
-      console.error('❌ 知识管理器初始化失败:', error)
-      this.emit('initializationError', error)
-      throw error
+      console.error('❌ 知识管理器初始化失败:', error);
+      this.emit('initializationError', error);
+      throw error;
     }
   }
 
@@ -78,24 +77,24 @@ export class KnowledgeManager extends EventEmitter {
     item: Omit<KnowledgeItem, 'id' | 'createdAt' | 'updatedAt'>
   ): Promise<string> {
     if (!this.isInitialized) {
-      throw new Error('知识管理器未初始化')
+      throw new Error('知识管理器未初始化');
     }
 
     // 验证分类是否存在
     if (!this.categories.has(item.category)) {
-      throw new Error(`分类 "${item.category}" 不存在`)
+      throw new Error(`分类 "${item.category}" 不存在`);
     }
 
     // 处理标签
-    const processedTags = await this.processTags(item.tags)
+    const processedTags = await this.processTags(item.tags);
 
     const id = await this.knowledgeBase.addKnowledge({
       ...item,
-      tags: processedTags
-    })
+      tags: processedTags,
+    });
 
-    this.emit('knowledgeAdded', { id, item })
-    return id
+    this.emit('knowledgeAdded', { id, item });
+    return id;
   }
 
   /**
@@ -103,10 +102,10 @@ export class KnowledgeManager extends EventEmitter {
    */
   async searchKnowledge(query: KnowledgeQuery): Promise<KnowledgeSearchResult> {
     if (!this.isInitialized) {
-      throw new Error('知识管理器未初始化')
+      throw new Error('知识管理器未初始化');
     }
 
-    return await this.knowledgeBase.searchKnowledge(query)
+    return await this.knowledgeBase.searchKnowledge(query);
   }
 
   /**
@@ -116,38 +115,40 @@ export class KnowledgeManager extends EventEmitter {
     question: string,
     context?: Record<string, unknown>
   ): Promise<{
-    answer: string
+    answer: string;
     sources: Array<{
-      id: string
-      title: string
-      snippet: string
-      relevanceScore: number
-    }>
-    confidence: number
+      id: string;
+      title: string;
+      snippet: string;
+      relevanceScore: number;
+    }>;
+    confidence: number;
   }> {
     if (!this.isInitialized) {
-      throw new Error('知识管理器未初始化')
+      throw new Error('知识管理器未初始化');
     }
 
     try {
       // 生成RAG上下文
-      const ragContext = await this.knowledgeBase.generateRAGContext(question)
+      const ragContext = await this.knowledgeBase.generateRAGContext(question);
 
       // 生成答案（这里简化处理，实际会调用LLM）
-      const answer = this.generateAnswer(question, ragContext.context, context)
+      const answer = this.generateAnswer(question, ragContext.context, context);
 
       // 计算置信度
-      const confidence = this.calculateConfidence(ragContext.sources.length, ragContext.context.length)
+      const confidence = this.calculateConfidence(
+        ragContext.sources.length,
+        ragContext.context.length
+      );
 
       return {
         answer,
         sources: ragContext.sources,
-        confidence
-      }
-
+        confidence,
+      };
     } catch (error) {
-      this.emit('questionAnswerError', { question, error })
-      throw error
+      this.emit('questionAnswerError', { question, error });
+      throw error;
     }
   }
 
@@ -158,40 +159,42 @@ export class KnowledgeManager extends EventEmitter {
     data: string,
     options: KnowledgeImportOptions
   ): Promise<{
-    success: boolean
-    imported: number
-    skipped: number
-    errors: string[]
+    success: boolean;
+    imported: number;
+    skipped: number;
+    errors: string[];
   }> {
     if (!this.isInitialized) {
-      throw new Error('知识管理器未初始化')
+      throw new Error('知识管理器未初始化');
     }
 
     try {
-      const importedIds = await this.knowledgeBase.importKnowledge(data, options.format)
+      const importedIds = await this.knowledgeBase.importKnowledge(
+        data,
+        options.format
+      );
 
       this.emit('knowledgeImported', {
         count: importedIds.length,
-        format: options.format
-      })
+        format: options.format,
+      });
 
       return {
         success: true,
         imported: importedIds.length,
         skipped: 0,
-        errors: []
-      }
-
+        errors: [],
+      };
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error)
-      this.emit('knowledgeImportError', { error: errorMsg })
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      this.emit('knowledgeImportError', { error: errorMsg });
 
       return {
         success: false,
         imported: 0,
         skipped: 0,
-        errors: [errorMsg]
-      }
+        errors: [errorMsg],
+      };
     }
   }
 
@@ -199,50 +202,51 @@ export class KnowledgeManager extends EventEmitter {
    * 导出知识
    */
   async exportKnowledge(options: KnowledgeExportOptions): Promise<{
-    data: string
-    format: string
-    size: number
+    data: string;
+    format: string;
+    size: number;
   }> {
     if (!this.isInitialized) {
-      throw new Error('知识管理器未初始化')
+      throw new Error('知识管理器未初始化');
     }
 
     try {
-      const data = await this.knowledgeBase.exportKnowledge(options.format)
+      const data = await this.knowledgeBase.exportKnowledge(options.format);
 
       this.emit('knowledgeExported', {
         format: options.format,
-        size: data.length
-      })
+        size: data.length,
+      });
 
       return {
         data,
         format: options.format,
-        size: data.length
-      }
-
+        size: data.length,
+      };
     } catch (error) {
-      this.emit('knowledgeExportError', { format: options.format, error })
-      throw error
+      this.emit('knowledgeExportError', { format: options.format, error });
+      throw error;
     }
   }
 
   /**
    * 提取知识
    */
-  async extractKnowledge(config: KnowledgeExtractionConfig): Promise<KnowledgeExtractionResult> {
+  async extractKnowledge(
+    config: KnowledgeExtractionConfig
+  ): Promise<KnowledgeExtractionResult> {
     if (!this.isInitialized) {
-      throw new Error('知识管理器未初始化')
+      throw new Error('知识管理器未初始化');
     }
 
-    const startTime = Date.now()
+    const startTime = Date.now();
 
     try {
       // 这里实现知识提取逻辑
       // 根据配置从不同源提取知识
 
-      const extractedItems = await this.performExtraction(config)
-      const processingTime = Date.now() - startTime
+      const extractedItems = await this.performExtraction(config);
+      const processingTime = Date.now() - startTime;
 
       // 批量添加提取的知识
       const addedIds = await this.knowledgeBase.addKnowledgeBatch(
@@ -254,9 +258,9 @@ export class KnowledgeManager extends EventEmitter {
           tags: item.tags || [],
           metadata: item.metadata || {},
           source: config.textSource,
-          relevanceScore: item.relevanceScore || 1.0
+          relevanceScore: item.relevanceScore || 1.0,
         }))
-      )
+      );
 
       const result: KnowledgeExtractionResult = {
         extractedItems,
@@ -264,32 +268,33 @@ export class KnowledgeManager extends EventEmitter {
           totalProcessed: extractedItems.length,
           successfullyExtracted: addedIds.length,
           errors: 0,
-          duplicates: 0
+          duplicates: 0,
         },
         errors: [],
         metadata: {
           processingTime,
           sourceType: config.textSource,
-          extractionConfig: config
-        }
-      }
+          extractionConfig: config,
+        },
+      };
 
-      this.emit('knowledgeExtracted', result)
-      return result
-
+      this.emit('knowledgeExtracted', result);
+      return result;
     } catch (error) {
-      const processingTime = Date.now() - startTime
-      this.emit('knowledgeExtractionError', { config, error })
+      const processingTime = Date.now() - startTime;
+      this.emit('knowledgeExtractionError', { config, error });
 
-      throw error
+      throw error;
     }
   }
 
   /**
    * 创建分类
    */
-  async createCategory(category: Omit<KnowledgeCategory, 'id' | 'metadata'>): Promise<string> {
-    const id = this.generateCategoryId(category.name)
+  async createCategory(
+    category: Omit<KnowledgeCategory, 'id' | 'metadata'>
+  ): Promise<string> {
+    const id = this.generateCategoryId(category.name);
 
     const newCategory: KnowledgeCategory = {
       ...category,
@@ -298,61 +303,63 @@ export class KnowledgeManager extends EventEmitter {
         created: new Date(),
         updated: new Date(),
         itemCount: 0,
-        popularity: 0
-      }
-    }
+        popularity: 0,
+      },
+    };
 
-    this.categories.set(id, newCategory)
-    this.emit('categoryCreated', newCategory)
+    this.categories.set(id, newCategory);
+    this.emit('categoryCreated', newCategory);
 
-    return id
+    return id;
   }
 
   /**
    * 获取分类列表
    */
   getCategories(): KnowledgeCategory[] {
-    return Array.from(this.categories.values())
+    return Array.from(this.categories.values());
   }
 
   /**
    * 创建标签
    */
-  async createTag(tag: Omit<KnowledgeTag, 'createdAt' | 'usageCount' | 'relatedTags'>): Promise<string> {
+  async createTag(
+    tag: Omit<KnowledgeTag, 'createdAt' | 'usageCount' | 'relatedTags'>
+  ): Promise<string> {
     const newTag: KnowledgeTag = {
       ...tag,
       usageCount: 0,
       relatedTags: [],
-      createdAt: new Date()
-    }
+      createdAt: new Date(),
+    };
 
-    this.tags.set(tag.name, newTag)
-    this.emit('tagCreated', newTag)
+    this.tags.set(tag.name, newTag);
+    this.emit('tagCreated', newTag);
 
-    return tag.name
+    return tag.name;
   }
 
   /**
    * 获取标签列表
    */
   getTags(): KnowledgeTag[] {
-    return Array.from(this.tags.values())
+    return Array.from(this.tags.values());
   }
 
   /**
    * 获取知识统计
    */
   getStatistics(): KnowledgeStats & {
-    categories: KnowledgeCategory[]
-    tags: KnowledgeTag[]
+    categories: KnowledgeCategory[];
+    tags: KnowledgeTag[];
   } {
-    const baseStats = this.knowledgeBase.getStatistics()
+    const baseStats = this.knowledgeBase.getStatistics();
 
     return {
       ...baseStats,
       categories: this.getCategories(),
-      tags: this.getTags()
-    }
+      tags: this.getTags(),
+    };
   }
 
   /**
@@ -363,21 +370,22 @@ export class KnowledgeManager extends EventEmitter {
     minRelevanceScore = 0.5
   ): Promise<{
     nodes: Array<{
-      id: string
-      label: string
-      type: string
-      size: number
-      color: string
-    }>
+      id: string;
+      label: string;
+      type: string;
+      size: number;
+      color: string;
+    }>;
     edges: Array<{
-      source: string
-      target: string
-      weight: number
-    }>
+      source: string;
+      target: string;
+      weight: number;
+    }>;
   }> {
-    const items = this.knowledgeBase.getAllKnowledge()
+    const items = this.knowledgeBase
+      .getAllKnowledge()
       .filter(item => item.relevanceScore >= minRelevanceScore)
-      .slice(0, maxNodes)
+      .slice(0, maxNodes);
 
     // 生成节点
     const nodes = items.map(item => ({
@@ -385,42 +393,46 @@ export class KnowledgeManager extends EventEmitter {
       label: item.title,
       type: item.category,
       size: Math.max(5, item.relevanceScore * 15),
-      color: this.getColorByCategory(item.category)
-    }))
+      color: this.getColorByCategory(item.category),
+    }));
 
     // 生成边（基于共同标签）
-    const edges: Array<{ source: string; target: string; weight: number }> = []
+    const edges: Array<{ source: string; target: string; weight: number }> = [];
 
     for (let i = 0; i < items.length; i++) {
       for (let j = i + 1; j < items.length; j++) {
-        const item1 = items[i]
-        const item2 = items[j]
+        const item1 = items[i];
+        const item2 = items[j];
 
         // 计算相似度（基于共同标签）
-        const commonTags = item1.tags.filter(tag => item2.tags.includes(tag))
-        const similarity = commonTags.length / Math.max(item1.tags.length, item2.tags.length)
+        const commonTags = item1.tags.filter(tag => item2.tags.includes(tag));
+        const similarity =
+          commonTags.length / Math.max(item1.tags.length, item2.tags.length);
 
-        if (similarity > 0.2) { // 相似度阈值
+        if (similarity > 0.2) {
+          // 相似度阈值
           edges.push({
             source: item1.id,
             target: item2.id,
-            weight: similarity
-          })
+            weight: similarity,
+          });
         }
       }
     }
 
-    return { nodes, edges }
+    return { nodes, edges };
   }
 
   /**
    * 同步知识
    */
-  async syncKnowledge(config: KnowledgeSyncConfig): Promise<KnowledgeSyncResult> {
-    const syncId = this.generateSyncId()
-    const startTime = Date.now()
+  async syncKnowledge(
+    config: KnowledgeSyncConfig
+  ): Promise<KnowledgeSyncResult> {
+    const syncId = this.generateSyncId();
+    const startTime = Date.now();
 
-    this.emit('syncStarted', { syncId, config })
+    this.emit('syncStarted', { syncId, config });
 
     try {
       // 这里实现同步逻辑
@@ -436,15 +448,14 @@ export class KnowledgeManager extends EventEmitter {
           itemsDeleted: 0,
           itemsSkipped: 0,
           conflicts: 0,
-          errors: 0
+          errors: 0,
         },
         conflicts: [],
-        errors: []
-      }
+        errors: [],
+      };
 
-      this.emit('syncCompleted', result)
-      return result
-
+      this.emit('syncCompleted', result);
+      return result;
     } catch (error) {
       const result: KnowledgeSyncResult = {
         syncId,
@@ -458,17 +469,19 @@ export class KnowledgeManager extends EventEmitter {
           itemsDeleted: 0,
           itemsSkipped: 0,
           conflicts: 0,
-          errors: 1
+          errors: 1,
         },
         conflicts: [],
-        errors: [{
-          error: error instanceof Error ? error.message : String(error),
-          timestamp: new Date()
-        }]
-      }
+        errors: [
+          {
+            error: error instanceof Error ? error.message : String(error),
+            timestamp: new Date(),
+          },
+        ],
+      };
 
-      this.emit('syncFailed', result)
-      return result
+      this.emit('syncFailed', result);
+      return result;
     }
   }
 
@@ -476,64 +489,63 @@ export class KnowledgeManager extends EventEmitter {
    * 关闭知识管理器
    */
   async shutdown(): Promise<void> {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) return;
 
     try {
-      await this.knowledgeBase.shutdown()
-      this.isInitialized = false
+      await this.knowledgeBase.shutdown();
+      this.isInitialized = false;
 
-      console.log('✅ 知识管理器已关闭')
-      this.emit('shutdown')
-
+      console.log('✅ 知识管理器已关闭');
+      this.emit('shutdown');
     } catch (error) {
-      console.error('❌ 关闭知识管理器时出错:', error)
-      throw error
+      console.error('❌ 关闭知识管理器时出错:', error);
+      throw error;
     }
   }
 
   // 私有方法实现
   private setupEventHandlers(): void {
     // 转发知识库事件
-    this.knowledgeBase.on('knowledgeAdded', (event) => {
-      this.emit('knowledgeAdded', event)
-    })
+    this.knowledgeBase.on('knowledgeAdded', event => {
+      this.emit('knowledgeAdded', event);
+    });
 
-    this.knowledgeBase.on('knowledgeRemoved', (event) => {
-      this.emit('knowledgeRemoved', event)
-    })
+    this.knowledgeBase.on('knowledgeRemoved', event => {
+      this.emit('knowledgeRemoved', event);
+    });
 
-    this.knowledgeBase.on('knowledgeSearched', (event) => {
-      this.emit('knowledgeSearched', event)
-    })
+    this.knowledgeBase.on('knowledgeSearched', event => {
+      this.emit('knowledgeSearched', event);
+    });
   }
 
   private async processTags(tags: string[]): Promise<string[]> {
-    const processedTags: string[] = []
+    const processedTags: string[] = [];
 
     for (const tagName of tags) {
       // 清理标签名
-      const cleanTag = tagName.trim().toLowerCase()
+      const cleanTag = tagName.trim().toLowerCase();
 
       if (cleanTag && !processedTags.includes(cleanTag)) {
-        processedTags.push(cleanTag)
+        processedTags.push(cleanTag);
 
         // 如果标签不存在，创建它
         if (!this.tags.has(cleanTag)) {
           await this.createTag({
             name: cleanTag,
-            description: `自动创建的标签: ${cleanTag}`
-          })
+            description: `自动创建的标签: ${cleanTag}`,
+          });
         }
 
         // 更新使用计数
-        const tag = this.tags.get(cleanTag)
+        const tag = this.tags.get(cleanTag);
         if (tag) {
-          tag.usageCount++
+          tag.usageCount++;
         }
       }
     }
 
-    return processedTags
+    return processedTags;
   }
 
   private generateAnswer(
@@ -544,30 +556,33 @@ export class KnowledgeManager extends EventEmitter {
     // 简化的答案生成
     // 在实际应用中，这里会调用LLM API
     if (!context || context.trim() === '') {
-      return `抱歉，我在知识库中没有找到与问题"${question}"相关的信息。请尝试重新表述问题或提供更多背景信息。`
+      return `抱歉，我在知识库中没有找到与问题"${question}"相关的信息。请尝试重新表述问题或提供更多背景信息。`;
     }
 
     return `基于相关知识库，关于问题"${question}"的回答：
 
 ${context}
 
-注：这是基于知识库检索生成的答案，建议结合具体情况进行验证。`
+注：这是基于知识库检索生成的答案，建议结合具体情况进行验证。`;
   }
 
-  private calculateConfidence(sourceCount: number, contextLength: number): number {
+  private calculateConfidence(
+    sourceCount: number,
+    contextLength: number
+  ): number {
     // 简化的置信度计算
-    const sourceScore = Math.min(sourceCount / 3, 1) // 3个以上相关源为满分
-    const contextScore = Math.min(contextLength / 1000, 1) // 1000字符以上为满分
+    const sourceScore = Math.min(sourceCount / 3, 1); // 3个以上相关源为满分
+    const contextScore = Math.min(contextLength / 1000, 1); // 1000字符以上为满分
 
-    return (sourceScore * 0.6 + contextScore * 0.4)
+    return sourceScore * 0.6 + contextScore * 0.4;
   }
 
   private generateCategoryId(name: string): string {
-    return name.toLowerCase().replace(/\s+/g, '-')
+    return name.toLowerCase().replace(/\s+/g, '-');
   }
 
   private generateSyncId(): string {
-    return `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private async loadCategories(): Promise<void> {
@@ -577,11 +592,11 @@ ${context}
       { name: '业务', description: '业务流程和规范' },
       { name: '产品', description: '产品设计和功能' },
       { name: '数据', description: '数据分析和管理' },
-      { name: '安全', description: '安全策略和规范' }
-    ]
+      { name: '安全', description: '安全策略和规范' },
+    ];
 
     for (const category of defaultCategories) {
-      await this.createCategory(category)
+      await this.createCategory(category);
     }
   }
 
@@ -592,27 +607,29 @@ ${context}
       { name: '紧急', description: '紧急处理' },
       { name: '文档', description: '文档类型' },
       { name: '教程', description: '教程指南' },
-      { name: 'FAQ', description: '常见问题' }
-    ]
+      { name: 'FAQ', description: '常见问题' },
+    ];
 
     for (const tag of commonTags) {
-      await this.createTag(tag)
+      await this.createTag(tag);
     }
   }
 
   private getColorByCategory(category: string): string {
     const colors: Record<string, string> = {
-      '技术': '#3b82f6',
-      '业务': '#10b981',
-      '产品': '#f59e0b',
-      '数据': '#8b5cf6',
-      '安全': '#ef4444'
-    }
+      技术: '#3b82f6',
+      业务: '#10b981',
+      产品: '#f59e0b',
+      数据: '#8b5cf6',
+      安全: '#ef4444',
+    };
 
-    return colors[category] || '#6b7280'
+    return colors[category] || '#6b7280';
   }
 
-  private async performExtraction(config: KnowledgeExtractionConfig): Promise<Array<Partial<KnowledgeItem>>> {
+  private async performExtraction(
+    config: KnowledgeExtractionConfig
+  ): Promise<Array<Partial<KnowledgeItem>>> {
     // 简化的知识提取实现
     // 在实际应用中，这里会根据配置执行真正的提取逻辑
 
@@ -624,8 +641,8 @@ ${context}
         description: '提取示例描述',
         category: '技术',
         tags: ['提取', '示例'],
-        relevanceScore: 0.8
-      }
-    ]
+        relevanceScore: 0.8,
+      },
+    ];
   }
 }

@@ -246,9 +246,9 @@ export class Neo4jService {
 
       this.isConnected = true;
       console.log('✅ Neo4j连接成功');
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       const errorName = error instanceof Error ? error.name : 'UnknownError';
       const errorStack = error instanceof Error ? error.stack : undefined;
 
@@ -303,9 +303,8 @@ export class Neo4jService {
         source: knowledge.source,
         credibilityScore: knowledge.credibilityScore,
         effectiveness: knowledge.effectiveness,
-        lastUpdated: knowledge.lastUpdated
+        lastUpdated: knowledge.lastUpdated,
       });
-
     } catch (error) {
       console.error('创建知识节点失败:', error);
       throw error;
@@ -345,9 +344,8 @@ export class Neo4jService {
         abilities: child.abilities,
         personality: child.personality,
         learningStyle: child.learningStyle,
-        familyBackground: child.familyBackground
+        familyBackground: child.familyBackground,
       });
-
     } catch (error) {
       console.error('创建儿童节点失败:', error);
       throw error;
@@ -385,9 +383,8 @@ export class Neo4jService {
         developmentStage: ability.developmentStage,
         importance: ability.importance,
         relatedSkills: ability.relatedSkills,
-        assessmentCriteria: ability.assessmentCriteria
+        assessmentCriteria: ability.assessmentCriteria,
       });
-
     } catch (error) {
       console.error('创建能力节点失败:', error);
       throw error;
@@ -431,9 +428,8 @@ export class Neo4jService {
         instructions: activity.instructions,
         effectiveness: activity.effectiveness,
         preparationTime: activity.preparationTime,
-        requiredSpace: activity.requiredSpace
+        requiredSpace: activity.requiredSpace,
       });
-
     } catch (error) {
       console.error('创建活动节点失败:', error);
       throw error;
@@ -466,9 +462,8 @@ export class Neo4jService {
         startNodeId,
         endNodeId,
         relationshipType,
-        properties
+        properties,
       });
-
     } catch (error) {
       console.error('创建关系失败:', error);
       throw error;
@@ -515,7 +510,7 @@ export class Neo4jService {
         startId,
         endId,
         maxDepth,
-        relationshipTypes
+        relationshipTypes,
       });
 
       if (result.records.length === 0) {
@@ -528,20 +523,23 @@ export class Neo4jService {
           nodes: path.nodes.map((node: Neo4jRawNode) => ({
             id: node.elementId,
             labels: node.labels,
-            properties: node.properties
+            properties: node.properties,
           })),
-          relationships: path.relationships.map((rel: Neo4jRawRelationship) => ({
-            id: rel.elementId,
-            type: rel.type,
-            startNode: rel.startNodeElementId,
-            endNode: rel.endNodeElementId,
-            properties: rel.properties
-          })),
+          relationships: path.relationships.map(
+            (rel: Neo4jRawRelationship) => ({
+              id: rel.elementId,
+              type: rel.type,
+              startNode: rel.startNodeElementId,
+              endNode: rel.endNodeElementId,
+              properties: rel.properties,
+            })
+          ),
           score: 1.0 / ((record.get('depth') as number) + 1),
-          pathType: this.getPathType(record.get('relationshipTypes') as string[])
+          pathType: this.getPathType(
+            record.get('relationshipTypes') as string[]
+          ),
         };
       });
-
     } catch (error) {
       console.error('查询图谱路径失败:', error);
       throw error;
@@ -584,7 +582,7 @@ export class Neo4jService {
       const result = await session.run(query, {
         childId,
         similarityThreshold,
-        limit
+        limit,
       });
 
       return result.records.map((record: Neo4jRecord) => ({
@@ -593,10 +591,12 @@ export class Neo4jService {
         title: record.get('title') as string,
         description: `与目标儿童有${Math.round((record.get('relevanceScore') as number) * 100)}%相似度`,
         relevanceScore: record.get('relevanceScore') as number,
-        reasoning: this.generateReasoning('similar_child', record.get('metadata') as ReasoningMetadata),
-        metadata: record.get('metadata') as RecommendationMetadata
+        reasoning: this.generateReasoning(
+          'similar_child',
+          record.get('metadata') as ReasoningMetadata
+        ),
+        metadata: record.get('metadata') as RecommendationMetadata,
       }));
-
     } catch (error) {
       console.error('查找相似儿童失败:', error);
       throw error;
@@ -667,7 +667,7 @@ export class Neo4jService {
         category,
         difficulty,
         ageGroup,
-        limit
+        limit,
       });
 
       return result.records.map((record: Neo4jRecord) => ({
@@ -676,10 +676,12 @@ export class Neo4jService {
         title: record.get('title') as string,
         description: record.get('description') as string,
         relevanceScore: record.get('relevanceScore') as number,
-        reasoning: this.generateReasoning('knowledge_recommendation', record.get('metadata') as ReasoningMetadata),
-        metadata: record.get('metadata') as RecommendationMetadata
+        reasoning: this.generateReasoning(
+          'knowledge_recommendation',
+          record.get('metadata') as ReasoningMetadata
+        ),
+        metadata: record.get('metadata') as RecommendationMetadata,
       }));
-
     } catch (error) {
       console.error('推荐知识失败:', error);
       throw error;
@@ -764,7 +766,7 @@ export class Neo4jService {
         difficulty,
         ageGroup,
         duration,
-        limit
+        limit,
       });
 
       return result.records.map((record: Neo4jRecord) => ({
@@ -773,10 +775,12 @@ export class Neo4jService {
         title: record.get('title') as string,
         description: record.get('description') as string,
         relevanceScore: record.get('relevanceScore') as number,
-        reasoning: this.generateReasoning('activity_recommendation', record.get('metadata') as ReasoningMetadata),
-        metadata: record.get('metadata') as RecommendationMetadata
+        reasoning: this.generateReasoning(
+          'activity_recommendation',
+          record.get('metadata') as ReasoningMetadata
+        ),
+        metadata: record.get('metadata') as RecommendationMetadata,
       }));
-
     } catch (error) {
       console.error('推荐活动失败:', error);
       throw error;
@@ -837,9 +841,8 @@ export class Neo4jService {
         nodeCount: totalStats.records[0].get('nodeCount'),
         relationshipCount: totalRelStats.records[0].get('relationshipCount'),
         nodeTypes,
-        relationshipTypes
+        relationshipTypes,
       };
-
     } catch (error) {
       console.error('获取图谱统计失败:', error);
       throw error;
@@ -871,9 +874,8 @@ export class Neo4jService {
       return {
         id: node.elementId,
         labels: node.labels,
-        properties: node.properties
+        properties: node.properties,
       };
-
     } catch (error) {
       console.error('查询节点失败:', error);
       throw error;
@@ -885,14 +887,16 @@ export class Neo4jService {
   /**
    * 执行自定义Cypher查询
    */
-  async executeQuery<T = unknown>(cypher: string, parameters: QueryParameters = {}): Promise<T> {
+  async executeQuery<T = unknown>(
+    cypher: string,
+    parameters: QueryParameters = {}
+  ): Promise<T> {
     this.ensureConnected();
 
     const session = this.driver.session();
     try {
       const result = await session.run(cypher, parameters);
       return result as T;
-
     } catch (error) {
       console.error('执行查询失败:', error);
       throw error;
@@ -915,19 +919,21 @@ export class Neo4jService {
         const labels = node.labels.map(label => `:${label}`).join('');
         const properties = node.properties;
 
-        await session.run(`
+        await session.run(
+          `
           MERGE (${labels} {id: $id})
           SET node += $properties
-        `, {
-          id: node.id,
-          properties
-        });
+        `,
+          {
+            id: node.id,
+            properties,
+          }
+        );
 
         createdCount++;
       }
 
       return createdCount;
-
     } catch (error) {
       console.error('批量创建节点失败:', error);
       throw error;

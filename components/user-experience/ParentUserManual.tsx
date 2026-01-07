@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
   Star,
@@ -23,31 +23,31 @@ import {
   AlertCircle,
   MessageCircle,
   Mail,
-  Phone
-} from 'lucide-react'
+  Phone,
+} from 'lucide-react';
 
 // 手册章节接口
 interface ManualChapter {
-  id: string
-  title: string
-  description: string
-  icon: React.ComponentType<React.SVGAttributes<SVGElement>>
-  sections: ManualSection[]
-  estimatedReadTime: number
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  tags: string[]
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ComponentType<React.SVGAttributes<SVGElement>>;
+  sections: ManualSection[];
+  estimatedReadTime: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  tags: string[];
 }
 
 // 手册章节内容
 interface ManualSection {
-  id: string
-  title: string
-  content: string
-  type: 'text' | 'video' | 'image' | 'interactive'
-  media?: string
-  tips?: string[]
-  warnings?: string[]
-  relatedTopics?: string[]
+  id: string;
+  title: string;
+  content: string;
+  type: 'text' | 'video' | 'image' | 'interactive';
+  media?: string;
+  tips?: string[];
+  warnings?: string[];
+  relatedTopics?: string[];
 }
 
 // 手册内容配置
@@ -81,8 +81,8 @@ const manualChapters: ManualChapter[] = [
         tips: [
           '建议先完成新手指引，快速了解系统功能',
           '可以根据孩子的年龄段选择合适的功能模块',
-          '定期查看使用建议，获得更好的体验'
-        ]
+          '定期查看使用建议，获得更好的体验',
+        ],
       },
       {
         id: 'account-setup',
@@ -108,8 +108,8 @@ const manualChapters: ManualChapter[] = [
         warnings: [
           '请使用真实邮箱注册，以便接收重要通知',
           '密码建议包含大小写字母、数字和特殊字符',
-          '定期更新密码，确保账户安全'
-        ]
+          '定期更新密码，确保账户安全',
+        ],
       },
       {
         id: 'basic-navigation',
@@ -135,10 +135,10 @@ const manualChapters: ManualChapter[] = [
         tips: [
           '建议收藏常用功能，提高操作效率',
           '定期清理缓存，保持系统流畅',
-          '关注更新提示，体验新功能'
-        ]
-      }
-    ]
+          '关注更新提示，体验新功能',
+        ],
+      },
+    ],
   },
   {
     id: 'core-features',
@@ -178,8 +178,8 @@ const manualChapters: ManualChapter[] = [
           '根据具体问题选择合适的AI角色',
           '语音交互更自然，文字交互更准确',
           '可以收藏重要对话内容',
-          '定期清理对话历史，保护隐私'
-        ]
+          '定期清理对话历史，保护隐私',
+        ],
       },
       {
         id: 'growth-tracking-feature',
@@ -207,8 +207,8 @@ const manualChapters: ManualChapter[] = [
         warnings: [
           '记录时注意保护孩子隐私',
           '避免过度记录影响生活质量',
-          '理性看待数据，避免焦虑'
-        ]
+          '理性看待数据，避免焦虑',
+        ],
       },
       {
         id: 'data-visualization-feature',
@@ -236,10 +236,10 @@ const manualChapters: ManualChapter[] = [
         tips: [
           '数据仅供参考，具体情况请咨询专业人士',
           '定期备份数据，防止丢失',
-          '可以导出数据用于医疗咨询'
-        ]
-      }
-    ]
+          '可以导出数据用于医疗咨询',
+        ],
+      },
+    ],
   },
   {
     id: 'advanced-features',
@@ -276,8 +276,8 @@ const manualChapters: ManualChapter[] = [
         tips: [
           '定期训练AI识别模型，提高准确度',
           '设置合理的存储管理策略',
-          '注意备份重要照片和数据'
-        ]
+          '注意备份重要照片和数据',
+        ],
       },
       {
         id: 'voice-story-feature',
@@ -310,8 +310,8 @@ const manualChapters: ManualChapter[] = [
         warnings: [
           '控制听故事时间，保护听力',
           '内容要符合孩子年龄特点',
-          '避免过于刺激的内容影响睡眠'
-        ]
+          '避免过于刺激的内容影响睡眠',
+        ],
       },
       {
         id: 'birthday-theme-feature',
@@ -346,10 +346,10 @@ const manualChapters: ManualChapter[] = [
         tips: [
           '提前准备照片和视频素材',
           '邀请亲友参与线上庆祝',
-          '做好网络连接准备'
-        ]
-      }
-    ]
+          '做好网络连接准备',
+        ],
+      },
+    ],
   },
   {
     id: 'troubleshooting',
@@ -386,7 +386,7 @@ const manualChapters: ManualChapter[] = [
            2. 确认存储空间充足
            3. 检查网络连接稳定性
            4. 尝试压缩后重新上传`,
-        type: 'text'
+        type: 'text',
       },
       {
         id: 'usage-issues',
@@ -414,7 +414,7 @@ const manualChapters: ManualChapter[] = [
            2. 选择数据管理
            3. 选择导出格式
            4. 确认导出范围和时间`,
-        type: 'text'
+        type: 'text',
       },
       {
         id: 'privacy-security',
@@ -446,10 +446,10 @@ const manualChapters: ManualChapter[] = [
         warnings: [
           '请妥善保管账户信息',
           '定期更新密码保护安全',
-          '注意保护孩子个人信息'
-        ]
-      }
-    ]
+          '注意保护孩子个人信息',
+        ],
+      },
+    ],
   },
   {
     id: 'best-practices',
@@ -484,8 +484,8 @@ const manualChapters: ManualChapter[] = [
         tips: [
           '建立固定的使用习惯，避免遗忘',
           '与家庭成员分享使用心得',
-          '定期回顾和调整使用策略'
-        ]
+          '定期回顾和调整使用策略',
+        ],
       },
       {
         id: 'parenting-advice',
@@ -511,8 +511,8 @@ const manualChapters: ManualChapter[] = [
         warnings: [
           '避免盲目比较，每个孩子都有自己的节奏',
           '不要过度依赖工具，保持与孩子的真实互动',
-          '遇到严重问题及时咨询专业人士'
-        ]
+          '遇到严重问题及时咨询专业人士',
+        ],
       },
       {
         id: 'community-sharing',
@@ -538,152 +538,171 @@ const manualChapters: ManualChapter[] = [
         tips: [
           '加入育儿社群，获得更多支持',
           '定期参加线上线下活动',
-          '建立自己的育儿支持网络'
-        ]
-      }
-    ]
-  }
-]
+          '建立自己的育儿支持网络',
+        ],
+      },
+    ],
+  },
+];
 
 export default function ParentUserManual() {
-  const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set(['getting-started']))
-  const [bookmarkedSections, setBookmarkedSections] = useState<Set<string>>(new Set())
-  const [searchQuery, setSearchQuery] = useState('')
+  const [expandedChapters, setExpandedChapters] = useState<Set<string>>(
+    new Set(['getting-started'])
+  );
+  const [bookmarkedSections, setBookmarkedSections] = useState<Set<string>>(
+    new Set()
+  );
+  const [searchQuery, setSearchQuery] = useState('');
 
   // 过滤章节
   const filteredChapters = manualChapters.filter(chapter => {
-    if (!searchQuery) return true
+    if (!searchQuery) return true;
 
-    const query = searchQuery.toLowerCase()
+    const query = searchQuery.toLowerCase();
     return (
       chapter.title.toLowerCase().includes(query) ||
       chapter.description.toLowerCase().includes(query) ||
       chapter.tags.some(tag => tag.toLowerCase().includes(query)) ||
-      chapter.sections.some(section =>
-        section.title.toLowerCase().includes(query) ||
-        section.content.toLowerCase().includes(query)
+      chapter.sections.some(
+        section =>
+          section.title.toLowerCase().includes(query) ||
+          section.content.toLowerCase().includes(query)
       )
-    )
-  })
+    );
+  });
 
   // 切换章节展开状态
   const toggleChapter = (chapterId: string) => {
     setExpandedChapters(prev => {
-      const newSet = new Set(prev)
+      const newSet = new Set(prev);
       if (newSet.has(chapterId)) {
-        newSet.delete(chapterId)
+        newSet.delete(chapterId);
       } else {
-        newSet.add(chapterId)
+        newSet.add(chapterId);
       }
-      return newSet
-    })
-  }
+      return newSet;
+    });
+  };
 
   // 切换书签
   const toggleBookmark = (sectionId: string) => {
     setBookmarkedSections(prev => {
-      const newSet = new Set(prev)
+      const newSet = new Set(prev);
       if (newSet.has(sectionId)) {
-        newSet.delete(sectionId)
+        newSet.delete(sectionId);
       } else {
-        newSet.add(sectionId)
+        newSet.add(sectionId);
       }
-      return newSet
-    })
-  }
+      return newSet;
+    });
+  };
 
   // 获取难度颜色
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return 'text-green-600 bg-green-100'
-      case 'intermediate': return 'text-yellow-600 bg-yellow-100'
-      case 'advanced': return 'text-red-600 bg-red-100'
-      default: return 'text-gray-600 bg-gray-100'
+      case 'beginner':
+        return 'text-green-600 bg-green-100';
+      case 'intermediate':
+        return 'text-yellow-600 bg-yellow-100';
+      case 'advanced':
+        return 'text-red-600 bg-red-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
     }
-  }
+  };
 
   // 获取难度文本
   const getDifficultyText = (difficulty: string) => {
     switch (difficulty) {
-      case 'beginner': return '入门'
-      case 'intermediate': return '进阶'
-      case 'advanced': return '高级'
-      default: return '未知'
+      case 'beginner':
+        return '入门';
+      case 'intermediate':
+        return '进阶';
+      case 'advanced':
+        return '高级';
+      default:
+        return '未知';
     }
-  }
+  };
 
   // 导出手册
   const exportManual = () => {
-    const manualContent = manualChapters.map(chapter => {
-      return `${chapter.title}\n${'='.repeat(50)}\n${chapter.description}\n\n${chapter.sections.map(section =>
-        `${section.title}\n${'-'.repeat(30)}\n${section.content}`
-      ).join('\n\n')}`
-    }).join('\n\n\n')
+    const manualContent = manualChapters
+      .map(chapter => {
+        return `${chapter.title}\n${'='.repeat(50)}\n${chapter.description}\n\n${chapter.sections
+          .map(
+            section => `${section.title}\n${'-'.repeat(30)}\n${section.content}`
+          )
+          .join('\n\n')}`;
+      })
+      .join('\n\n\n');
 
-    const blob = new Blob([manualContent], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `YYC3用户手册_${new Date().toISOString().split('T')[0]}.txt`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([manualContent], {
+      type: 'text/plain;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `YYC3用户手册_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4">
-      <div className="max-w-6xl mx-auto">
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4'>
+      <div className='max-w-6xl mx-auto'>
         {/* 标题区域 */}
         <motion.div
-          className="text-center mb-8"
+          className='text-center mb-8'
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 mb-4">
+          <h1 className='text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 mb-4'>
             📚 家长使用手册
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
             详细的操作指南和专业育儿建议，帮助您更好地使用YYC³ AI小语系统
           </p>
 
           {/* 搜索栏 */}
-          <div className="flex justify-center mt-6">
-            <div className="relative max-w-md w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className='flex justify-center mt-6'>
+            <div className='relative max-w-md w-full'>
+              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5' />
               <input
-                type="text"
-                placeholder="搜索手册内容..."
+                type='text'
+                placeholder='搜索手册内容...'
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                onChange={e => setSearchQuery(e.target.value)}
+                className='w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500'
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
                 >
-                  <X className="w-5 h-5" />
+                  <X className='w-5 h-5' />
                 </button>
               )}
             </div>
           </div>
 
           {/* 操作按钮 */}
-          <div className="flex justify-center gap-4 mt-6">
+          <div className='flex justify-center gap-4 mt-6'>
             <button
               onClick={exportManual}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all flex items-center gap-2"
+              className='px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all flex items-center gap-2'
             >
-              <Download className="w-4 h-4" />
+              <Download className='w-4 h-4' />
               下载手册
             </button>
-            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center gap-2">
-              <Share className="w-4 h-4" />
+            <button className='px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all flex items-center gap-2'>
+              <Share className='w-4 h-4' />
               分享手册
             </button>
-            <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center gap-2">
-              <Printer className="w-4 h-4" />
+            <button className='px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all flex items-center gap-2'>
+              <Printer className='w-4 h-4' />
               打印手册
             </button>
           </div>
@@ -691,80 +710,117 @@ export default function ParentUserManual() {
 
         {/* 统计信息 */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
+          className='grid grid-cols-1 md:grid-cols-4 gap-4 mb-8'
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
           {[
-            { label: '章节总数', value: manualChapters.length, icon: BookOpen, color: 'from-blue-500 to-purple-500' },
-            { label: '阅读时长', value: `${manualChapters.reduce((sum, ch) => sum + ch.estimatedReadTime, 0)}分钟`, icon: Clock, color: 'from-green-500 to-blue-500' },
-            { label: '收藏内容', value: bookmarkedSections.size, icon: Bookmark, color: 'from-purple-500 to-pink-500' },
-            { label: '难度覆盖', value: '3级', icon: Target, color: 'from-orange-500 to-red-500' }
+            {
+              label: '章节总数',
+              value: manualChapters.length,
+              icon: BookOpen,
+              color: 'from-blue-500 to-purple-500',
+            },
+            {
+              label: '阅读时长',
+              value: `${manualChapters.reduce((sum, ch) => sum + ch.estimatedReadTime, 0)}分钟`,
+              icon: Clock,
+              color: 'from-green-500 to-blue-500',
+            },
+            {
+              label: '收藏内容',
+              value: bookmarkedSections.size,
+              icon: Bookmark,
+              color: 'from-purple-500 to-pink-500',
+            },
+            {
+              label: '难度覆盖',
+              value: '3级',
+              icon: Target,
+              color: 'from-orange-500 to-red-500',
+            },
           ].map((stat, index) => (
             <motion.div
               key={index}
-              className="bg-white rounded-xl shadow-lg p-6 text-center"
+              className='bg-white rounded-xl shadow-lg p-6 text-center'
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + index * 0.1 }}
               whileHover={{ scale: 1.05 }}
             >
-              <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center mx-auto mb-3`}>
-                <stat.icon className="w-6 h-6 text-white" />
+              <div
+                className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center mx-auto mb-3`}
+              >
+                <stat.icon className='w-6 h-6 text-white' />
               </div>
-              <div className="text-2xl font-bold text-gray-800">{stat.value}</div>
-              <div className="text-sm text-gray-600">{stat.label}</div>
+              <div className='text-2xl font-bold text-gray-800'>
+                {stat.value}
+              </div>
+              <div className='text-sm text-gray-600'>{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>
 
         {/* 手册内容 */}
-        <div className="space-y-6">
+        <div className='space-y-6'>
           {filteredChapters.map((chapter, chapterIndex) => {
-            const Icon = chapter.icon
-            const isExpanded = expandedChapters.has(chapter.id)
-            const bookmarkedCount = chapter.sections.filter(section => bookmarkedSections.has(section.id)).length
+            const Icon = chapter.icon;
+            const isExpanded = expandedChapters.has(chapter.id);
+            const bookmarkedCount = chapter.sections.filter(section =>
+              bookmarkedSections.has(section.id)
+            ).length;
 
             return (
               <motion.div
                 key={chapter.id}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden"
+                className='bg-white rounded-2xl shadow-lg overflow-hidden'
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + chapterIndex * 0.1 }}
               >
                 {/* 章节头部 */}
                 <div
-                  className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+                  className='p-6 cursor-pointer hover:bg-gray-50 transition-colors'
                   onClick={() => toggleChapter(chapter.id)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl flex items-center justify-center">
-                        <Icon className="w-8 h-8 text-purple-600" />
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center gap-4'>
+                      <div className='w-16 h-16 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl flex items-center justify-center'>
+                        <Icon className='w-8 h-8 text-purple-600' />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-2">{chapter.title}</h3>
-                        <p className="text-gray-600 mb-3">{chapter.description}</p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4 text-gray-500" />
-                            <span className="text-gray-600">{chapter.estimatedReadTime}分钟</span>
+                        <h3 className='text-xl font-bold text-gray-800 mb-2'>
+                          {chapter.title}
+                        </h3>
+                        <p className='text-gray-600 mb-3'>
+                          {chapter.description}
+                        </p>
+                        <div className='flex items-center gap-4 text-sm'>
+                          <div className='flex items-center gap-1'>
+                            <Clock className='w-4 h-4 text-gray-500' />
+                            <span className='text-gray-600'>
+                              {chapter.estimatedReadTime}分钟
+                            </span>
                           </div>
-                          <div className={`px-2 py-1 rounded-full text-xs ${getDifficultyColor(chapter.difficulty)}`}>
+                          <div
+                            className={`px-2 py-1 rounded-full text-xs ${getDifficultyColor(chapter.difficulty)}`}
+                          >
                             {getDifficultyText(chapter.difficulty)}
                           </div>
                           {bookmarkedCount > 0 && (
-                            <div className="flex items-center gap-1 text-yellow-600">
-                              <BookmarkCheck className="w-4 h-4" />
+                            <div className='flex items-center gap-1 text-yellow-600'>
+                              <BookmarkCheck className='w-4 h-4' />
                               <span>{bookmarkedCount}个收藏</span>
                             </div>
                           )}
                         </div>
-                        <div className="flex gap-2 mt-2">
+                        <div className='flex gap-2 mt-2'>
                           {chapter.tags.map((tag, index) => (
-                            <span key={index} className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                            <span
+                              key={index}
+                              className='text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded'
+                            >
                               {tag}
                             </span>
                           ))}
@@ -783,24 +839,31 @@ export default function ParentUserManual() {
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div
-                      className="border-t"
+                      className='border-t'
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <div className="p-6 space-y-8">
-                        {chapter.sections.map((section) => {
-                          const isBookmarked = bookmarkedSections.has(section.id)
+                      <div className='p-6 space-y-8'>
+                        {chapter.sections.map(section => {
+                          const isBookmarked = bookmarkedSections.has(
+                            section.id
+                          );
 
                           return (
-                            <div key={section.id} className="border-l-4 border-purple-200 pl-6">
-                              <div className="flex items-center justify-between mb-3">
-                                <h4 className="text-lg font-semibold text-gray-800">{section.title}</h4>
+                            <div
+                              key={section.id}
+                              className='border-l-4 border-purple-200 pl-6'
+                            >
+                              <div className='flex items-center justify-between mb-3'>
+                                <h4 className='text-lg font-semibold text-gray-800'>
+                                  {section.title}
+                                </h4>
                                 <button
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    toggleBookmark(section.id)
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    toggleBookmark(section.id);
                                   }}
                                   className={`p-2 rounded-lg transition-colors ${
                                     isBookmarked
@@ -809,28 +872,31 @@ export default function ParentUserManual() {
                                   }`}
                                 >
                                   {isBookmarked ? (
-                                    <BookmarkCheck className="w-4 h-4" />
+                                    <BookmarkCheck className='w-4 h-4' />
                                   ) : (
-                                    <Bookmark className="w-4 h-4" />
+                                    <Bookmark className='w-4 h-4' />
                                   )}
                                 </button>
                               </div>
 
-                              <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-line">
+                              <div className='prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-line'>
                                 {section.content}
                               </div>
 
                               {/* 提示 */}
                               {section.tips && section.tips.length > 0 && (
-                                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                                  <div className="flex items-center gap-2 text-blue-700 font-medium mb-2">
-                                    <Lightbulb className="w-4 h-4" />
+                                <div className='mt-4 p-4 bg-blue-50 rounded-lg'>
+                                  <div className='flex items-center gap-2 text-blue-700 font-medium mb-2'>
+                                    <Lightbulb className='w-4 h-4' />
                                     <span>温馨提示</span>
                                   </div>
-                                  <ul className="space-y-1">
+                                  <ul className='space-y-1'>
                                     {section.tips.map((tip, tipIndex) => (
-                                      <li key={tipIndex} className="text-sm text-blue-600 flex items-start gap-2">
-                                        <CheckCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                      <li
+                                        key={tipIndex}
+                                        className='text-sm text-blue-600 flex items-start gap-2'
+                                      >
+                                        <CheckCircle className='w-3 h-3 mt-0.5 flex-shrink-0' />
                                         <span>{tip}</span>
                                       </li>
                                     ))}
@@ -839,61 +905,69 @@ export default function ParentUserManual() {
                               )}
 
                               {/* 警告 */}
-                              {section.warnings && section.warnings.length > 0 && (
-                                <div className="mt-4 p-4 bg-red-50 rounded-lg">
-                                  <div className="flex items-center gap-2 text-red-700 font-medium mb-2">
-                                    <AlertCircle className="w-4 h-4" />
-                                    <span>重要提醒</span>
+                              {section.warnings &&
+                                section.warnings.length > 0 && (
+                                  <div className='mt-4 p-4 bg-red-50 rounded-lg'>
+                                    <div className='flex items-center gap-2 text-red-700 font-medium mb-2'>
+                                      <AlertCircle className='w-4 h-4' />
+                                      <span>重要提醒</span>
+                                    </div>
+                                    <ul className='space-y-1'>
+                                      {section.warnings.map(
+                                        (warning, warningIndex) => (
+                                          <li
+                                            key={warningIndex}
+                                            className='text-sm text-red-600 flex items-start gap-2'
+                                          >
+                                            <AlertCircle className='w-3 h-3 mt-0.5 flex-shrink-0' />
+                                            <span>{warning}</span>
+                                          </li>
+                                        )
+                                      )}
+                                    </ul>
                                   </div>
-                                  <ul className="space-y-1">
-                                    {section.warnings.map((warning, warningIndex) => (
-                                      <li key={warningIndex} className="text-sm text-red-600 flex items-start gap-2">
-                                        <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                                        <span>{warning}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
+                                )}
                             </div>
-                          )
+                          );
                         })}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </motion.div>
-            )
+            );
           })}
         </div>
 
         {/* 底部帮助信息 */}
         <motion.div
-          className="mt-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 text-center"
+          className='mt-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 text-center'
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">需要更多帮助？</h3>
-          <p className="text-gray-700 mb-6">
+          <h3 className='text-2xl font-bold text-gray-800 mb-4'>
+            需要更多帮助？
+          </h3>
+          <p className='text-gray-700 mb-6'>
             我们的客服团队随时为您提供专业的技术支持和育儿指导
           </p>
-          <div className="flex justify-center gap-4">
-            <button className="px-6 py-3 bg-white text-purple-600 rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2 shadow-md">
-              <MessageCircle className="w-4 h-4" />
+          <div className='flex justify-center gap-4'>
+            <button className='px-6 py-3 bg-white text-purple-600 rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2 shadow-md'>
+              <MessageCircle className='w-4 h-4' />
               在线客服
             </button>
-            <button className="px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2 shadow-md">
-              <Mail className="w-4 h-4" />
+            <button className='px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2 shadow-md'>
+              <Mail className='w-4 h-4' />
               邮件支持
             </button>
-            <button className="px-6 py-3 bg-white text-green-600 rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2 shadow-md">
-              <Phone className="w-4 h-4" />
+            <button className='px-6 py-3 bg-white text-green-600 rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2 shadow-md'>
+              <Phone className='w-4 h-4' />
               电话支持
             </button>
           </div>
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,222 +1,378 @@
 /**
- * Utils 工具函数测试
+ * lib/utils.ts 测试用例
+ * 自动生成的测试用例
  */
 
-import { describe, it, expect } from 'bun:test'
+import {
+  formatDate,
+  debounce,
+  throttle,
+  cn,
+  sleep,
+  generateId,
+  chunk,
+  groupBy,
+  unique,
+  uniqueBy,
+  pick,
+  omit,
+  deepClone,
+  deepEqual,
+  isEmpty,
+  isNotEmpty,
+  formatFileSize,
+  formatNumber,
+  formatPercentage,
+  clamp,
+  randomInt,
+  randomFloat,
+  roundTo,
+  safeDivide,
+  getNestedValue,
+  setNestedValue,
+  retry,
+  asyncMap,
+  memoize,
+  once,
+  pipe,
+  compose,
+  curry,
+  partial,
+} from '@/lib/utils';
 
-describe('Utils 工具函数测试', () => {
-  // 测试 cn 函数（类名合并）
-  it('应该能够合并类名', () => {
-    // 模拟 cn 函数
-    function cn(...inputs: string[]) {
-      return inputs.filter(Boolean).join(' ')
-    }
+describe('lib/utils', () => {
+  describe('formatDate', () => {
+    it('should format date correctly', () => {
+      const date = new Date('2025-01-30');
+      const formatted = formatDate(date, 'YYYY-MM-DD');
+      expect(formatted).toBe('2025-01-30');
+    });
+  });
 
-    const result = cn('bg-red-500', 'text-white', null, undefined, '')
-    expect(result).toBe('bg-red-500 text-white')
-  })
+  describe('debounce', () => {
+    it('should debounce function calls', async () => {
+      const mockFn = jest.fn();
+      const debouncedFn = debounce(mockFn, 100);
 
-  // 测试 debounce 函数（防抖）
-  it('应该能够防抖函数', () => {
-    let callCount = 0
+      debouncedFn();
+      debouncedFn();
+      debouncedFn();
 
-    function increment() {
-      callCount++
-    }
+      expect(mockFn).not.toHaveBeenCalled();
 
-    // 模拟 debounce 函数
-    function debounce<T extends (...args: unknown[]) => unknown>(
-      func: T,
-      wait: number
-    ): (...args: Parameters<T>) => void {
-      let timeout: ReturnType<typeof setTimeout> | null = null
+      await new Promise(resolve => setTimeout(resolve, 150));
 
-      return function executedFunction(...args: Parameters<T>) {
-        if (timeout) {
-          clearTimeout(timeout)
+      expect(mockFn).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('throttle', () => {
+    it('should throttle function calls', async () => {
+      const mockFn = jest.fn();
+      const throttledFn = throttle(mockFn, 100);
+
+      throttledFn();
+      throttledFn();
+      throttledFn();
+
+      expect(mockFn).toHaveBeenCalledTimes(1);
+
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      throttledFn();
+
+      expect(mockFn).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('cn', () => {
+    it('should merge class names correctly', () => {
+      const result = cn('class1', 'class2', 'class3');
+      expect(result).toBe('class1 class2 class3');
+    });
+
+    it('should exclude falsy values', () => {
+      const result = cn('class1', false, null, undefined, '');
+      expect(result).toBe('class1');
+    });
+  });
+
+  describe('generateId', () => {
+    it('should generate unique IDs', () => {
+      const id1 = generateId();
+      const id2 = generateId();
+      expect(id1).not.toBe(id2);
+    });
+
+    it('should generate IDs with prefix', () => {
+      const id = generateId('test');
+      expect(id).toMatch(/^test_/);
+    });
+  });
+
+  describe('chunk', () => {
+    it('should chunk array correctly', () => {
+      const arr = [1, 2, 3, 4, 5];
+      const chunks = chunk(arr, 2);
+      expect(chunks).toEqual([[1, 2], [3, 4], [5]]);
+    });
+  });
+
+  describe('groupBy', () => {
+    it('should group array by key', () => {
+      const arr = [
+        { id: 1, category: 'a' },
+        { id: 2, category: 'b' },
+        { id: 3, category: 'a' },
+      ];
+      const grouped = groupBy(arr, item => item.category);
+      expect(grouped.a).toHaveLength(2);
+      expect(grouped.b).toHaveLength(1);
+    });
+  });
+
+  describe('unique', () => {
+    it('should remove duplicates', () => {
+      const arr = [1, 2, 2, 3, 3, 3];
+      const result = unique(arr);
+      expect(result).toEqual([1, 2, 3]);
+    });
+  });
+
+  describe('uniqueBy', () => {
+    it('should remove duplicates by key', () => {
+      const arr = [
+        { id: 1, name: 'a' },
+        { id: 2, name: 'b' },
+        { id: 1, name: 'c' },
+      ];
+      const result = uniqueBy(arr, item => item.id);
+      expect(result).toHaveLength(2);
+    });
+  });
+
+  describe('pick', () => {
+    it('should pick specified properties', () => {
+      const obj = { a: 1, b: 2, c: 3 };
+      const result = pick(obj, ['a', 'b']);
+      expect(result).toEqual({ a: 1, b: 2 });
+    });
+  });
+
+  describe('omit', () => {
+    it('should omit specified properties', () => {
+      const obj = { a: 1, b: 2, c: 3 };
+      const result = omit(obj, ['c']);
+      expect(result).toEqual({ a: 1, b: 2 });
+    });
+  });
+
+  describe('deepClone', () => {
+    it('should deep clone object', () => {
+      const obj = { a: 1, b: { c: 2 } };
+      const cloned = deepClone(obj);
+      expect(cloned).toEqual(obj);
+      expect(cloned).not.toBe(obj);
+    });
+  });
+
+  describe('deepEqual', () => {
+    it('should check deep equality', () => {
+      const obj1 = { a: 1, b: { c: 2 } };
+      const obj2 = { a: 1, b: { c: 2 } };
+      expect(deepEqual(obj1, obj2)).toBe(true);
+    });
+  });
+
+  describe('isEmpty', () => {
+    it('should check if value is empty', () => {
+      expect(isEmpty('')).toBe(true);
+      expect(isEmpty(null)).toBe(true);
+      expect(isEmpty(undefined)).toBe(true);
+      expect(isEmpty([])).toBe(true);
+      expect(isEmpty({})).toBe(true);
+      expect(isEmpty('hello')).toBe(false);
+    });
+  });
+
+  describe('isNotEmpty', () => {
+    it('should check if value is not empty', () => {
+      expect(isNotEmpty('hello')).toBe(true);
+      expect(isNotEmpty('')).toBe(false);
+    });
+  });
+
+  describe('formatFileSize', () => {
+    it('should format file size correctly', () => {
+      expect(formatFileSize(0)).toBe('0 B');
+      expect(formatFileSize(1024)).toBe('1 KB');
+      expect(formatFileSize(1024 * 1024)).toBe('1 MB');
+    });
+  });
+
+  describe('formatNumber', () => {
+    it('should format number correctly', () => {
+      const result = formatNumber(1000);
+      expect(result).toContain('1,000');
+    });
+  });
+
+  describe('formatPercentage', () => {
+    it('should format percentage correctly', () => {
+      expect(formatPercentage(0.5)).toBe('50%');
+      expect(formatPercentage(0.1234, 2)).toBe('12.34%');
+    });
+  });
+
+  describe('clamp', () => {
+    it('should clamp value between min and max', () => {
+      expect(clamp(5, 0, 10)).toBe(5);
+      expect(clamp(-5, 0, 10)).toBe(0);
+      expect(clamp(15, 0, 10)).toBe(10);
+    });
+  });
+
+  describe('randomInt', () => {
+    it('should generate random integer', () => {
+      const result = randomInt(1, 10);
+      expect(result).toBeGreaterThanOrEqual(1);
+      expect(result).toBeLessThanOrEqual(10);
+    });
+  });
+
+  describe('randomFloat', () => {
+    it('should generate random float', () => {
+      const result = randomFloat(0, 1);
+      expect(result).toBeGreaterThanOrEqual(0);
+      expect(result).toBeLessThanOrEqual(1);
+    });
+  });
+
+  describe('roundTo', () => {
+    it('should round to decimals', () => {
+      expect(roundTo(3.14159, 2)).toBe(3.14);
+      expect(roundTo(3.14159, 0)).toBe(3);
+    });
+  });
+
+  describe('safeDivide', () => {
+    it('should divide safely', () => {
+      expect(safeDivide(10, 2)).toBe(5);
+      expect(safeDivide(10, 0)).toBe(0);
+      expect(safeDivide(10, 0, 1)).toBe(1);
+    });
+  });
+
+  describe('getNestedValue', () => {
+    it('should get nested value', () => {
+      const obj = { a: { b: { c: 1 } } };
+      expect(getNestedValue(obj, 'a.b.c')).toBe(1);
+      expect(getNestedValue(obj, 'a.b.d')).toBeUndefined();
+    });
+  });
+
+  describe('setNestedValue', () => {
+    it('should set nested value', () => {
+      const obj = { a: {} } as Record<string, unknown>;
+      setNestedValue(obj, 'a.b.c', 1);
+      expect((obj.a as Record<string, unknown>).b).toEqual({ c: 1 });
+    });
+  });
+
+  describe('retry', async () => {
+    it('should retry function on failure', async () => {
+      let attempts = 0;
+      const mockFn = jest.fn().mockImplementation(() => {
+        attempts++;
+        if (attempts < 3) {
+          throw new Error('Failed');
         }
-        timeout = setTimeout(() => {
-          func(...args)
-        }, wait)
-      }
-    }
+        return 'Success';
+      });
 
-    const debouncedIncrement = debounce(increment, 100)
+      const result = await retry(mockFn, { maxAttempts: 3 });
+      expect(result).toBe('Success');
+      expect(mockFn).toHaveBeenCalledTimes(3);
+    });
+  });
 
-    // 快速调用多次，但应该只执行一次
-    debouncedIncrement()
-    debouncedIncrement()
-    debouncedIncrement()
+  describe('asyncMap', async () => {
+    it('should map async functions', async () => {
+      const items = [1, 2, 3];
+      const result = await asyncMap(items, async x => x * 2);
+      expect(result).toEqual([2, 4, 6]);
+    });
+  });
 
-    expect(callCount).toBe(0) // 还没有执行
-  })
+  describe('memoize', () => {
+    it('should memoize function', () => {
+      let callCount = 0;
+      const fn = (...args: unknown[]) => {
+        callCount++;
+        const x = args[0] as number;
+        return x * 2;
+      };
+      const memoized = memoize(fn);
 
-  // 测试 throttle 函数（节流）
-  it('应该能够节流函数', () => {
-    let callCount = 0
+      expect(memoized(5)).toBe(10);
+      expect(memoized(5)).toBe(10);
+      expect(callCount).toBe(1);
+    });
+  });
 
-    function increment() {
-      callCount++
-    }
+  describe('once', () => {
+    it('should call function only once', () => {
+      let callCount = 0;
+      const fn = () => {
+        callCount++;
+        return 'result';
+      };
+      const onceFn = once(fn);
 
-    // 模拟 throttle 函数
-    function throttle<T extends (...args: unknown[]) => unknown>(
-      func: T,
-      limit: number
-    ): (...args: Parameters<T>) => void {
-      let inThrottle: boolean = false
+      expect(onceFn()).toBe('result');
+      expect(onceFn()).toBe('result');
+      expect(callCount).toBe(1);
+    });
+  });
 
-      return function executedFunction(...args: Parameters<T>) {
-        if (!inThrottle) {
-          func(...args)
-          inThrottle = true
-          setTimeout(() => {
-            inThrottle = false
-          }, limit)
-        }
-      }
-    }
+  describe('pipe', () => {
+    it('should pipe functions', () => {
+      const add = (x: number) => x + 1;
+      const multiply = (x: number) => x * 2;
+      const result = pipe(add, multiply)(5);
+      expect(result).toBe(12);
+    });
+  });
 
-    const throttledIncrement = throttle(increment, 100)
+  describe('compose', () => {
+    it('should compose functions', () => {
+      const add = (x: number) => x + 1;
+      const multiply = (x: number) => x * 2;
+      const result = compose(add, multiply)(5);
+      expect(result).toBe(11);
+    });
+  });
 
-    // 快速调用多次，但应该只执行一次
-    throttledIncrement()
-    throttledIncrement()
-    throttledIncrement()
+  describe('curry', () => {
+    it('should curry function', () => {
+      const add = (...args: unknown[]) => {
+        const [a, b, c] = args as [number, number, number];
+        return a + b + c;
+      };
+      const curried = curry(add, 3) as any;
+      const result = curried(1)(2)(3) as number;
+      expect(result).toBe(6);
+    });
+  });
 
-    expect(callCount).toBe(1) // 执行了一次
-  })
-
-  // 测试 sleep 函数（延迟）
-  it('应该能够延迟执行', async () => {
-    // 模拟 sleep 函数
-    function sleep(ms: number): Promise<void> {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
-
-    const start = Date.now()
-    await sleep(100)
-    const end = Date.now()
-
-    expect(end - start).toBeGreaterThanOrEqual(100)
-  })
-
-  // 测试 generateId 函数（生成 ID）
-  it('应该能够生成唯一的 ID', () => {
-    // 模拟 generateId 函数
-    function generateId(prefix: string = ''): string {
-      const timestamp = Date.now().toString(36)
-      const randomPart = Math.random().toString(36).substring(2, 9)
-      return prefix ? `${prefix}-${timestamp}-${randomPart}` : `${timestamp}-${randomPart}`
-    }
-
-    const id1 = generateId('user')
-    const id2 = generateId('user')
-
-    expect(id1).toContain('user-')
-    expect(id2).toContain('user-')
-    expect(id1).not.toBe(id2) // 应该是唯一的
-  })
-
-  // 测试 formatDate 函数（格式化日期）
-  it('应该能够格式化日期', () => {
-    // 模拟 formatDate 函数
-    function formatDate(date: Date, format: string = 'YYYY-MM-DD'): string {
-      const year = date.getFullYear()
-      const month = String(date.getMonth() + 1).padStart(2, '0')
-      const day = String(date.getDate()).padStart(2, '0')
-      const hours = String(date.getHours()).padStart(2, '0')
-      const minutes = String(date.getMinutes()).padStart(2, '0')
-      const seconds = String(date.getSeconds()).padStart(2, '0')
-
-      return format
-        .replace('YYYY', String(year))
-        .replace('MM', month)
-        .replace('DD', day)
-        .replace('HH', hours)
-        .replace('mm', minutes)
-        .replace('ss', seconds)
-    }
-
-    const date = new Date(2024, 0, 15, 10, 30, 45)
-    const result = formatDate(date, 'YYYY-MM-DD HH:mm:ss')
-
-    expect(result).toBe('2024-01-15 10:30:45')
-  })
-
-  // 测试 calculateAge 函数（计算年龄）
-  it('应该能够计算年龄', () => {
-    // 模拟 calculateAge 函数
-    function calculateAge(birthDate: Date, currentDate: Date): number {
-      if (birthDate > currentDate) return 0
-
-      let age = currentDate.getFullYear() - birthDate.getFullYear()
-      const monthDiff = currentDate.getMonth() - birthDate.getMonth()
-
-      if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
-        age--
-      }
-
-      return age
-    }
-
-    const birthDate = new Date(2010, 0, 15) // 2010-01-15
-    const currentDate = new Date(2024, 0, 15) // 2024-01-15
-
-    const age = calculateAge(birthDate, currentDate)
-    expect(age).toBe(14)
-  })
-
-  // 测试 validateEmail 函数（验证邮箱）
-  it('应该能够验证邮箱地址', () => {
-    // 模拟 validateEmail 函数
-    function validateEmail(email: string): boolean {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      return emailRegex.test(email)
-    }
-
-    expect(validateEmail('test@example.com')).toBe(true)
-    expect(validateEmail('invalid-email')).toBe(false)
-    expect(validateEmail('test@')).toBe(false)
-    expect(validateEmail('@example.com')).toBe(false)
-  })
-
-  // 测试 isMobile 函数（判断移动设备）
-  it('应该能够判断是否为移动设备', () => {
-    // 模拟 isMobile 函数
-    function isMobile(userAgent: string): boolean {
-      const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
-      return mobileRegex.test(userAgent)
-    }
-
-    const mobileUA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)'
-    const desktopUA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-
-    expect(isMobile(mobileUA)).toBe(true)
-    expect(isMobile(desktopUA)).toBe(false)
-  })
-
-  // 测试 capitalize 函数（首字母大写）
-  it('应该能够将首字母大写', () => {
-    // 模拟 capitalize 函数
-    function capitalize(str: string): string {
-      return str.charAt(0).toUpperCase() + str.slice(1)
-    }
-
-    expect(capitalize('hello')).toBe('Hello')
-    expect(capitalize('world')).toBe('World')
-    expect(capitalize('')).toBe('')
-  })
-
-  // 测试 truncate 函数（截断文本）
-  it('应该能够截断文本', () => {
-    // 模拟 truncate 函数
-    function truncate(str: string, length: number, suffix: string = '...'): string {
-      if (str.length <= length) return str
-      return str.slice(0, length) + suffix
-    }
-
-    expect(truncate('Hello, world!', 5)).toBe('Hello...')
-    expect(truncate('Hello, world!', 20)).toBe('Hello, world!')
-  })
-})
+  describe('partial', () => {
+    it('should partially apply function', () => {
+      const add = (...args: unknown[]) => {
+        const [a, b, c] = args as [number, number, number];
+        return a + b + c;
+      };
+      const partialAdd = partial(add, 1, 2);
+      expect(partialAdd(3) as number).toBe(6);
+    });
+  });
+});

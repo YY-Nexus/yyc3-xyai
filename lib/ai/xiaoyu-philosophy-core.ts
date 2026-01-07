@@ -100,7 +100,11 @@ export interface PhilosophyEventData {
 
 // 哲学核心事件
 export interface PhilosophyEvent {
-  type: 'practice_completed' | 'milestone_reached' | 'connection_formed' | 'insight_received';
+  type:
+    | 'practice_completed'
+    | 'milestone_reached'
+    | 'connection_formed'
+    | 'insight_received';
   stage: PhilosophyStage;
   data: PhilosophyEventData;
   timestamp: Date;
@@ -143,7 +147,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
       legacyLevel: 0,
       overallBalance: 0,
       spiritualGrowth: 0,
-      purposeClarity: 0
+      purposeClarity: 0,
     };
 
     // 初始化哲学价值体系
@@ -176,13 +180,13 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         '培养创造力与想象力',
         '建立技术技能与表达能力',
         '形成个人独特风格',
-        '实现自我价值与成就感'
+        '实现自我价值与成就感',
       ],
       metrics: {
         creativity: 0,
         education: 0,
         emotion: 0,
-        legacy: 0
+        legacy: 0,
       },
       practices: [
         {
@@ -192,7 +196,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'creation',
           type: 'creative',
           actionable: true,
-          completionRate: 0
+          completionRate: 0,
         },
         {
           id: 'ai_assisted_inspiration',
@@ -201,7 +205,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'creation',
           type: 'creative',
           actionable: true,
-          completionRate: 0
+          completionRate: 0,
         },
         {
           id: 'cross_media_fusion',
@@ -210,9 +214,9 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'creation',
           type: 'creative',
           actionable: true,
-          completionRate: 0
-        }
-      ]
+          completionRate: 0,
+        },
+      ],
     });
 
     // 教育阶段 - 叶
@@ -224,13 +228,13 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         '知识传递与技能分享',
         '建立教学相长的良性循环',
         '形成教育生态网络',
-        '促进社会整体进步'
+        '促进社会整体进步',
       ],
       metrics: {
         creativity: 0,
         education: 0,
         emotion: 0,
-        legacy: 0
+        legacy: 0,
       },
       practices: [
         {
@@ -240,7 +244,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'education',
           type: 'educational',
           actionable: true,
-          completionRate: 0
+          completionRate: 0,
         },
         {
           id: 'personalized_teaching',
@@ -249,7 +253,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'education',
           type: 'educational',
           actionable: true,
-          completionRate: 0
+          completionRate: 0,
         },
         {
           id: 'learning_community',
@@ -258,9 +262,9 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'education',
           type: 'educational',
           actionable: true,
-          completionRate: 0
-        }
-      ]
+          completionRate: 0,
+        },
+      ],
     });
 
     // 情感阶段 - 花朵
@@ -272,13 +276,13 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         '建立情感连接与共鸣',
         '提升作品的感染力和影响力',
         '促进心理健康与情感表达',
-        '传递积极的社会价值观'
+        '传递积极的社会价值观',
       ],
       metrics: {
         creativity: 0,
         education: 0,
         emotion: 0,
-        legacy: 0
+        legacy: 0,
       },
       practices: [
         {
@@ -288,7 +292,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'emotion',
           type: 'emotional',
           actionable: true,
-          completionRate: 0
+          completionRate: 0,
         },
         {
           id: 'audience_connection',
@@ -297,7 +301,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'emotion',
           type: 'emotional',
           actionable: true,
-          completionRate: 0
+          completionRate: 0,
         },
         {
           id: 'value_transmission',
@@ -306,9 +310,9 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'emotion',
           type: 'emotional',
           actionable: true,
-          completionRate: 0
-        }
-      ]
+          completionRate: 0,
+        },
+      ],
     });
 
     // 传承阶段 - 终极
@@ -320,13 +324,13 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         '建立持续影响力的个人品牌',
         '形成可传承的知识体系',
         '创造社会文化价值',
-        '实现人生的终极意义'
+        '实现人生的终极意义',
       ],
       metrics: {
         creativity: 0,
         education: 0,
         emotion: 0,
-        legacy: 0
+        legacy: 0,
       },
       practices: [
         {
@@ -336,7 +340,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'legacy',
           type: 'legacy',
           actionable: true,
-          completionRate: 0
+          completionRate: 0,
         },
         {
           id: 'theory_extraction',
@@ -345,7 +349,7 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'legacy',
           type: 'legacy',
           actionable: true,
-          completionRate: 0
+          completionRate: 0,
         },
         {
           id: 'legacy_channels',
@@ -354,9 +358,9 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
           stage: 'legacy',
           type: 'legacy',
           actionable: true,
-          completionRate: 0
-        }
-      ]
+          completionRate: 0,
+        },
+      ],
     });
   }
 
@@ -372,8 +376,8 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         impact: {
           individual: 90,
           community: 75,
-          society: 60
-        }
+          society: 60,
+        },
       },
       {
         id: 'emotion_to_audience',
@@ -385,8 +389,8 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         impact: {
           individual: 85,
           community: 88,
-          society: 70
-        }
+          society: 70,
+        },
       },
       {
         id: 'creation_to_innovation',
@@ -398,8 +402,8 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         impact: {
           individual: 80,
           community: 70,
-          society: 85
-        }
+          society: 85,
+        },
       },
       {
         id: 'technique_to_tools',
@@ -411,9 +415,9 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         impact: {
           individual: 88,
           community: 65,
-          society: 72
-        }
-      }
+          society: 72,
+        },
+      },
     ];
   }
 
@@ -427,9 +431,10 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         actionItems: [
           '定期评估各阶段发展水平',
           '制定均衡的发展计划',
-          '通过AI分析提供平衡建议'
+          '通过AI分析提供平衡建议',
         ],
-        philosophicalQuote: '如同树木需要枝、叶、花、果的和谐统一，创作者也需要四阶段的平衡发展'
+        philosophicalQuote:
+          '如同树木需要枝、叶、花、果的和谐统一，创作者也需要四阶段的平衡发展',
       },
       {
         id: 'growth_insight',
@@ -439,9 +444,10 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         actionItems: [
           '记录每个阶段的成长里程碑',
           '识别成长模式和规律',
-          '制定下一阶段的成长目标'
+          '制定下一阶段的成长目标',
         ],
-        philosophicalQuote: '每一次创作都是枝干的延伸，每一次教育都是叶片的光合，每一次情感都是花朵的绽放，最终结出传承的果实'
+        philosophicalQuote:
+          '每一次创作都是枝干的延伸，每一次教育都是叶片的光合，每一次情感都是花朵的绽放，最终结出传承的果实',
       },
       {
         id: 'connection_insight',
@@ -451,9 +457,10 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         actionItems: [
           '识别可传承的核心价值',
           '建立多元化的传承渠道',
-          '评估传承的社会影响力'
+          '评估传承的社会影响力',
         ],
-        philosophicalQuote: '真正的传承不是简单的复制，而是在新的土壤中开出新的花朵'
+        philosophicalQuote:
+          '真正的传承不是简单的复制，而是在新的土壤中开出新的花朵',
       },
       {
         id: 'purpose_insight',
@@ -463,10 +470,11 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         actionItems: [
           '明确个人创作使命',
           '将个人成长与社会贡献结合',
-          '在传承中实现自我价值'
+          '在传承中实现自我价值',
         ],
-        philosophicalQuote: '创作的终极意义不在于作品本身，而在于通过作品传递的精神价值'
-      }
+        philosophicalQuote:
+          '创作的终极意义不在于作品本身，而在于通过作品传递的精神价值',
+      },
     ];
   }
 
@@ -479,21 +487,21 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         soundCategory: 'creative_spark',
         frequency: 800,
         effect: 'inspiring',
-        philosophyStage: 'creation'
+        philosophyStage: 'creation',
       },
       {
         emotion: '专注创作',
         soundCategory: 'focus_mode',
         frequency: 440,
         effect: 'focus',
-        philosophyStage: 'creation'
+        philosophyStage: 'creation',
       },
       {
         emotion: '创作完成',
         soundCategory: 'achievement',
         frequency: 1000,
         effect: 'energizing',
-        philosophyStage: 'creation'
+        philosophyStage: 'creation',
       },
       // 教育阶段音效
       {
@@ -501,14 +509,14 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         soundCategory: 'knowledge_transfer',
         frequency: 600,
         effect: 'calming',
-        philosophyStage: 'education'
+        philosophyStage: 'education',
       },
       {
         emotion: '教学互动',
         soundCategory: 'interaction',
         frequency: 700,
         effect: 'energizing',
-        philosophyStage: 'education'
+        philosophyStage: 'education',
       },
       // 情感阶段音效
       {
@@ -516,14 +524,14 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         soundCategory: 'emotional_resonance',
         frequency: 500,
         effect: 'emotional',
-        philosophyStage: 'emotion'
+        philosophyStage: 'emotion',
       },
       {
         emotion: '心灵触动',
         soundCategory: 'heart_touch',
         frequency: 300,
         effect: 'emotional',
-        philosophyStage: 'emotion'
+        philosophyStage: 'emotion',
       },
       // 传承阶段音效
       {
@@ -531,15 +539,15 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         soundCategory: 'wisdom_legacy',
         frequency: 400,
         effect: 'inspiring',
-        philosophyStage: 'legacy'
+        philosophyStage: 'legacy',
       },
       {
         emotion: '精神永续',
         soundCategory: 'spiritual_continuity',
         frequency: 200,
         effect: 'calming',
-        philosophyStage: 'legacy'
-      }
+        philosophyStage: 'legacy',
+      },
     ];
 
     soundMappings.forEach(mapping => {
@@ -573,23 +581,32 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
       this.updateCreatorSpirit(practice);
 
       // 生成AI指导
-      const guidance = await this.generatePhilosophicalGuidance(practice, context);
+      const guidance = await this.generatePhilosophicalGuidance(
+        practice,
+        context
+      );
 
       // 推荐音效
-      const soundSuggestion = this.recommendSound(practice, context?.emotionalState);
+      const soundSuggestion = this.recommendSound(
+        practice,
+        context?.emotionalState
+      );
 
       // 更新传承连接
       const updatedConnections = this.updateLegacyConnections(practice);
 
       // 生成哲学洞察
-      const relevantInsights = this.generateRelevantInsights(practice.stage, context);
+      const relevantInsights = this.generateRelevantInsights(
+        practice.stage,
+        context
+      );
 
       // 发出事件
       this.emit('philosophy_practice_completed', {
         practiceId,
         userId,
         stage: practice.stage,
-        impact: this.calculateImpact(practice)
+        impact: this.calculateImpact(practice),
       });
 
       return {
@@ -597,9 +614,8 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
         soundSuggestion,
         spiritualImpact: { ...this.creatorSpirit },
         connections: updatedConnections,
-        insights: relevantInsights
+        insights: relevantInsights,
       };
-
     } catch (error) {
       console.error('哲学实践处理失败:', error);
       throw error;
@@ -616,26 +632,27 @@ export class XiaoyuPhilosophyCore extends EventEmitter {
       creation: [
         '每一次创作都是生命的延伸，如同枝桠向着阳光生长。',
         '创作不仅是表达，更是探索自我和理解世界的过程。',
-        '在创作中，我们与宇宙的创造力产生共鸣。'
+        '在创作中，我们与宇宙的创造力产生共鸣。',
       ],
       education: [
         '教育如同光合作用，将经验转化为营养，滋养新的成长。',
         '教学相长，在分享中我们也在重新学习和理解。',
-        '真正的教育是点燃火焰，而不是填满容器。'
+        '真正的教育是点燃火焰，而不是填满容器。',
       ],
       emotion: [
         '情感是作品的生命力，是连接创作者与观众灵魂的桥梁。',
         '真挚的情感表达能够跨越时空，触动人心。',
-        '情感不是软弱的标志，而是最深刻的力量源泉。'
+        '情感不是软弱的标志，而是最深刻的力量源泉。',
       ],
       legacy: [
         '传承不是简单的复制，而是在新的土壤中开出新的花朵。',
         '我们留给世界的不是作品本身，而是通过作品传递的精神。',
-        '真正的传承是让他人因为我们而变得更好。'
-      ]
+        '真正的传承是让他人因为我们而变得更好。',
+      ],
     };
 
-    const quotes = philosophicalQuotes[practice.stage] || philosophicalQuotes.creation;
+    const quotes =
+      philosophicalQuotes[practice.stage] || philosophicalQuotes.creation;
     const quote = quotes[Math.floor(Math.random() * quotes.length)];
 
     return `
@@ -659,10 +676,15 @@ ${quote}
 
 音效建议：${this.soundMappings.size > 0 ? '已根据情感状态推荐合适的音效' : '可添加背景音效增强体验'}
 
-"记住：${practice.stage === 'creation' ? '创作是枝' :
-              practice.stage === 'education' ? '教育是叶' :
-              practice.stage === 'emotion' ? '情感是花朵' :
-              '终极是传承'}"
+"记住：${
+      practice.stage === 'creation'
+        ? '创作是枝'
+        : practice.stage === 'education'
+          ? '教育是叶'
+          : practice.stage === 'emotion'
+            ? '情感是花朵'
+            : '终极是传承'
+    }"
     `;
   }
 
@@ -672,7 +694,7 @@ ${quote}
       creation: { creationLevel: 5, spiritualGrowth: 3, purposeClarity: 2 },
       education: { educationLevel: 5, spiritualGrowth: 2, purposeClarity: 3 },
       emotion: { emotionalLevel: 5, spiritualGrowth: 4, purposeClarity: 2 },
-      legacy: { legacyLevel: 8, spiritualGrowth: 5, purposeClarity: 5 }
+      legacy: { legacyLevel: 8, spiritualGrowth: 5, purposeClarity: 5 },
     };
 
     const updates = stageUpdates[practice.stage] || {};
@@ -681,7 +703,10 @@ ${quote}
       const updateKey = key as keyof CreatorSpiritUpdate;
       const spiritKey = updateKey as keyof CreatorSpirit;
       if (updateKey in this.creatorSpirit && updates[updateKey] !== undefined) {
-        this.creatorSpirit[spiritKey] = Math.min(100, (this.creatorSpirit[spiritKey] || 0) + updates[updateKey]!);
+        this.creatorSpirit[spiritKey] = Math.min(
+          100,
+          (this.creatorSpirit[spiritKey] || 0) + updates[updateKey]!
+        );
       }
     });
 
@@ -690,15 +715,20 @@ ${quote}
       this.creatorSpirit.creationLevel,
       this.creatorSpirit.educationLevel,
       this.creatorSpirit.emotionalLevel,
-      this.creatorSpirit.legacyLevel
+      this.creatorSpirit.legacyLevel,
     ];
     const avg = levels.reduce((sum, level) => sum + level, 0) / levels.length;
-    const variance = levels.reduce((sum, level) => sum + Math.pow(level - avg, 2), 0) / levels.length;
+    const variance =
+      levels.reduce((sum, level) => sum + Math.pow(level - avg, 2), 0) /
+      levels.length;
     this.creatorSpirit.overallBalance = Math.max(0, 100 - Math.sqrt(variance));
   }
 
   // 推荐音效
-  private recommendSound(practice: PhilosophyPractice, emotionalState?: string): SoundEmotionMapping | undefined {
+  private recommendSound(
+    practice: PhilosophyPractice,
+    emotionalState?: string
+  ): SoundEmotionMapping | undefined {
     if (!emotionalState) return undefined;
 
     let bestMatch: SoundEmotionMapping | undefined;
@@ -719,18 +749,19 @@ ${quote}
 
   private calculateEmotionMatch(emotion: string, state: string): number {
     const emotionKeywords = {
-      '灵感迸发': ['灵感', '创意', '想法', '突破'],
-      '专注创作': ['专注', '集中', '沉浸', '心流'],
-      '创作完成': ['完成', '成就', '成功', '满足'],
-      '知识传递': ['教学', '分享', '传递', '指导'],
-      '教学互动': ['互动', '交流', '讨论', '反馈'],
-      '情感共鸣': ['共鸣', '感动', '理解', '连接'],
-      '心灵触动': ['触动', '感动', '震撼', '深刻'],
-      '智慧传承': ['智慧', '传承', '永恒', '价值'],
-      '精神永续': ['永恒', '不朽', '持续', '延续']
+      灵感迸发: ['灵感', '创意', '想法', '突破'],
+      专注创作: ['专注', '集中', '沉浸', '心流'],
+      创作完成: ['完成', '成就', '成功', '满足'],
+      知识传递: ['教学', '分享', '传递', '指导'],
+      教学互动: ['互动', '交流', '讨论', '反馈'],
+      情感共鸣: ['共鸣', '感动', '理解', '连接'],
+      心灵触动: ['触动', '感动', '震撼', '深刻'],
+      智慧传承: ['智慧', '传承', '永恒', '价值'],
+      精神永续: ['永恒', '不朽', '持续', '延续'],
     };
 
-    const emotionWords = emotionKeywords[emotion as keyof typeof emotionKeywords] || [];
+    const emotionWords =
+      emotionKeywords[emotion as keyof typeof emotionKeywords] || [];
     let score = 0;
 
     emotionWords.forEach(word => {
@@ -741,7 +772,9 @@ ${quote}
   }
 
   // 更新传承连接
-  private updateLegacyConnections(practice: PhilosophyPractice): LegacyConnection[] {
+  private updateLegacyConnections(
+    practice: PhilosophyPractice
+  ): LegacyConnection[] {
     return this.legacyConnections.map(connection => {
       const relatedToPractice =
         (practice.stage === 'creation' && connection.type === 'inspiration') ||
@@ -755,8 +788,8 @@ ${quote}
           strength: Math.min(100, connection.strength + 5),
           impact: {
             ...connection.impact,
-            individual: Math.min(100, connection.impact.individual + 3)
-          }
+            individual: Math.min(100, connection.impact.individual + 3),
+          },
         };
       }
 
@@ -765,7 +798,10 @@ ${quote}
   }
 
   // 生成相关洞察
-  private generateRelevantInsights(stage: PhilosophyStage, context?: PhilosophicalContext): PhilosophyInsight[] {
+  private generateRelevantInsights(
+    stage: PhilosophyStage,
+    context?: PhilosophicalContext
+  ): PhilosophyInsight[] {
     return this.insights.filter(insight => {
       if (insight.stage === stage || !insight.stage) return true;
       return false;
@@ -778,7 +814,7 @@ ${quote}
       creative: 10,
       educational: 15,
       emotional: 12,
-      legacy: 20
+      legacy: 20,
     };
 
     return baseImpact[practice.type] || 10;
@@ -811,7 +847,9 @@ ${quote}
   // 获取相关洞察
   getInsights(stage?: PhilosophyStage): PhilosophyInsight[] {
     if (stage) {
-      return this.insights.filter(insight => insight.stage === stage || !insight.stage);
+      return this.insights.filter(
+        insight => insight.stage === stage || !insight.stage
+      );
     }
     return [...this.insights];
   }
@@ -824,12 +862,17 @@ ${quote}
     legacyPotential: number;
     purposeClarity: number;
   } {
-    const stages: PhilosophyStage[] = ['creation', 'education', 'emotion', 'legacy'];
+    const stages: PhilosophyStage[] = [
+      'creation',
+      'education',
+      'emotion',
+      'legacy',
+    ];
     const coreValues = [
       '创作是枝 - 向外延伸，探索无限可能',
       '教育是叶 - 光合滋养，促进共同成长',
       '情感是花朵 - 传递美好，触动人心',
-      '终极是传承 - 融合一体，影响深远'
+      '终极是传承 - 融合一体，影响深远',
     ];
 
     return {
@@ -837,7 +880,7 @@ ${quote}
       coreValues,
       spiritualBalance: this.creatorSpirit.overallBalance,
       legacyPotential: this.creatorSpirit.legacyLevel,
-      purposeClarity: this.creatorSpirit.purposeClarity
+      purposeClarity: this.creatorSpirit.purposeClarity,
     };
   }
 }

@@ -8,7 +8,7 @@ const gateway = new APIGateway();
 console.log('API网关配置:', {
   port: gateway.config?.port || 1229,
   host: gateway.config?.host || 'localhost',
-  description: 'API网关将在端口1229上运行，符合项目专用端口要求'
+  description: 'API网关将在端口1229上运行，符合项目专用端口要求',
 });
 
 console.log('✅ API网关端口配置验证完成');

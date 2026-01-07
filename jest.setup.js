@@ -3,10 +3,10 @@
  * Phase 1 Week 5-6: 测试体系建设
  */
 
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 // Mock fetch API
-global.fetch = require('jest-fetch-mock')
+global.fetch = require('jest-fetch-mock');
 
 // Mock Next.js router
 jest.mock('next/router', () => ({
@@ -27,9 +27,9 @@ jest.mock('next/router', () => ({
         off: jest.fn(),
         emit: jest.fn(),
       },
-    }
+    };
   },
-}))
+}));
 
 // Mock Next.js navigation
 jest.mock('next/navigation', () => ({
@@ -41,15 +41,15 @@ jest.mock('next/navigation', () => ({
       back: jest.fn(),
       forward: jest.fn(),
       prefetch: jest.fn(),
-    }
+    };
   },
   useSearchParams() {
-    return new URLSearchParams()
+    return new URLSearchParams();
   },
   usePathname() {
-    return '/'
+    return '/';
   },
-}))
+}));
 
 // Mock localStorage
 const localStorageMock = {
@@ -57,8 +57,8 @@ const localStorageMock = {
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
-}
-global.localStorage = localStorageMock
+};
+global.localStorage = localStorageMock;
 
 // Mock sessionStorage
 const sessionStorageMock = {
@@ -66,8 +66,8 @@ const sessionStorageMock = {
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
-}
-global.sessionStorage = sessionStorageMock
+};
+global.sessionStorage = sessionStorageMock;
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -82,57 +82,57 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
-})
+});
 
 // Mock ResizeObserver
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}))
+}));
 
 // Mock IntersectionObserver
 global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}))
+}));
 
 // Mock WebSocket
 class WebSocket {
   constructor(url) {
-    this.url = url
-    this.readyState = 1
-    this.onopen = null
-    this.onclose = null
-    this.onmessage = null
-    this.onerror = null
+    this.url = url;
+    this.readyState = 1;
+    this.onopen = null;
+    this.onclose = null;
+    this.onmessage = null;
+    this.onerror = null;
   }
 
   send() {}
   close() {}
 }
-global.WebSocket = WebSocket
+global.WebSocket = WebSocket;
 
 // Custom test matchers
 expect.extend({
   toBeWithinRange(received, floor, ceiling) {
-    const pass = received >= floor && received <= ceiling
+    const pass = received >= floor && received <= ceiling;
     if (pass) {
       return {
         message: () =>
           `expected ${received} not to be within range ${floor} - ${ceiling}`,
         pass: true,
-      }
+      };
     } else {
       return {
         message: () =>
           `expected ${received} to be within range ${floor} - ${ceiling}`,
         pass: false,
-      }
+      };
     }
   },
-})
+});
 
 // Global test utilities
 global.createMockUser = (overrides = {}) => ({
@@ -145,7 +145,7 @@ global.createMockUser = (overrides = {}) => ({
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 global.createMockChild = (overrides = {}) => ({
   id: 'child-123',
@@ -156,7 +156,7 @@ global.createMockChild = (overrides = {}) => ({
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 global.createMockAIMessage = (overrides = {}) => ({
   id: 'message-123',
@@ -168,7 +168,7 @@ global.createMockAIMessage = (overrides = {}) => ({
   emotion: 'happy',
   createdAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 global.createMockGrowthRecord = (overrides = {}) => ({
   id: 'record-123',
@@ -184,30 +184,30 @@ global.createMockGrowthRecord = (overrides = {}) => ({
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   ...overrides,
-})
+});
 
 // Silence console warnings in tests unless explicitly needed
-const originalError = console.error
+const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
       args[0].includes('Warning: ReactDOM.render is deprecated')
     ) {
-      return
+      return;
     }
-    originalError.call(console, ...args)
-  }
-})
+    originalError.call(console, ...args);
+  };
+});
 
 afterAll(() => {
-  console.error = originalError
-})
+  console.error = originalError;
+});
 
 // Reset all mocks before each test
 beforeEach(() => {
-  jest.clearAllMocks()
-  localStorageMock.clear()
-  sessionStorageMock.clear()
-  fetch.resetMocks()
-})
+  jest.clearAllMocks();
+  localStorageMock.clear();
+  sessionStorageMock.clear();
+  fetch.resetMocks();
+});

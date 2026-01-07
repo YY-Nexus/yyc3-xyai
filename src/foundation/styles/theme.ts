@@ -10,19 +10,19 @@ export const theme = {
     'primary-dark': '#2563EB',
     'primary-light': '#60A5FA',
     'primary-foreground': '#FFFFFF',
-    
+
     // 辅助色
     secondary: '#8B5CF6',
     'secondary-dark': '#7C3AED',
     'secondary-light': '#A78BFA',
     'secondary-foreground': '#FFFFFF',
-    
+
     // 功能色
     success: '#10B981',
     warning: '#F59E0B',
     error: '#EF4444',
     info: '#3B82F6',
-    
+
     // 中性色
     neutral: {
       50: '#F9FAFB',
@@ -37,7 +37,7 @@ export const theme = {
       900: '#111827',
     },
   },
-  
+
   typography: {
     fontFamily: {
       sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -70,7 +70,7 @@ export const theme = {
       bold: '700',
     },
   },
-  
+
   spacing: {
     0: '0px',
     1: '4px',
@@ -89,7 +89,7 @@ export const theme = {
     24: '96px',
     32: '128px',
   },
-  
+
   borderRadius: {
     sm: '0.125rem',
     md: '0.25rem',
@@ -99,7 +99,7 @@ export const theme = {
     '3xl': '1rem',
     full: '9999px',
   },
-  
+
   boxShadow: {
     sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
     md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',

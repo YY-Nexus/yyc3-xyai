@@ -20,9 +20,7 @@ router.use(authMiddleware);
 
 // 输入验证规则
 const createGrowthRecordValidation = [
-  body('childId')
-    .isUUID()
-    .withMessage('Invalid child ID format'),
+  body('childId').isUUID().withMessage('Invalid child ID format'),
   body('title')
     .trim()
     .isLength({ min: 1, max: 255 })
@@ -33,7 +31,14 @@ const createGrowthRecordValidation = [
     .isLength({ max: 2000 })
     .withMessage('Description cannot exceed 2000 characters'),
   body('category')
-    .isIn(['milestone', 'daily', 'achievement', 'health', 'education', 'social'])
+    .isIn([
+      'milestone',
+      'daily',
+      'achievement',
+      'health',
+      'education',
+      'social',
+    ])
     .withMessage('Invalid category'),
   body('mediaUrls')
     .optional()
@@ -43,10 +48,7 @@ const createGrowthRecordValidation = [
     .optional()
     .isURL()
     .withMessage('Each media URL must be a valid URL'),
-  body('tags')
-    .optional()
-    .isArray()
-    .withMessage('Tags must be an array'),
+  body('tags').optional().isArray().withMessage('Tags must be an array'),
   body('tags.*')
     .optional()
     .trim()
@@ -76,7 +78,14 @@ const updateGrowthRecordValidation = [
     .withMessage('Description cannot exceed 2000 characters'),
   body('category')
     .optional()
-    .isIn(['milestone', 'daily', 'achievement', 'health', 'education', 'social'])
+    .isIn([
+      'milestone',
+      'daily',
+      'achievement',
+      'health',
+      'education',
+      'social',
+    ])
     .withMessage('Invalid category'),
   body('mediaUrls')
     .optional()
@@ -86,10 +95,7 @@ const updateGrowthRecordValidation = [
     .optional()
     .isURL()
     .withMessage('Each media URL must be a valid URL'),
-  body('tags')
-    .optional()
-    .isArray()
-    .withMessage('Tags must be an array'),
+  body('tags').optional().isArray().withMessage('Tags must be an array'),
   body('tags.*')
     .optional()
     .trim()

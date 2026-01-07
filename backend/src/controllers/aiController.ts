@@ -3,7 +3,12 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from '@/config/database';
 import { redis } from '@/config/database';
-import { catchAsync, createNotFoundError, createValidationError, createUnauthorizedError } from '@/middleware/errorHandler';
+import {
+  catchAsync,
+  createNotFoundError,
+  createValidationError,
+  createUnauthorizedError,
+} from '@/middleware/errorHandler';
 import { Logger } from '@/config/logger';
 
 const logger = Logger.getInstance();
@@ -11,8 +16,17 @@ const logger = Logger.getInstance();
 // 输入验证schemas
 const chatSchema = z.object({
   childId: z.string().uuid('Invalid child ID'),
-  message: z.string().min(1, 'Message is required').max(2000, 'Message too long'),
-  aiRole: z.enum(['recorder', 'guardian', 'listener', 'advisor', 'cultural_mentor']),
+  message: z
+    .string()
+    .min(1, 'Message is required')
+    .max(2000, 'Message too long'),
+  aiRole: z.enum([
+    'recorder',
+    'guardian',
+    'listener',
+    'advisor',
+    'cultural_mentor',
+  ]),
   sessionId: z.string().optional(),
 });
 
@@ -25,28 +39,37 @@ const emotionAnalysisSchema = z.object({
 const aiRoleConfigs = {
   recorder: {
     name: '记录者',
-    systemPrompt: '你是记录者小语，负责记录孩子的成长瞬间。请用温柔、亲切的语气与孩子和家长交流，帮助他们保存珍贵的回忆。你专注于记录和保存孩子的成长故事。',
+    systemPrompt:
+      '你是记录者小语，负责记录孩子的成长瞬间。请用温柔、亲切的语气与孩子和家长交流，帮助他们保存珍贵的回忆。你专注于记录和保存孩子的成长故事。',
   },
   guardian: {
     name: '守护者',
-    systemPrompt: '你是守护者小语，负责保护孩子的安全。请时刻保持警惕，识别潜在风险，为孩子创造安全的成长环境。',
+    systemPrompt:
+      '你是守护者小语，负责保护孩子的安全。请时刻保持警惕，识别潜在风险，为孩子创造安全的成长环境。',
   },
   listener: {
     name: '聆听者',
-    systemPrompt: '你是聆听者小语，专门倾听孩子的心声。请用耐心和同理心与孩子交流，理解他们的情感需求，提供温暖的陪伴。',
+    systemPrompt:
+      '你是聆听者小语，专门倾听孩子的心声。请用耐心和同理心与孩子交流，理解他们的情感需求，提供温暖的陪伴。',
   },
   advisor: {
     name: '建议者',
-    systemPrompt: '你是建议者小语，负责提供专业的成长建议。请基于儿童发展心理学，为孩子和家长提供科学、实用的指导建议。',
+    systemPrompt:
+      '你是建议者小语，负责提供专业的成长建议。请基于儿童发展心理学，为孩子和家长提供科学、实用的指导建议。',
   },
   cultural_mentor: {
     name: '国粹导师',
-    systemPrompt: '你是国粹导师小语，负责传承中华优秀传统文化。请用通俗易懂的方式，向孩子介绍国学知识，培养文化自信。',
+    systemPrompt:
+      '你是国粹导师小语，负责传承中华优秀传统文化。请用通俗易懂的方式，向孩子介绍国学知识，培养文化自信。',
   },
 };
 
 // 模拟OpenAI API调用（实际项目中需要集成真实的AI服务）
-const simulateAIResponse = async (message: string, aiRole: string, childContext?: any): Promise<string> => {
+const simulateAIResponse = async (
+  message: string,
+  aiRole: string,
+  childContext?: any
+): Promise<string> => {
   const roleConfig = aiRoleConfigs[aiRole as keyof typeof aiRoleConfigs];
 
   // 模拟AI处理延迟
@@ -82,7 +105,8 @@ const simulateAIResponse = async (message: string, aiRole: string, childContext?
   };
 
   const roleResponses = responses[aiRole as keyof typeof responses];
-  const randomResponse = roleResponses[Math.floor(Math.random() * roleResponses.length)];
+  const randomResponse =
+    roleResponses[Math.floor(Math.random() * roleResponses.length)];
 
   return `${randomResponse}\n\n${roleConfig.systemPrompt.substring(0, 100)}...`;
 };
@@ -90,7 +114,14 @@ const simulateAIResponse = async (message: string, aiRole: string, childContext?
 // 情感分析
 const analyzeEmotion = async (text: string): Promise<string> => {
   // 模拟情感分析
-  const emotions = ['happy', 'excited', 'curious', 'calm', 'proud', 'thoughtful'];
+  const emotions = [
+    'happy',
+    'excited',
+    'curious',
+    'calm',
+    'proud',
+    'thoughtful',
+  ];
   await new Promise(resolve => setTimeout(resolve, 200));
   return emotions[Math.floor(Math.random() * emotions.length)];
 };
@@ -155,10 +186,9 @@ export const chat = catchAsync(async (req: Request, res: Response) => {
   );
 
   // 更新儿童最后活动时间
-  await db.query(
-    'UPDATE children SET updated_at = NOW() WHERE id = $1',
-    [validatedData.childId]
-  );
+  await db.query('UPDATE children SET updated_at = NOW() WHERE id = $1', [
+    validatedData.childId,
+  ]);
 
   // 缓存会话信息
   await redis.setex(
@@ -176,7 +206,14 @@ export const chat = catchAsync(async (req: Request, res: Response) => {
   await db.query(
     `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, ip_address, user_agent)
      VALUES ($1, $2, $3, $4, $5, $6)`,
-    [userId, 'AI_CHAT', 'ai_conversation', sessionId, req.ip, req.get('User-Agent')]
+    [
+      userId,
+      'AI_CHAT',
+      'ai_conversation',
+      sessionId,
+      req.ip,
+      req.get('User-Agent'),
+    ]
   );
 
   logger.info('AI chat completed successfully', {
@@ -194,7 +231,8 @@ export const chat = catchAsync(async (req: Request, res: Response) => {
       message: validatedData.message,
       aiResponse,
       aiRole: validatedData.aiRole,
-      aiRoleName: aiRoleConfigs[validatedData.aiRole as keyof typeof aiRoleConfigs].name,
+      aiRoleName:
+        aiRoleConfigs[validatedData.aiRole as keyof typeof aiRoleConfigs].name,
       emotion,
       context,
     },
@@ -219,83 +257,91 @@ export const getChatHistory = async (sessionId: string, limit: number = 50) => {
 };
 
 // 获取对话历史
-export const getConversationHistory = catchAsync(async (req: Request, res: Response) => {
-  const userId = (req as any).user?.id;
+export const getConversationHistory = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = (req as any).user?.id;
 
-  if (!userId) {
-    throw createUnauthorizedError('User not authenticated');
-  }
+    if (!userId) {
+      throw createUnauthorizedError('User not authenticated');
+    }
 
-  const { childId } = req.params;
-  const { page = 1, limit = 20, sessionId } = req.query;
+    const { childId } = req.params;
+    const { page = 1, limit = 20, sessionId } = req.query;
 
-  // 验证儿童是否属于当前用户
-  const childResult = await db.query(
-    'SELECT id FROM children WHERE id = $1 AND user_id = $2 AND is_active = true',
-    [childId, userId]
-  );
+    // 验证儿童是否属于当前用户
+    const childResult = await db.query(
+      'SELECT id FROM children WHERE id = $1 AND user_id = $2 AND is_active = true',
+      [childId, userId]
+    );
 
-  if (childResult.rows.length === 0) {
-    throw createNotFoundError('Child not found');
-  }
+    if (childResult.rows.length === 0) {
+      throw createNotFoundError('Child not found');
+    }
 
-  const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+    const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
-  let query = `
+    let query = `
     SELECT id, session_id, user_message, ai_response, ai_role, emotion, created_at
     FROM ai_conversations
     WHERE child_id = $1
   `;
 
-  const params: any[] = [childId];
+    const params: any[] = [childId];
 
-  if (sessionId) {
-    query += ' AND session_id = $2';
-    params.push(sessionId);
-  }
+    if (sessionId) {
+      query += ' AND session_id = $2';
+      params.push(sessionId);
+    }
 
-  query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
-  params.push(parseInt(limit as string), offset);
+    query +=
+      ' ORDER BY created_at DESC LIMIT $' +
+      (params.length + 1) +
+      ' OFFSET $' +
+      (params.length + 2);
+    params.push(parseInt(limit as string), offset);
 
-  const result = await db.query(query, params);
+    const result = await db.query(query, params);
 
-  // 获取总数
-  let countQuery = 'SELECT COUNT(*) as total FROM ai_conversations WHERE child_id = $1';
-  const countParams = [childId];
+    // 获取总数
+    let countQuery =
+      'SELECT COUNT(*) as total FROM ai_conversations WHERE child_id = $1';
+    const countParams = [childId];
 
-  if (sessionId) {
-    countQuery += ' AND session_id = $2';
-    countParams.push(sessionId);
-  }
+    if (sessionId) {
+      countQuery += ' AND session_id = $2';
+      countParams.push(sessionId);
+    }
 
-  const countResult = await db.query(countQuery, countParams);
-  const total = parseInt(countResult.rows[0].total);
+    const countResult = await db.query(countQuery, countParams);
+    const total = parseInt(countResult.rows[0].total);
 
-  res.json({
-    success: true,
-    data: {
-      conversations: result.rows.map(conv => ({
-        id: conv.id,
-        sessionId: conv.session_id,
-        userMessage: conv.user_message,
-        aiResponse: conv.ai_response,
-        aiRole: conv.ai_role,
-        aiRoleName: aiRoleConfigs[conv.ai_role as keyof typeof aiRoleConfigs].name,
-        emotion: conv.emotion,
-        createdAt: conv.created_at,
-      })),
-      pagination: {
-        page: parseInt(page as string),
-        limit: parseInt(limit as string),
-        total,
-        pages: Math.ceil(total / parseInt(limit as string)),
+    res.json({
+      success: true,
+      data: {
+        conversations: result.rows.map(conv => ({
+          id: conv.id,
+          sessionId: conv.session_id,
+          userMessage: conv.user_message,
+          aiResponse: conv.ai_response,
+          aiRole: conv.ai_role,
+          aiRoleName:
+            aiRoleConfigs[conv.ai_role as keyof typeof aiRoleConfigs].name,
+          emotion: conv.emotion,
+          createdAt: conv.created_at,
+        })),
+        pagination: {
+          page: parseInt(page as string),
+          limit: parseInt(limit as string),
+          total,
+          pages: Math.ceil(total / parseInt(limit as string)),
+        },
       },
-    },
-    meta: {
-      timestamp: new Date().toISOString(),
-    },
-  });
-});
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+);
 
 // 获取会话列表
 export const getSessions = catchAsync(async (req: Request, res: Response) => {
@@ -356,46 +402,57 @@ export const getSessions = catchAsync(async (req: Request, res: Response) => {
 });
 
 // 删除对话
-export const deleteConversation = catchAsync(async (req: Request, res: Response) => {
-  const userId = (req as any).user?.id;
+export const deleteConversation = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = (req as any).user?.id;
 
-  if (!userId) {
-    throw createUnauthorizedError('User not authenticated');
-  }
+    if (!userId) {
+      throw createUnauthorizedError('User not authenticated');
+    }
 
-  const { conversationId } = req.params;
+    const { conversationId } = req.params;
 
-  // 验证对话是否属于当前用户
-  const result = await db.query(
-    `SELECT ac.id
+    // 验证对话是否属于当前用户
+    const result = await db.query(
+      `SELECT ac.id
      FROM ai_conversations ac
      JOIN children c ON ac.child_id = c.id
      WHERE ac.id = $1 AND c.user_id = $2`,
-    [conversationId, userId]
-  );
+      [conversationId, userId]
+    );
 
-  if (result.rows.length === 0) {
-    throw createNotFoundError('Conversation not found');
-  }
+    if (result.rows.length === 0) {
+      throw createNotFoundError('Conversation not found');
+    }
 
-  // 删除对话
-  await db.query('DELETE FROM ai_conversations WHERE id = $1', [conversationId]);
+    // 删除对话
+    await db.query('DELETE FROM ai_conversations WHERE id = $1', [
+      conversationId,
+    ]);
 
-  // 记录审计日志
-  await db.query(
-    `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, ip_address, user_agent)
+    // 记录审计日志
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, ip_address, user_agent)
      VALUES ($1, $2, $3, $4, $5, $6)`,
-    [userId, 'CONVERSATION_DELETE', 'ai_conversation', conversationId, req.ip, req.get('User-Agent')]
-  );
+      [
+        userId,
+        'CONVERSATION_DELETE',
+        'ai_conversation',
+        conversationId,
+        req.ip,
+        req.get('User-Agent'),
+      ]
+    );
 
-  res.json({
-    success: true,
-    message: 'Conversation deleted successfully',
-    meta: {
-      timestamp: new Date().toISOString(),
-    },
-  });
-});
+    res.json({
+      success: true,
+      message: 'Conversation deleted successfully',
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    });
+  }
+);
 
 // 获取AI角色信息
 export const getAIRoles = catchAsync(async (req: Request, res: Response) => {
@@ -422,30 +479,32 @@ export const getAIRoles = catchAsync(async (req: Request, res: Response) => {
 });
 
 // 情感分析
-export const analyzeEmotionEndpoint = catchAsync(async (req: Request, res: Response) => {
-  const userId = (req as any).user?.id;
+export const analyzeEmotionEndpoint = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = (req as any).user?.id;
 
-  if (!userId) {
-    throw createUnauthorizedError('User not authenticated');
+    if (!userId) {
+      throw createUnauthorizedError('User not authenticated');
+    }
+
+    // 验证输入数据
+    const validatedData = emotionAnalysisSchema.parse(req.body);
+
+    // 分析情感
+    const emotion = await analyzeEmotion(validatedData.text);
+
+    res.json({
+      success: true,
+      data: {
+        emotion,
+        confidence: Math.random() * 0.5 + 0.5, // 模拟置信度 0.5-1.0
+      },
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    });
   }
-
-  // 验证输入数据
-  const validatedData = emotionAnalysisSchema.parse(req.body);
-
-  // 分析情感
-  const emotion = await analyzeEmotion(validatedData.text);
-
-  res.json({
-    success: true,
-    data: {
-      emotion,
-      confidence: Math.random() * 0.5 + 0.5, // 模拟置信度 0.5-1.0
-    },
-    meta: {
-      timestamp: new Date().toISOString(),
-    },
-  });
-});
+);
 
 // 获取AI聊天统计
 export const getChatStats = catchAsync(async (req: Request, res: Response) => {
@@ -528,7 +587,10 @@ export const getChatStats = catchAsync(async (req: Request, res: Response) => {
         totalConversations: parseInt(stats.total_conversations),
         uniqueSessions: parseInt(stats.unique_sessions),
         activeDays: parseInt(stats.active_days),
-        averagePerDay: days > 0 ? (parseInt(stats.total_conversations) / days).toFixed(2) : 0,
+        averagePerDay:
+          days > 0
+            ? (parseInt(stats.total_conversations) / days).toFixed(2)
+            : 0,
       },
       roleUsage: {
         recorder: parseInt(stats.recorder_count),

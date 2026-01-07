@@ -11,7 +11,10 @@ import {
   deleteSession,
 } from '@/controllers/authController';
 import { authMiddleware, refreshTokenMiddleware } from '@/middleware/auth';
-import { authRateLimitMiddleware, passwordResetRateLimitMiddleware } from '@/middleware/rateLimiter';
+import {
+  authRateLimitMiddleware,
+  passwordResetRateLimitMiddleware,
+} from '@/middleware/rateLimiter';
 import { validateRequest } from '@/middleware/validation';
 
 const router = Router();
@@ -26,7 +29,9 @@ const registerValidation = [
     .isLength({ min: 8 })
     .withMessage('Password must be at least 8 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
+    .withMessage(
+      'Password must contain at least one lowercase letter, one uppercase letter, and one number'
+    ),
   body('firstName')
     .trim()
     .isLength({ min: 1, max: 100 })
@@ -46,9 +51,7 @@ const loginValidation = [
     .isEmail()
     .withMessage('Please provide a valid email address')
     .normalizeEmail(),
-  body('password')
-    .notEmpty()
-    .withMessage('Password is required'),
+  body('password').notEmpty().withMessage('Password is required'),
 ];
 
 const changePasswordValidation = [
@@ -59,7 +62,9 @@ const changePasswordValidation = [
     .isLength({ min: 8 })
     .withMessage('New password must be at least 8 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number'),
+    .withMessage(
+      'New password must contain at least one lowercase letter, one uppercase letter, and one number'
+    ),
 ];
 
 const updateProfileValidation = [
@@ -84,8 +89,20 @@ const updateProfileValidation = [
 ];
 
 // 公开路由（不需要认证）
-router.post('/register', authRateLimitMiddleware, registerValidation, validateRequest, register);
-router.post('/login', authRateLimitMiddleware, loginValidation, validateRequest, login);
+router.post(
+  '/register',
+  authRateLimitMiddleware,
+  registerValidation,
+  validateRequest,
+  register
+);
+router.post(
+  '/login',
+  authRateLimitMiddleware,
+  loginValidation,
+  validateRequest,
+  login
+);
 router.post('/refresh-token', refreshTokenMiddleware);
 
 // 需要认证的路由
@@ -93,7 +110,13 @@ router.use(authMiddleware); // 应用认证中间件到以下所有路由
 
 router.get('/profile', getProfile);
 router.put('/profile', updateProfileValidation, validateRequest, updateProfile);
-router.put('/change-password', passwordResetRateLimitMiddleware, changePasswordValidation, validateRequest, changePassword);
+router.put(
+  '/change-password',
+  passwordResetRateLimitMiddleware,
+  changePasswordValidation,
+  validateRequest,
+  changePassword
+);
 router.post('/logout', logout);
 
 // 会话管理

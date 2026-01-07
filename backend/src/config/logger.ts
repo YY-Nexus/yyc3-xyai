@@ -13,7 +13,7 @@ export enum LogLevel {
   HTTP = 'http',
   VERBOSE = 'verbose',
   DEBUG = 'debug',
-  SILLY = 'silly'
+  SILLY = 'silly',
 }
 
 const mapLogLevel = (level: ConfigLogLevel): string => {
@@ -24,7 +24,7 @@ const mapLogLevel = (level: ConfigLogLevel): string => {
     http: 'http',
     verbose: 'verbose',
     debug: 'debug',
-    silly: 'silly'
+    silly: 'silly',
   };
   return levelMap[level] || 'info';
 };
@@ -32,7 +32,7 @@ const mapLogLevel = (level: ConfigLogLevel): string => {
 // 日志格式
 const logFormat = winston.format.combine(
   winston.format.timestamp({
-    format: 'YYYY-MM-DD HH:mm:ss'
+    format: 'YYYY-MM-DD HH:mm:ss',
   }),
   winston.format.errors({ stack: true }),
   winston.format.json(),
@@ -43,7 +43,7 @@ const logFormat = winston.format.combine(
 const consoleFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({
-    format: 'HH:mm:ss'
+    format: 'HH:mm:ss',
   }),
   winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
     let msg = `${timestamp} [${level}]: ${message}`;
@@ -68,7 +68,7 @@ const transports: winston.transport[] = [
     level: logLevel,
     format: consoleFormat,
     handleExceptions: true,
-    handleRejections: true
+    handleRejections: true,
   }),
 ];
 
@@ -155,7 +155,7 @@ export class Logger {
     this.baseLogger.info(`Performance: ${operation}`, {
       operation,
       duration: `${duration}ms`,
-      ...meta
+      ...meta,
     });
   }
 
@@ -164,7 +164,7 @@ export class Logger {
     this.baseLogger.warn(`Security: ${event}`, {
       event,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 
@@ -174,38 +174,54 @@ export class Logger {
       action,
       userId,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 
   // API调用日志
-  public api(method: string, url: string, statusCode: number, duration: number, meta?: any): void {
+  public api(
+    method: string,
+    url: string,
+    statusCode: number,
+    duration: number,
+    meta?: any
+  ): void {
     this.baseLogger.http(`API: ${method} ${url}`, {
       method,
       url,
       statusCode,
       duration: `${duration}ms`,
-      ...meta
+      ...meta,
     });
   }
 
   // 数据库操作日志
-  public database(operation: string, table: string, duration: number, meta?: any): void {
+  public database(
+    operation: string,
+    table: string,
+    duration: number,
+    meta?: any
+  ): void {
     this.baseLogger.debug(`Database: ${operation} on ${table}`, {
       operation,
       table,
       duration: `${duration}ms`,
-      ...meta
+      ...meta,
     });
   }
 
   // 缓存操作日志
-  public cache(operation: string, key: string, hit?: boolean, meta?: any): void {
+  public cache(
+    operation: string,
+    key: string,
+    hit?: boolean,
+    meta?: any
+  ): void {
     this.baseLogger.debug(`Cache: ${operation} ${key}`, {
       operation,
       key,
       hit,
-      ...meta
+      ...meta,
     });
   }
 
@@ -215,7 +231,7 @@ export class Logger {
       userId,
       activity,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 
@@ -224,7 +240,7 @@ export class Logger {
     this.baseLogger.info(`System: ${event}`, {
       event,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 
@@ -236,7 +252,7 @@ export class Logger {
       name: error.name,
       context,
       timestamp: new Date().toISOString(),
-      ...meta
+      ...meta,
     });
   }
 

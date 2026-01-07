@@ -1,15 +1,21 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  orderBy, 
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
   where,
-  Timestamp 
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
@@ -26,13 +32,20 @@ interface BirthdayContextType {
   birthdayWishes: BirthdayWish[];
   loading: boolean;
   error: string | null;
-  createBirthdayWish: (wish: Omit<BirthdayWish, 'id' | 'createdAt'>) => Promise<void>;
+  createBirthdayWish: (
+    wish: Omit<BirthdayWish, 'id' | 'createdAt'>
+  ) => Promise<void>;
   fetchBirthdayWishes: () => Promise<void>;
-  updateBirthdayWish: (id: string, updates: Partial<BirthdayWish>) => Promise<void>;
+  updateBirthdayWish: (
+    id: string,
+    updates: Partial<BirthdayWish>
+  ) => Promise<void>;
   deleteBirthdayWish: (id: string) => Promise<void>;
 }
 
-const BirthdayContext = createContext<BirthdayContextType | undefined>(undefined);
+const BirthdayContext = createContext<BirthdayContextType | undefined>(
+  undefined
+);
 
 export const useBirthday = () => {
   const context = useContext(BirthdayContext);
@@ -46,7 +59,9 @@ interface BirthdayProviderProps {
   children: ReactNode;
 }
 
-export const BirthdayProvider: React.FC<BirthdayProviderProps> = ({ children }) => {
+export const BirthdayProvider: React.FC<BirthdayProviderProps> = ({
+  children,
+}) => {
   const [birthdayWishes, setBirthdayWishes] = useState<BirthdayWish[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,27 +70,28 @@ export const BirthdayProvider: React.FC<BirthdayProviderProps> = ({ children }) 
     try {
       setLoading(true);
       setError(null);
-      
+
       const wishesQuery = query(
         collection(db, 'birthdayWishes'),
         orderBy('createdAt', 'desc')
       );
-      
+
       const querySnapshot = await getDocs(wishesQuery);
       const wishes: BirthdayWish[] = [];
-      
-      querySnapshot.forEach((doc) => {
+
+      querySnapshot.forEach(doc => {
         const data = doc.data();
         wishes.push({
           id: doc.id,
           recipientName: data.recipientName,
           message: data.message,
           senderName: data.senderName,
-          createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
-          isPublic: data.isPublic !== false // 默认为公开
+          createdAt:
+            data.createdAt?.toDate().toISOString() || new Date().toISOString(),
+          isPublic: data.isPublic !== false, // 默认为公开
         });
       });
-      
+
       setBirthdayWishes(wishes);
     } catch (err) {
       console.error('获取生日祝福失败:', err);
@@ -85,20 +101,22 @@ export const BirthdayProvider: React.FC<BirthdayProviderProps> = ({ children }) 
     }
   };
 
-  const createBirthdayWish = async (wish: Omit<BirthdayWish, 'id' | 'createdAt'>) => {
+  const createBirthdayWish = async (
+    wish: Omit<BirthdayWish, 'id' | 'createdAt'>
+  ) => {
     try {
       const docRef = await addDoc(collection(db, 'birthdayWishes'), {
         ...wish,
-        createdAt: Timestamp.now()
+        createdAt: Timestamp.now(),
       });
-      
+
       // 添加到本地状态
       const newWish: BirthdayWish = {
         id: docRef.id,
         ...wish,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
-      
+
       setBirthdayWishes(prev => [newWish, ...prev]);
     } catch (err) {
       console.error('创建生日祝福失败:', err);
@@ -107,16 +125,17 @@ export const BirthdayProvider: React.FC<BirthdayProviderProps> = ({ children }) 
     }
   };
 
-  const updateBirthdayWish = async (id: string, updates: Partial<BirthdayWish>) => {
+  const updateBirthdayWish = async (
+    id: string,
+    updates: Partial<BirthdayWish>
+  ) => {
     try {
       const wishRef = doc(db, 'birthdayWishes', id);
       await updateDoc(wishRef, updates);
-      
+
       // 更新本地状态
-      setBirthdayWishes(prev => 
-        prev.map(wish => 
-          wish.id === id ? { ...wish, ...updates } : wish
-        )
+      setBirthdayWishes(prev =>
+        prev.map(wish => (wish.id === id ? { ...wish, ...updates } : wish))
       );
     } catch (err) {
       console.error('更新生日祝福失败:', err);
@@ -128,7 +147,7 @@ export const BirthdayProvider: React.FC<BirthdayProviderProps> = ({ children }) 
   const deleteBirthdayWish = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'birthdayWishes', id));
-      
+
       // 从本地状态中移除
       setBirthdayWishes(prev => prev.filter(wish => wish.id !== id));
     } catch (err) {
@@ -149,7 +168,7 @@ export const BirthdayProvider: React.FC<BirthdayProviderProps> = ({ children }) 
     createBirthdayWish,
     fetchBirthdayWishes,
     updateBirthdayWish,
-    deleteBirthdayWish
+    deleteBirthdayWish,
   };
 
   return (

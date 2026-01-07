@@ -9,7 +9,7 @@
  * @license MIT
  */
 
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'events';
 import type {
   GoalModel,
   OKRFramework,
@@ -27,216 +27,226 @@ import type {
   ValueMetrics,
   RiskAssessment,
   Collaboration,
-  LessonsLearned
-} from '../types/goals/common'
+  LessonsLearned,
+} from '../types/goals/common';
 
 export interface GoalPlanning {
-  milestones: Milestone[]
-  tasks: Task[]
-  timeline: { startDate: Date; endDate: Date; checkpoints: Date[] }
-  resources: { type: string; quantity: number; cost?: number }[]
-  dependencies: Array<{ taskId: string; dependsOn: string[] }>
-  riskMitigation: Array<{ risk: string; mitigation: string; owner: string }>
+  milestones: Milestone[];
+  tasks: Task[];
+  timeline: { startDate: Date; endDate: Date; checkpoints: Date[] };
+  resources: { type: string; quantity: number; cost?: number }[];
+  dependencies: Array<{ taskId: string; dependsOn: string[] }>;
+  riskMitigation: Array<{ risk: string; mitigation: string; owner: string }>;
 }
 
 export interface GoalAdjustment {
-  goalId: string
+  goalId: string;
   adjustments: Array<{
-    type: 'timeline' | 'scope' | 'resources' | 'priority'
-    description: string
-    impact: string
-    approvedBy: string
-  }>
-  newTimeline?: { startDate: Date; endDate: Date }
-  newScope?: string[]
-  resourceChanges?: Array<{ type: string; change: number; reason: string }>
-  riskMitigation: Array<{ risk: string; action: string; owner: string; deadline: Date }>
+    type: 'timeline' | 'scope' | 'resources' | 'priority';
+    description: string;
+    impact: string;
+    approvedBy: string;
+  }>;
+  newTimeline?: { startDate: Date; endDate: Date };
+  newScope?: string[];
+  resourceChanges?: Array<{ type: string; change: number; reason: string }>;
+  riskMitigation: Array<{
+    risk: string;
+    action: string;
+    owner: string;
+    deadline: Date;
+  }>;
 }
 
 export interface GoalCompletion {
-  goalId: string
-  completionDate: Date
-  finalStatus: 'completed' | 'partially_completed' | 'cancelled'
-  actualDuration: number
-  finalCost: number
-  achievements: string[]
-  deliverables: Array<{ name: string; status: string; quality: number }>
-  lessons: string[]
+  goalId: string;
+  completionDate: Date;
+  finalStatus: 'completed' | 'partially_completed' | 'cancelled';
+  actualDuration: number;
+  finalCost: number;
+  achievements: string[];
+  deliverables: Array<{ name: string; status: string; quality: number }>;
+  lessons: string[];
 }
 
 export interface ProgressData {
-  completedTasks: number
-  totalTasks: number
-  completedMilestones: number
-  totalMilestones: number
-  timeElapsed: number
-  timeRemaining: number
-  resourceUsage: Record<string, number>
-  blockers: Blocker[]
-  [key: string]: unknown
+  completedTasks: number;
+  totalTasks: number;
+  completedMilestones: number;
+  totalMilestones: number;
+  timeElapsed: number;
+  timeRemaining: number;
+  resourceUsage: Record<string, number>;
+  blockers: Blocker[];
+  [key: string]: unknown;
 }
 
 export interface MilestonesProgress {
-  completed: Milestone[]
-  inProgress: Milestone[]
-  pending: Milestone[]
-  completionRate: number
+  completed: Milestone[];
+  inProgress: Milestone[];
+  pending: Milestone[];
+  completionRate: number;
 }
 
 export interface ResourceUtilization {
-  humanResources: { used: number; total: number; utilization: number }
-  financialResources: { used: number; total: number; utilization: number }
-  timeResources: { used: number; total: number; utilization: number }
-  overallUtilization: number
+  humanResources: { used: number; total: number; utilization: number };
+  financialResources: { used: number; total: number; utilization: number };
+  timeResources: { used: number; total: number; utilization: number };
+  overallUtilization: number;
 }
 
 export interface CurrentRisks {
-  riskLevel: 'low' | 'medium' | 'high' | 'critical'
-  activeRisks: Array<{ id: string; description: string; impact: string; probability: number }>
-  riskScore: number
-  mitigationStatus: string
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  activeRisks: Array<{
+    id: string;
+    description: string;
+    impact: string;
+    probability: number;
+  }>;
+  riskScore: number;
+  mitigationStatus: string;
 }
 
 export interface AdjustmentNeeds {
-  needsAdjustment: boolean
-  adjustmentType?: 'timeline' | 'scope' | 'resources' | 'priority'
-  urgency: 'low' | 'medium' | 'high'
-  reason: string
-  [key: string]: unknown
+  needsAdjustment: boolean;
+  adjustmentType?: 'timeline' | 'scope' | 'resources' | 'priority';
+  urgency: 'low' | 'medium' | 'high';
+  reason: string;
+  [key: string]: unknown;
 }
 
 export interface AdjustmentSuggestion {
-  type: 'timeline' | 'scope' | 'resources' | 'priority'
-  description: string
-  impact: string
-  effort: 'low' | 'medium' | 'high'
-  priority: number
+  type: 'timeline' | 'scope' | 'resources' | 'priority';
+  description: string;
+  impact: string;
+  effort: 'low' | 'medium' | 'high';
+  priority: number;
 }
 
 export interface NewTimeline {
-  startDate: Date
-  endDate: Date
-  checkpoints: Date[]
-  adjustedReason: string
-  impact: string
+  startDate: Date;
+  endDate: Date;
+  checkpoints: Date[];
+  adjustedReason: string;
+  impact: string;
 }
 
 export interface ResourceChange {
-  type: string
-  change: number
-  reason: string
-  current: number
-  proposed: number
+  type: string;
+  change: number;
+  reason: string;
+  current: number;
+  proposed: number;
 }
 
 export interface RiskMitigationUpdate {
-  risk: string
-  action: string
-  owner: string
-  deadline: Date
-  status: 'pending' | 'in_progress' | 'completed'
+  risk: string;
+  action: string;
+  owner: string;
+  deadline: Date;
+  status: 'pending' | 'in_progress' | 'completed';
 }
 
 export interface DeliverableAssessment {
-  name: string
-  status: 'completed' | 'in_progress' | 'pending' | 'cancelled'
-  quality: number
-  completionDate?: Date
-  notes?: string
+  name: string;
+  status: 'completed' | 'in_progress' | 'pending' | 'cancelled';
+  quality: number;
+  completionDate?: Date;
+  notes?: string;
 }
 
 export interface ValueData {
-  roi: number
-  businessImpact: number
-  userSatisfaction: number
-  technicalOutcomes: Record<string, unknown>
-  financialBenefits: Record<string, unknown>
-  [key: string]: unknown
+  roi: number;
+  businessImpact: number;
+  userSatisfaction: number;
+  technicalOutcomes: Record<string, unknown>;
+  financialBenefits: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export interface BusinessImpact {
-  score: number
-  description: string
-  areas: string[]
-  metrics: Record<string, number>
+  score: number;
+  description: string;
+  areas: string[];
+  metrics: Record<string, number>;
 }
 
 export interface TechnicalOutcomes {
-  codeQuality: number
-  performance: number
-  security: number
-  scalability: number
-  maintainability: number
-  [key: string]: unknown
+  codeQuality: number;
+  performance: number;
+  security: number;
+  scalability: number;
+  maintainability: number;
+  [key: string]: unknown;
 }
 
 export interface FinancialBenefits {
-  costSavings: number
-  revenueIncrease: number
-  efficiencyGains: number
-  totalBenefits: number
-  [key: string]: unknown
+  costSavings: number;
+  revenueIncrease: number;
+  efficiencyGains: number;
+  totalBenefits: number;
+  [key: string]: unknown;
 }
 
 export interface OverallMetrics {
-  roi: number
-  businessImpact: BusinessImpact
-  userSatisfaction: number
-  technicalOutcomes: TechnicalOutcomes
-  financialBenefits: FinancialBenefits
+  roi: number;
+  businessImpact: BusinessImpact;
+  userSatisfaction: number;
+  technicalOutcomes: TechnicalOutcomes;
+  financialBenefits: FinancialBenefits;
 }
 
 export interface StakeholderFeedback {
-  stakeholder: string
-  satisfaction: number
-  comments: string
-  suggestions: string[]
+  stakeholder: string;
+  satisfaction: number;
+  comments: string;
+  suggestions: string[];
 }
 
 export interface Pattern {
-  type: string
-  description: string
-  frequency: number
-  impact: string
+  type: string;
+  description: string;
+  frequency: number;
+  impact: string;
 }
 
 export interface FailureAnalysis {
-  failureType: string
-  rootCause: string
-  impact: string
-  lessons: string[]
+  failureType: string;
+  rootCause: string;
+  impact: string;
+  lessons: string[];
 }
 
 export interface KnowledgeInsights {
-  patterns: Pattern[]
-  bestPractices: string[]
-  failureAnalysis: FailureAnalysis
-  improvementRecommendations: string[]
+  patterns: Pattern[];
+  bestPractices: string[];
+  failureAnalysis: FailureAnalysis;
+  improvementRecommendations: string[];
 }
 
 export interface KnowledgeBaseUpdate {
-  type: 'pattern' | 'best_practice' | 'lesson' | 'recommendation'
-  content: string
-  category: string
-  timestamp: Date
+  type: 'pattern' | 'best_practice' | 'lesson' | 'recommendation';
+  content: string;
+  category: string;
+  timestamp: Date;
 }
 
 export interface OKRData {
   objectives: Array<{
-    id: string
-    title: string
-    description: string
+    id: string;
+    title: string;
+    description: string;
     keyResults: Array<{
-      id: string
-      title: string
-      target: number
-      current: number
-      unit: string
-    }>
-  }>
-  period: string
-  owner: string
-  [key: string]: unknown
+      id: string;
+      title: string;
+      target: number;
+      current: number;
+      unit: string;
+    }>;
+  }>;
+  period: string;
+  owner: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -244,44 +254,43 @@ export interface OKRData {
  * 管理从目标创建到学习总结的完整生命周期
  */
 export class GoalManagementSystem extends EventEmitter {
-  private activeGoals: Map<string, GoalDefinition> = new Map()
-  private goalHistory: Map<string, GoalLifecycle> = new Map()
-  private okrFramework: OKRFramework
-  private smartValidator: SMARTValidator
-  private isInitialized = false
+  private activeGoals: Map<string, GoalDefinition> = new Map();
+  private goalHistory: Map<string, GoalLifecycle> = new Map();
+  private okrFramework: OKRFramework;
+  private smartValidator: SMARTValidator;
+  private isInitialized = false;
 
   constructor() {
-    super()
-    this.okrFramework = new OKRFramework()
-    this.smartValidator = new SMARTValidator()
+    super();
+    this.okrFramework = new OKRFramework();
+    this.smartValidator = new SMARTValidator();
   }
 
   /**
    * 初始化目标管理系统
    */
   async initialize(): Promise<void> {
-    if (this.isInitialized) return
+    if (this.isInitialized) return;
 
     try {
-      console.log('🎯 初始化目标管理系统...')
+      console.log('🎯 初始化目标管理系统...');
 
       // 加载历史数据
-      await this.loadGoalHistory()
+      await this.loadGoalHistory();
 
       // 初始化OKR框架
-      await this.okrFramework.initialize()
+      await this.okrFramework.initialize();
 
       // 启动定期检查
-      this.startPeriodicChecks()
+      this.startPeriodicChecks();
 
-      this.isInitialized = true
-      console.log('✅ 目标管理系统初始化完成')
-      this.emit('initialized')
-
+      this.isInitialized = true;
+      console.log('✅ 目标管理系统初始化完成');
+      this.emit('initialized');
     } catch (error) {
-      console.error('❌ 目标管理系统初始化失败:', error)
-      this.emit('initializationError', error)
-      throw error
+      console.error('❌ 目标管理系统初始化失败:', error);
+      this.emit('initializationError', error);
+      throw error;
     }
   }
 
@@ -290,35 +299,35 @@ export class GoalManagementSystem extends EventEmitter {
    */
   async manageGoalLifecycle(goalInput: GoalInput): Promise<GoalLifecycle> {
     if (!this.isInitialized) {
-      throw new Error('目标管理系统未初始化')
+      throw new Error('目标管理系统未初始化');
     }
 
-    const lifecycleId = this.generateLifecycleId()
+    const lifecycleId = this.generateLifecycleId();
 
     try {
       // 1. 目标创建阶段
-      const creation = await this.createGoal(goalInput)
+      const creation = await this.createGoal(goalInput);
 
       // 2. 规划阶段
-      const planning = await this.planGoalExecution(creation)
+      const planning = await this.planGoalExecution(creation);
 
       // 3. 执行阶段
-      const execution = await this.executeGoal(planning)
+      const execution = await this.executeGoal(planning);
 
       // 4. 监控阶段
-      const monitoring = await this.monitorGoalProgress(execution)
+      const monitoring = await this.monitorGoalProgress(execution);
 
       // 5. 调整阶段
-      const adjustment = await this.adjustGoalStrategy(monitoring)
+      const adjustment = await this.adjustGoalStrategy(monitoring);
 
       // 6. 完成阶段
-      const completion = await this.completeGoal(adjustment)
+      const completion = await this.completeGoal(adjustment);
 
       // 7. 评估阶段
-      const evaluation = await this.evaluateGoalValue(completion)
+      const evaluation = await this.evaluateGoalValue(completion);
 
       // 8. 学习阶段
-      const learning = await this.learnFromGoal(evaluation)
+      const learning = await this.learnFromGoal(evaluation);
 
       const lifecycle: GoalLifecycle = {
         id: lifecycleId,
@@ -333,34 +342,35 @@ export class GoalManagementSystem extends EventEmitter {
         learning,
         startTime: new Date(),
         endTime: learning.completedAt,
-        status: 'completed'
-      }
+        status: 'completed',
+      };
 
       // 保存到历史记录
-      this.goalHistory.set(lifecycleId, lifecycle)
+      this.goalHistory.set(lifecycleId, lifecycle);
 
-      this.emit('goalLifecycleCompleted', { lifecycleId, lifecycle })
-      return lifecycle
-
+      this.emit('goalLifecycleCompleted', { lifecycleId, lifecycle });
+      return lifecycle;
     } catch (error) {
-      this.emit('goalLifecycleError', { lifecycleId, error })
-      throw error
+      this.emit('goalLifecycleError', { lifecycleId, error });
+      throw error;
     }
   }
 
   /**
    * 创建目标
    */
-  async createGoal(input: GoalInput): Promise<{ goal: GoalDefinition; validation: SmartCriteria }> {
+  async createGoal(
+    input: GoalInput
+  ): Promise<{ goal: GoalDefinition; validation: SmartCriteria }> {
     try {
       // 生成目标ID
-      const goalId = this.generateGoalId()
+      const goalId = this.generateGoalId();
 
       // SMART验证
-      const validation = await this.smartValidator.validate(input)
+      const validation = await this.smartValidator.validate(input);
 
       if (!validation.isValid) {
-        throw new Error(`目标验证失败: ${validation.violations.join(', ')}`)
+        throw new Error(`目标验证失败: ${validation.violations.join(', ')}`);
       }
 
       // 创建目标定义
@@ -378,61 +388,71 @@ export class GoalManagementSystem extends EventEmitter {
         createdAt: new Date(),
         updatedAt: new Date(),
         status: 'created',
-        progress: 0
-      }
+        progress: 0,
+      };
 
       // 保存到活动目标
-      this.activeGoals.set(goalId, goal)
+      this.activeGoals.set(goalId, goal);
 
       // 创建OKR（如果适用）
       if (input.type === 'okr') {
-        await this.okrFramework.createOKR(goalId, input.okrData!)
+        await this.okrFramework.createOKR(goalId, input.okrData!);
       }
 
-      this.emit('goalCreated', { goal, validation })
-      console.log(`✅ 目标 "${goal.title}" 创建成功`)
+      this.emit('goalCreated', { goal, validation });
+      console.log(`✅ 目标 "${goal.title}" 创建成功`);
 
-      return { goal, validation }
-
+      return { goal, validation };
     } catch (error) {
-      this.emit('goalCreationError', { input, error })
-      throw error
+      this.emit('goalCreationError', { input, error });
+      throw error;
     }
   }
 
   /**
    * 规划目标执行
    */
-  async planGoalExecution(creation: { goal: GoalDefinition; validation: SmartCriteria }): Promise<{
-    milestones: Milestone[]
-    tasks: Task[]
-    timeline: { startDate: Date; endDate: Date; checkpoints: Date[] }
-    resources: { type: string; quantity: number; cost?: number }[]
-    dependencies: Array<{ taskId: string; dependsOn: string[] }>
-    riskMitigation: Array<{ risk: string; mitigation: string; owner: string }>
+  async planGoalExecution(creation: {
+    goal: GoalDefinition;
+    validation: SmartCriteria;
+  }): Promise<{
+    milestones: Milestone[];
+    tasks: Task[];
+    timeline: { startDate: Date; endDate: Date; checkpoints: Date[] };
+    resources: { type: string; quantity: number; cost?: number }[];
+    dependencies: Array<{ taskId: string; dependsOn: string[] }>;
+    riskMitigation: Array<{ risk: string; mitigation: string; owner: string }>;
   }> {
     try {
-      const goal = creation.goal
+      const goal = creation.goal;
 
       // 生成里程碑
-      const milestones = await this.generateMilestones(goal)
+      const milestones = await this.generateMilestones(goal);
 
       // 分解任务
-      const tasks = await this.decomposeGoal(goal, milestones)
+      const tasks = await this.decomposeGoal(goal, milestones);
 
       // 制定时间线
-      const timeline = await this.createTimeline(goal, milestones, tasks)
+      const timeline = await this.createTimeline(goal, milestones, tasks);
 
       // 估算资源需求
-      const resources = await this.estimateResources(goal, tasks)
+      const resources = await this.estimateResources(goal, tasks);
 
       // 分析依赖关系
-      const dependencies = await this.analyzeDependencies(tasks)
+      const dependencies = await this.analyzeDependencies(tasks);
 
       // 制定风险缓解策略
-      const riskMitigation = await this.createRiskMitigation(goal, goal.riskAssessment)
+      const riskMitigation = await this.createRiskMitigation(
+        goal,
+        goal.riskAssessment
+      );
 
-      this.emit('goalPlanned', { goalId: goal.id, milestones, tasks, timeline })
+      this.emit('goalPlanned', {
+        goalId: goal.id,
+        milestones,
+        tasks,
+        timeline,
+      });
 
       return {
         milestones,
@@ -440,12 +460,11 @@ export class GoalManagementSystem extends EventEmitter {
         timeline,
         resources,
         dependencies,
-        riskMitigation
-      }
-
+        riskMitigation,
+      };
     } catch (error) {
-      this.emit('goalPlanningError', { goalId: creation.goal.id, error })
-      throw error
+      this.emit('goalPlanningError', { goalId: creation.goal.id, error });
+      throw error;
     }
   }
 
@@ -453,18 +472,18 @@ export class GoalManagementSystem extends EventEmitter {
    * 执行目标
    */
   async executeGoal(planning: GoalPlanning): Promise<GoalExecution> {
-    const goal = Array.from(this.activeGoals.values())
-      .find(g => g.status === 'created') ||
-      Array.from(this.activeGoals.values())[0]
+    const goal =
+      Array.from(this.activeGoals.values()).find(g => g.status === 'created') ||
+      Array.from(this.activeGoals.values())[0];
 
     if (!goal) {
-      throw new Error('未找到待执行的目标')
+      throw new Error('未找到待执行的目标');
     }
 
     try {
       // 更新目标状态
-      goal.status = 'in_progress'
-      goal.updatedAt = new Date()
+      goal.status = 'in_progress';
+      goal.updatedAt = new Date();
 
       const execution: GoalExecution = {
         goalId: goal.id,
@@ -480,19 +499,18 @@ export class GoalManagementSystem extends EventEmitter {
         milestones: {
           completed: [],
           inProgress: [],
-          pending: planning.milestones?.length || 0
-        }
-      }
+          pending: planning.milestones?.length || 0,
+        },
+      };
 
       // 启动任务执行（异步）
-      this.startTaskExecution(goal.id, planning.tasks, execution)
+      this.startTaskExecution(goal.id, planning.tasks, execution);
 
-      this.emit('goalExecutionStarted', { goalId: goal.id, execution })
-      return execution
-
+      this.emit('goalExecutionStarted', { goalId: goal.id, execution });
+      return execution;
     } catch (error) {
-      this.emit('goalExecutionError', { goalId: goal.id, error })
-      throw error
+      this.emit('goalExecutionError', { goalId: goal.id, error });
+      throw error;
     }
   }
 
@@ -502,19 +520,21 @@ export class GoalManagementSystem extends EventEmitter {
   async monitorGoalProgress(execution: GoalExecution): Promise<GoalProgress> {
     try {
       // 收集进度数据
-      const progressData = await this.collectProgressData(execution.goalId)
+      const progressData = await this.collectProgressData(execution.goalId);
 
       // 检测阻塞因素
-      const blockers = await this.detectBlockers(execution.goalId)
+      const blockers = await this.detectBlockers(execution.goalId);
 
       // 计算完成度
-      const completionRate = this.calculateCompletionRate(execution.goalId)
+      const completionRate = this.calculateCompletionRate(execution.goalId);
 
       // 评估健康状况
-      const healthScore = await this.assessGoalHealth(execution.goalId)
+      const healthScore = await this.assessGoalHealth(execution.goalId);
 
       // 预测完成时间
-      const predictedCompletion = await this.predictCompletionTime(execution.goalId)
+      const predictedCompletion = await this.predictCompletionTime(
+        execution.goalId
+      );
 
       const progress: GoalProgress = {
         goalId: execution.goalId,
@@ -523,12 +543,19 @@ export class GoalManagementSystem extends EventEmitter {
         healthScore,
         blockers,
         milestonesProgress: await this.getMilestonesProgress(execution.goalId),
-        resourceUtilization: await this.getResourceUtilization(execution.goalId),
+        resourceUtilization: await this.getResourceUtilization(
+          execution.goalId
+        ),
         riskIndicators: await this.assessCurrentRisks(execution.goalId),
-        stakeholderSatisfaction: await this.measureStakeholderSatisfaction(execution.goalId),
+        stakeholderSatisfaction: await this.measureStakeholderSatisfaction(
+          execution.goalId
+        ),
         predictedCompletion,
-        recommendations: await this.generateProgressRecommendations(execution.goalId, progressData)
-      }
+        recommendations: await this.generateProgressRecommendations(
+          execution.goalId,
+          progressData
+        ),
+      };
 
       // 记录进度更新
       if (execution.progressUpdates) {
@@ -536,16 +563,15 @@ export class GoalManagementSystem extends EventEmitter {
           timestamp: progress.timestamp,
           completionRate: progress.completionRate,
           healthScore: progress.healthScore,
-          notes: progress.recommendations.join('; ')
-        })
+          notes: progress.recommendations.join('; '),
+        });
       }
 
-      this.emit('goalProgressUpdated', { progress })
-      return progress
-
+      this.emit('goalProgressUpdated', { progress });
+      return progress;
     } catch (error) {
-      this.emit('goalMonitoringError', { execution, error })
-      throw error
+      this.emit('goalMonitoringError', { execution, error });
+      throw error;
     }
   }
 
@@ -554,63 +580,68 @@ export class GoalManagementSystem extends EventEmitter {
    */
   async adjustGoalStrategy(monitoring: GoalProgress): Promise<{
     adjustments: Array<{
-      type: 'timeline' | 'scope' | 'resources' | 'priority'
-      description: string
-      impact: string
-      approvedBy: string
-    }>
-    newTimeline?: { startDate: Date; endDate: Date }
-    newScope?: string[]
-    resourceChanges?: Array<{ type: string; change: number; reason: string }>
-    riskMitigation: Array<{ risk: string; action: string; owner: string; deadline: Date }>
+      type: 'timeline' | 'scope' | 'resources' | 'priority';
+      description: string;
+      impact: string;
+      approvedBy: string;
+    }>;
+    newTimeline?: { startDate: Date; endDate: Date };
+    newScope?: string[];
+    resourceChanges?: Array<{ type: string; change: number; reason: string }>;
+    riskMitigation: Array<{
+      risk: string;
+      action: string;
+      owner: string;
+      deadline: Date;
+    }>;
   }> {
     try {
-      const goal = this.activeGoals.get(monitoring.goalId)
+      const goal = this.activeGoals.get(monitoring.goalId);
       if (!goal) {
-        throw new Error('目标不存在')
+        throw new Error('目标不存在');
       }
 
       // 分析调整需求
-      const adjustmentNeeds = await this.analyzeAdjustmentNeeds(monitoring)
+      const adjustmentNeeds = await this.analyzeAdjustmentNeeds(monitoring);
 
       // 生成调整建议
-      const adjustments = await this.generateAdjustmentSuggestions(adjustmentNeeds)
+      const adjustments =
+        await this.generateAdjustmentSuggestions(adjustmentNeeds);
 
       // 计算新时间线（如有）
       const newTimeline = adjustments.some(a => a.type === 'timeline')
         ? await this.calculateNewTimeline(goal, monitoring)
-        : undefined
+        : undefined;
 
       // 计算新范围（如有）
       const newScope = adjustments.some(a => a.type === 'scope')
         ? await this.adjustScope(goal, monitoring)
-        : undefined
+        : undefined;
 
       // 计算资源变更（如有）
       const resourceChanges = adjustments.some(a => a.type === 'resources')
         ? await this.calculateResourceChanges(goal, monitoring)
-        : undefined
+        : undefined;
 
       // 更新风险缓解策略
-      const riskMitigation = await this.updateRiskMitigation(goal, monitoring)
+      const riskMitigation = await this.updateRiskMitigation(goal, monitoring);
 
       // 应用调整
-      await this.applyAdjustments(goal, adjustments)
+      await this.applyAdjustments(goal, adjustments);
 
-      this.emit('goalAdjusted', { goalId: goal.id, adjustments })
-      console.log(`🔧 目标 "${goal.title}" 策略已调整`)
+      this.emit('goalAdjusted', { goalId: goal.id, adjustments });
+      console.log(`🔧 目标 "${goal.title}" 策略已调整`);
 
       return {
         adjustments,
         newTimeline,
         newScope,
         resourceChanges,
-        riskMitigation
-      }
-
+        riskMitigation,
+      };
     } catch (error) {
-      this.emit('goalAdjustmentError', { monitoring, error })
-      throw error
+      this.emit('goalAdjustmentError', { monitoring, error });
+      throw error;
     }
   }
 
@@ -618,34 +649,36 @@ export class GoalManagementSystem extends EventEmitter {
    * 完成目标
    */
   async completeGoal(adjustment: GoalAdjustment): Promise<{
-    goalId: string
-    completionDate: Date
-    finalStatus: 'completed' | 'partially_completed' | 'cancelled'
-    actualDuration: number
-    finalCost: number
-    achievements: string[]
-    deliverables: Array<{ name: string; status: string; quality: number }>
-    lessons: string[]
+    goalId: string;
+    completionDate: Date;
+    finalStatus: 'completed' | 'partially_completed' | 'cancelled';
+    actualDuration: number;
+    finalCost: number;
+    achievements: string[];
+    deliverables: Array<{ name: string; status: string; quality: number }>;
+    lessons: string[];
   }> {
     try {
-      const goal = this.activeGoals.get(adjustment.goalId || Object.keys(this.activeGoals)[0])
+      const goal = this.activeGoals.get(
+        adjustment.goalId || Object.keys(this.activeGoals)[0]
+      );
       if (!goal) {
-        throw new Error('目标不存在')
+        throw new Error('目标不存在');
       }
 
       // 更新目标状态
-      goal.status = 'completed'
-      goal.updatedAt = new Date()
-      goal.progress = 100
+      goal.status = 'completed';
+      goal.updatedAt = new Date();
+      goal.progress = 100;
 
       // 收集最终成果
-      const achievements = await this.collectAchievements(goal.id)
+      const achievements = await this.collectAchievements(goal.id);
 
       // 评估交付物
-      const deliverables = await this.assessDeliverables(goal.id)
+      const deliverables = await this.assessDeliverables(goal.id);
 
       // 收集经验教训
-      const lessons = await this.collectInitialLessons(goal.id)
+      const lessons = await this.collectInitialLessons(goal.id);
 
       // 计算最终指标
       const completionData = {
@@ -656,20 +689,19 @@ export class GoalManagementSystem extends EventEmitter {
         finalCost: await this.calculateActualCost(goal.id),
         achievements,
         deliverables,
-        lessons
-      }
+        lessons,
+      };
 
       // 从活动目标移至历史
-      this.activeGoals.delete(goal.id)
+      this.activeGoals.delete(goal.id);
 
-      this.emit('goalCompleted', { goal, completionData })
-      console.log(`🎉 目标 "${goal.title}" 已完成`)
+      this.emit('goalCompleted', { goal, completionData });
+      console.log(`🎉 目标 "${goal.title}" 已完成`);
 
-      return completionData
-
+      return completionData;
     } catch (error) {
-      this.emit('goalCompletionError', { adjustment, error })
-      throw error
+      this.emit('goalCompletionError', { adjustment, error });
+      throw error;
     }
   }
 
@@ -679,22 +711,32 @@ export class GoalManagementSystem extends EventEmitter {
   async evaluateGoalValue(completion: GoalCompletion): Promise<GoalEvaluation> {
     try {
       // 收集价值数据
-      const valueData = await this.collectValueData(completion.goalId)
+      const valueData = await this.collectValueData(completion.goalId);
 
       // 计算ROI
-      const roi = await this.calculateROI(completion.goalId, valueData)
+      const roi = await this.calculateROI(completion.goalId, valueData);
 
       // 评估业务影响
-      const businessImpact = await this.assessBusinessImpact(completion.goalId, valueData)
+      const businessImpact = await this.assessBusinessImpact(
+        completion.goalId,
+        valueData
+      );
 
       // 用户满意度评估
-      const userSatisfaction = await this.measureUserSatisfaction(completion.goalId)
+      const userSatisfaction = await this.measureUserSatisfaction(
+        completion.goalId
+      );
 
       // 技术成果评估
-      const technicalOutcomes = await this.assessTechnicalOutcomes(completion.goalId)
+      const technicalOutcomes = await this.assessTechnicalOutcomes(
+        completion.goalId
+      );
 
       // 财务效益分析
-      const financialBenefits = await this.analyzeFinancialBenefits(completion.goalId, valueData)
+      const financialBenefits = await this.analyzeFinancialBenefits(
+        completion.goalId,
+        valueData
+      );
 
       // 综合价值评分
       const overallValue = await this.calculateOverallValue({
@@ -702,8 +744,8 @@ export class GoalManagementSystem extends EventEmitter {
         businessImpact,
         userSatisfaction,
         technicalOutcomes,
-        financialBenefits
-      })
+        financialBenefits,
+      });
 
       const evaluation: GoalEvaluation = {
         goalId: completion.goalId,
@@ -714,17 +756,22 @@ export class GoalManagementSystem extends EventEmitter {
         userSatisfaction,
         technicalOutcomes,
         financialBenefits,
-        unexpectedBenefits: await this.identifyUnexpectedBenefits(completion.goalId),
-        improvementOpportunities: await this.identifyImprovementOpportunities(completion.goalId),
-        stakeholderFeedback: await this.collectStakeholderFeedback(completion.goalId)
-      }
+        unexpectedBenefits: await this.identifyUnexpectedBenefits(
+          completion.goalId
+        ),
+        improvementOpportunities: await this.identifyImprovementOpportunities(
+          completion.goalId
+        ),
+        stakeholderFeedback: await this.collectStakeholderFeedback(
+          completion.goalId
+        ),
+      };
 
-      this.emit('goalEvaluated', { evaluation })
-      return evaluation
-
+      this.emit('goalEvaluated', { evaluation });
+      return evaluation;
     } catch (error) {
-      this.emit('goalEvaluationError', { completion, error })
-      throw error
+      this.emit('goalEvaluationError', { completion, error });
+      throw error;
     }
   }
 
@@ -734,24 +781,25 @@ export class GoalManagementSystem extends EventEmitter {
   async learnFromGoal(evaluation: GoalEvaluation): Promise<GoalLearning> {
     try {
       // 提取模式识别
-      const patterns = await this.recognizePatterns(evaluation)
+      const patterns = await this.recognizePatterns(evaluation);
 
       // 识别最佳实践
-      const bestPractices = await this.identifyBestPractices(evaluation)
+      const bestPractices = await this.identifyBestPractices(evaluation);
 
       // 分析失败原因（如有）
-      const failureAnalysis = await this.analyzeFailures(evaluation)
+      const failureAnalysis = await this.analyzeFailures(evaluation);
 
       // 生成改进建议
-      const improvementRecommendations = await this.generateImprovementRecommendations(evaluation)
+      const improvementRecommendations =
+        await this.generateImprovementRecommendations(evaluation);
 
       // 更新知识库
       await this.updateKnowledgeBase(evaluation, {
         patterns,
         bestPractices,
         failureAnalysis,
-        improvementRecommendations
-      })
+        improvementRecommendations,
+      });
 
       const learning: GoalLearning = {
         goalId: evaluation.goalId,
@@ -760,17 +808,18 @@ export class GoalManagementSystem extends EventEmitter {
         bestPractices,
         failureAnalysis,
         improvementRecommendations,
-        knowledgeBaseUpdates: await this.getKnowledgeBaseUpdates(evaluation.goalId)
-      }
+        knowledgeBaseUpdates: await this.getKnowledgeBaseUpdates(
+          evaluation.goalId
+        ),
+      };
 
-      this.emit('goalLearned', { learning })
-      console.log(`📚 目标 "${evaluation.goalId}" 学习完成`)
+      this.emit('goalLearned', { learning });
+      console.log(`📚 目标 "${evaluation.goalId}" 学习完成`);
 
-      return learning
-
+      return learning;
     } catch (error) {
-      this.emit('goalLearningError', { evaluation, error })
-      throw error
+      this.emit('goalLearningError', { evaluation, error });
+      throw error;
     }
   }
 
@@ -778,21 +827,21 @@ export class GoalManagementSystem extends EventEmitter {
    * 获取所有活动目标
    */
   getActiveGoals(): GoalDefinition[] {
-    return Array.from(this.activeGoals.values())
+    return Array.from(this.activeGoals.values());
   }
 
   /**
    * 获取目标历史
    */
   getGoalHistory(): GoalLifecycle[] {
-    return Array.from(this.goalHistory.values())
+    return Array.from(this.goalHistory.values());
   }
 
   /**
    * 获取目标详情
    */
   getGoal(goalId: string): GoalDefinition | undefined {
-    return this.activeGoals.get(goalId)
+    return this.activeGoals.get(goalId);
   }
 
   /**
@@ -800,28 +849,27 @@ export class GoalManagementSystem extends EventEmitter {
    */
   async deleteGoal(goalId: string): Promise<boolean> {
     try {
-      const goal = this.activeGoals.get(goalId)
+      const goal = this.activeGoals.get(goalId);
       if (!goal) {
-        return false
+        return false;
       }
 
       // 检查是否可以删除（无正在执行的任务等）
       if (goal.status === 'in_progress') {
-        throw new Error('无法删除正在执行的目标')
+        throw new Error('无法删除正在执行的目标');
       }
 
       // 删除OKR（如有）
-      await this.okrFramework.deleteOKR(goalId)
+      await this.okrFramework.deleteOKR(goalId);
 
       // 从活动目标中移除
-      this.activeGoals.delete(goalId)
+      this.activeGoals.delete(goalId);
 
-      this.emit('goalDeleted', { goalId, goal })
-      return true
-
+      this.emit('goalDeleted', { goalId, goal });
+      return true;
     } catch (error) {
-      this.emit('goalDeletionError', { goalId, error })
-      return false
+      this.emit('goalDeletionError', { goalId, error });
+      return false;
     }
   }
 
@@ -829,53 +877,52 @@ export class GoalManagementSystem extends EventEmitter {
    * 关闭目标管理系统
    */
   async shutdown(): Promise<void> {
-    if (!this.isInitialized) return
+    if (!this.isInitialized) return;
 
     try {
       // 停止定期检查
       if (this.checkInterval) {
-        clearInterval(this.checkInterval)
+        clearInterval(this.checkInterval);
       }
 
       // 保存当前状态
-      await this.saveCurrentState()
+      await this.saveCurrentState();
 
       // 清理资源
-      this.activeGoals.clear()
-      this.goalHistory.clear()
+      this.activeGoals.clear();
+      this.goalHistory.clear();
 
-      this.isInitialized = false
-      console.log('✅ 目标管理系统已关闭')
-      this.emit('shutdown')
-
+      this.isInitialized = false;
+      console.log('✅ 目标管理系统已关闭');
+      this.emit('shutdown');
     } catch (error) {
-      console.error('❌ 关闭目标管理系统时出错:', error)
-      throw error
+      console.error('❌ 关闭目标管理系统时出错:', error);
+      throw error;
     }
   }
 
   // 私有方法实现
   private generateGoalId(): string {
-    return `goal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `goal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private generateLifecycleId(): string {
-    return `lifecycle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `lifecycle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private async loadGoalHistory(): Promise<void> {
     // 实现历史数据加载逻辑
-    console.log('📁 加载目标历史数据...')
+    console.log('📁 加载目标历史数据...');
   }
 
   private startPeriodicChecks(): void {
     this.checkInterval = setInterval(async () => {
       try {
-        await this.performPeriodicChecks()
+        await this.performPeriodicChecks();
       } catch (error) {
-        console.error('定期检查失败:', error)
+        console.error('定期检查失败:', error);
       }
-    }, 60000) // 每分钟检查一次
+    }, 60000); // 每分钟检查一次
   }
 
   private async performPeriodicChecks(): Promise<void> {
@@ -894,8 +941,8 @@ export class GoalManagementSystem extends EventEmitter {
       riskFactors: [],
       mitigationStrategies: [],
       riskScore: 3,
-      lastAssessed: new Date()
-    }
+      lastAssessed: new Date(),
+    };
   }
 
   private async generateMilestones(goal: GoalDefinition): Promise<Milestone[]> {
@@ -908,12 +955,15 @@ export class GoalManagementSystem extends EventEmitter {
         targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7天后
         status: 'pending',
         completionCriteria: ['详细计划文档', '资源确认'],
-        dependencies: []
-      }
-    ]
+        dependencies: [],
+      },
+    ];
   }
 
-  private async decomposeGoal(goal: GoalDefinition, milestones: Milestone[]): Promise<Task[]> {
+  private async decomposeGoal(
+    goal: GoalDefinition,
+    milestones: Milestone[]
+  ): Promise<Task[]> {
     // 简化的任务分解
     return [
       {
@@ -930,9 +980,9 @@ export class GoalManagementSystem extends EventEmitter {
         dependencies: [],
         tags: ['analysis'],
         createdAt: new Date(),
-        dueDate: milestones[0]?.targetDate
-      }
-    ]
+        dueDate: milestones[0]?.targetDate,
+      },
+    ];
   }
 
   private async createTimeline(
@@ -940,11 +990,11 @@ export class GoalManagementSystem extends EventEmitter {
     milestones: Milestone[],
     tasks: Task[]
   ): Promise<{ startDate: Date; endDate: Date; checkpoints: Date[] }> {
-    const startDate = new Date()
-    const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30天后
-    const checkpoints = milestones.map(m => m.targetDate)
+    const startDate = new Date();
+    const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30天后
+    const checkpoints = milestones.map(m => m.targetDate);
 
-    return { startDate, endDate, checkpoints }
+    return { startDate, endDate, checkpoints };
   }
 
   private async estimateResources(
@@ -954,16 +1004,18 @@ export class GoalManagementSystem extends EventEmitter {
     // 简化的资源估算
     return [
       { type: 'developers', quantity: 2, cost: 10000 },
-      { type: 'designers', quantity: 1, cost: 5000 }
-    ]
+      { type: 'designers', quantity: 1, cost: 5000 },
+    ];
   }
 
-  private async analyzeDependencies(tasks: Task[]): Promise<Array<{ taskId: string; dependsOn: string[] }>> {
+  private async analyzeDependencies(
+    tasks: Task[]
+  ): Promise<Array<{ taskId: string; dependsOn: string[] }>> {
     // 简化的依赖分析
     return tasks.map(task => ({
       taskId: task.id,
-      dependsOn: task.dependencies || []
-    }))
+      dependsOn: task.dependencies || [],
+    }));
   }
 
   private async createRiskMitigation(
@@ -975,51 +1027,55 @@ export class GoalManagementSystem extends EventEmitter {
       {
         risk: '需求变更',
         mitigation: '建立变更控制流程',
-        owner: '项目经理'
-      }
-    ]
+        owner: '项目经理',
+      },
+    ];
   }
 
-  private async startTaskExecution(goalId: string, tasks: Task[], execution: GoalExecution): Promise<void> {
+  private async startTaskExecution(
+    goalId: string,
+    tasks: Task[],
+    execution: GoalExecution
+  ): Promise<void> {
     // 启动任务执行逻辑（这里简化处理）
     for (const task of tasks) {
-      task.status = 'in_progress'
+      task.status = 'in_progress';
     }
   }
 
   private async collectProgressData(goalId: string): Promise<any> {
     // 收集进度数据
-    return {}
+    return {};
   }
 
   private async detectBlockers(goalId: string): Promise<Blocker[]> {
     // 检测阻塞因素
-    return []
+    return [];
   }
 
   private calculateCompletionRate(goalId: string): number {
     // 计算完成度
-    return 50 // 简化值
+    return 50; // 简化值
   }
 
   private async assessGoalHealth(goalId: string): Promise<number> {
     // 评估健康状况（0-100）
-    return 85 // 简化值
+    return 85; // 简化值
   }
 
   private async predictCompletionTime(goalId: string): Promise<Date> {
     // 预测完成时间
-    return new Date(Date.now() + 15 * 24 * 60 * 60 * 1000) // 15天后
+    return new Date(Date.now() + 15 * 24 * 60 * 60 * 1000); // 15天后
   }
 
   private async getMilestonesProgress(goalId: string): Promise<any> {
     // 获取里程碑进度
-    return {}
+    return {};
   }
 
   private async getResourceUtilization(goalId: string): Promise<any> {
     // 获取资源利用率
-    return {}
+    return {};
   }
 
   private async assessCurrentRisks(goalId: string): Promise<CurrentRisks> {
@@ -1027,67 +1083,92 @@ export class GoalManagementSystem extends EventEmitter {
       riskLevel: 'low',
       activeRisks: [],
       riskScore: 0,
-      mitigationStatus: 'none'
-    }
+      mitigationStatus: 'none',
+    };
   }
 
-  private async measureStakeholderSatisfaction(goalId: string): Promise<number> {
+  private async measureStakeholderSatisfaction(
+    goalId: string
+  ): Promise<number> {
     // 测量相关方满意度（0-100）
-    return 80 // 简化值
+    return 80; // 简化值
   }
 
-  private async generateProgressRecommendations(goalId: string, progressData: ProgressData): Promise<string[]> {
+  private async generateProgressRecommendations(
+    goalId: string,
+    progressData: ProgressData
+  ): Promise<string[]> {
     // 生成进度建议
-    return ['建议加强沟通', '关注风险因素']
+    return ['建议加强沟通', '关注风险因素'];
   }
 
-  private async analyzeAdjustmentNeeds(monitoring: GoalProgress): Promise<AdjustmentNeeds> {
-    return { needsAdjustment: false, urgency: 'low', reason: '正常进展' }
+  private async analyzeAdjustmentNeeds(
+    monitoring: GoalProgress
+  ): Promise<AdjustmentNeeds> {
+    return { needsAdjustment: false, urgency: 'low', reason: '正常进展' };
   }
 
-  private async generateAdjustmentSuggestions(adjustmentNeeds: AdjustmentNeeds): Promise<AdjustmentSuggestion[]> {
-    return []
+  private async generateAdjustmentSuggestions(
+    adjustmentNeeds: AdjustmentNeeds
+  ): Promise<AdjustmentSuggestion[]> {
+    return [];
   }
 
-  private async calculateNewTimeline(goal: GoalDefinition, monitoring: GoalProgress): Promise<NewTimeline> {
+  private async calculateNewTimeline(
+    goal: GoalDefinition,
+    monitoring: GoalProgress
+  ): Promise<NewTimeline> {
     return {
       startDate: new Date(),
       endDate: new Date(),
       checkpoints: [],
       adjustedReason: '',
-      impact: ''
-    }
+      impact: '',
+    };
   }
 
-  private async adjustScope(goal: GoalDefinition, monitoring: GoalProgress): Promise<string[]> {
-    return []
+  private async adjustScope(
+    goal: GoalDefinition,
+    monitoring: GoalProgress
+  ): Promise<string[]> {
+    return [];
   }
 
-  private async calculateResourceChanges(goal: GoalDefinition, monitoring: GoalProgress): Promise<ResourceChange[]> {
-    return []
+  private async calculateResourceChanges(
+    goal: GoalDefinition,
+    monitoring: GoalProgress
+  ): Promise<ResourceChange[]> {
+    return [];
   }
 
-  private async updateRiskMitigation(goal: GoalDefinition, monitoring: GoalProgress): Promise<RiskMitigationUpdate[]> {
-    return []
+  private async updateRiskMitigation(
+    goal: GoalDefinition,
+    monitoring: GoalProgress
+  ): Promise<RiskMitigationUpdate[]> {
+    return [];
   }
 
-  private async applyAdjustments(goal: GoalDefinition, adjustments: AdjustmentSuggestion[]): Promise<void> {
-  }
+  private async applyAdjustments(
+    goal: GoalDefinition,
+    adjustments: AdjustmentSuggestion[]
+  ): Promise<void> {}
 
   private async collectAchievements(goalId: string): Promise<string[]> {
-    return ['目标达成']
+    return ['目标达成'];
   }
 
-  private async assessDeliverables(goalId: string): Promise<DeliverableAssessment[]> {
-    return []
+  private async assessDeliverables(
+    goalId: string
+  ): Promise<DeliverableAssessment[]> {
+    return [];
   }
 
   private async collectInitialLessons(goalId: string): Promise<string[]> {
-    return ['经验教训']
+    return ['经验教训'];
   }
 
   private async calculateActualCost(goalId: string): Promise<number> {
-    return 15000
+    return 15000;
   }
 
   private async collectValueData(goalId: string): Promise<ValueData> {
@@ -1096,118 +1177,142 @@ export class GoalManagementSystem extends EventEmitter {
       businessImpact: 0,
       userSatisfaction: 0,
       technicalOutcomes: {},
-      financialBenefits: {}
-    }
+      financialBenefits: {},
+    };
   }
 
-  private async calculateROI(goalId: string, valueData: ValueData): Promise<number> {
-    return 1.5
+  private async calculateROI(
+    goalId: string,
+    valueData: ValueData
+  ): Promise<number> {
+    return 1.5;
   }
 
-  private async assessBusinessImpact(goalId: string, valueData: ValueData): Promise<BusinessImpact> {
-    return { score: 8, description: '高影响', areas: [], metrics: {} }
+  private async assessBusinessImpact(
+    goalId: string,
+    valueData: ValueData
+  ): Promise<BusinessImpact> {
+    return { score: 8, description: '高影响', areas: [], metrics: {} };
   }
 
   private async measureUserSatisfaction(goalId: string): Promise<number> {
-    return 85
+    return 85;
   }
 
-  private async assessTechnicalOutcomes(goalId: string): Promise<TechnicalOutcomes> {
+  private async assessTechnicalOutcomes(
+    goalId: string
+  ): Promise<TechnicalOutcomes> {
     return {
       codeQuality: 0,
       performance: 0,
       security: 0,
       scalability: 0,
-      maintainability: 0
-    }
+      maintainability: 0,
+    };
   }
 
-  private async analyzeFinancialBenefits(goalId: string, valueData: ValueData): Promise<FinancialBenefits> {
+  private async analyzeFinancialBenefits(
+    goalId: string,
+    valueData: ValueData
+  ): Promise<FinancialBenefits> {
     return {
       costSavings: 0,
       revenueIncrease: 0,
       efficiencyGains: 0,
-      totalBenefits: 0
-    }
+      totalBenefits: 0,
+    };
   }
 
-  private async calculateOverallValue(metrics: OverallMetrics): Promise<number> {
-    return 8.5
+  private async calculateOverallValue(
+    metrics: OverallMetrics
+  ): Promise<number> {
+    return 8.5;
   }
 
   private async identifyUnexpectedBenefits(goalId: string): Promise<string[]> {
-    return []
+    return [];
   }
 
-  private async identifyImprovementOpportunities(goalId: string): Promise<string[]> {
-    return []
+  private async identifyImprovementOpportunities(
+    goalId: string
+  ): Promise<string[]> {
+    return [];
   }
 
-  private async collectStakeholderFeedback(goalId: string): Promise<StakeholderFeedback[]> {
-    return []
+  private async collectStakeholderFeedback(
+    goalId: string
+  ): Promise<StakeholderFeedback[]> {
+    return [];
   }
 
   private async recognizePatterns(evaluation: GoalEvaluation): Promise<any[]> {
-    return []
+    return [];
   }
 
-  private async identifyBestPractices(evaluation: GoalEvaluation): Promise<string[]> {
-    return ['最佳实践']
+  private async identifyBestPractices(
+    evaluation: GoalEvaluation
+  ): Promise<string[]> {
+    return ['最佳实践'];
   }
 
   private async analyzeFailures(evaluation: GoalEvaluation): Promise<any> {
-    return {}
+    return {};
   }
 
-  private async generateImprovementRecommendations(evaluation: GoalEvaluation): Promise<string[]> {
-    return ['改进建议']
+  private async generateImprovementRecommendations(
+    evaluation: GoalEvaluation
+  ): Promise<string[]> {
+    return ['改进建议'];
   }
 
-  private async updateKnowledgeBase(evaluation: GoalEvaluation, insights: KnowledgeInsights): Promise<void> {
+  private async updateKnowledgeBase(
+    evaluation: GoalEvaluation,
+    insights: KnowledgeInsights
+  ): Promise<void> {
     // 更新知识库
   }
 
   private async getKnowledgeBaseUpdates(goalId: string): Promise<any[]> {
-    return []
+    return [];
   }
 
   private async saveCurrentState(): Promise<void> {
     // 保存当前状态
   }
 
-  private checkInterval?: NodeJS.Timeout
+  private checkInterval?: NodeJS.Timeout;
 }
 
 // 辅助类实现
 class OKRFramework {
   async initialize(): Promise<void> {
-    console.log('📊 OKR框架初始化完成')
+    console.log('📊 OKR框架初始化完成');
   }
 
   async createOKR(goalId: string, okrData: OKRData): Promise<void> {
-    console.log(`📈 为目标 ${goalId} 创建OKR`)
+    console.log(`📈 为目标 ${goalId} 创建OKR`);
   }
 
   async deleteOKR(goalId: string): Promise<void> {
-    console.log(`🗑️ 删除目标 ${goalId} 的OKR`)
+    console.log(`🗑️ 删除目标 ${goalId} 的OKR`);
   }
 }
 
 class SMARTValidator {
   async validate(input: GoalInput): Promise<SmartCriteria> {
-    const violations: string[] = []
+    const violations: string[] = [];
 
     // 简化的SMART验证
     if (!input.title || input.title.length < 10) {
-      violations.push('标题过于简单')
+      violations.push('标题过于简单');
     }
 
     if (!input.description || input.description.length < 50) {
-      violations.push('描述不够详细')
+      violations.push('描述不够详细');
     }
 
     if (!input.valueMetrics || input.valueMetrics.length === 0) {
-      violations.push('缺少价值度量指标')
+      violations.push('缺少价值度量指标');
     }
 
     return {
@@ -1218,9 +1323,9 @@ class SMARTValidator {
         measurable: input.valueMetrics?.length ? 8 : 4,
         achievable: 7,
         relevant: 9,
-        timeBound: 8
+        timeBound: 8,
       },
-      overallScore: violations.length === 0 ? 8.2 : 6.8
-    }
+      overallScore: violations.length === 0 ? 8.2 : 6.8,
+    };
   }
 }

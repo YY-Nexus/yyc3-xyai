@@ -13,15 +13,16 @@ export const dynamicImports = {
   predictionEngines: () => import('./prediction/adaptive-ensemble'),
 
   // 分析组件 - 路由级别加载
-  intelligentInsights: () => import('../components/analytics/IntelligentInsightsPanel'),
-}
+  intelligentInsights: () =>
+    import('../components/analytics/IntelligentInsightsPanel'),
+};
 
 // Web Worker 配置 - 将CPU密集型任务移到Worker线程
 export const workerConfig = {
   emotionAnalysis: '/workers/emotion-analysis.worker.ts',
   prediction: '/workers/prediction.worker.ts',
   dataProcessing: '/workers/data-processing.worker.ts',
-}
+};
 
 // 缓存策略配置
 export const cacheStrategy = {
@@ -42,7 +43,7 @@ export const cacheStrategy = {
     ttl: 60 * 60 * 1000,
     maxSize: 10,
   },
-}
+};
 
 // 代码分割点
 export const codeSplitPoints = {
@@ -56,9 +57,10 @@ export const codeSplitPoints = {
   // 功能模块分割
   features: {
     voiceInteraction: () => import('../components/VoiceInteraction'),
-    qVersionCharacter: () => import('../components/ui/EnhancedQVersionCharacter'),
+    qVersionCharacter: () =>
+      import('../components/ui/EnhancedQVersionCharacter'),
   },
-}
+};
 
 // 懒加载阈值
 export const lazyLoadThresholds = {
@@ -70,15 +72,12 @@ export const lazyLoadThresholds = {
 
   // 数据预加载 - 用户悬停200ms后加载
   hoverDelay: 200,
-}
+};
 
 // 资源优先级配置
 export const resourcePriority = {
   // 关键资源 - 立即加载
-  critical: [
-    '/core/AgenticCore.ts',
-    '/lib/db/client.ts',
-  ],
+  critical: ['/core/AgenticCore.ts', '/lib/db/client.ts'],
 
   // 高优先级 - 页面加载后立即加载
   high: [
@@ -97,7 +96,7 @@ export const resourcePriority = {
     '/components/analytics/IntelligentInsightsPanel.tsx',
     '/services/tools/ToolManager.ts',
   ],
-}
+};
 
 // 性能监控指标
 export const performanceMetrics = {
@@ -115,7 +114,7 @@ export const performanceMetrics = {
 
   // 首次字节时间 (TTFB) - 目标 < 600ms
   timeToFirstByte: 600,
-}
+};
 
 // 内存优化配置
 export const memoryOptimization = {
@@ -127,27 +126,19 @@ export const memoryOptimization = {
 
   // 内存压力阈值
   memoryPressureThreshold: 0.8, // 80%
-}
+};
 
 // 预加载策略
 export const preloadStrategy = {
   // DNS预解析
-  dnsPrefetch: [
-    'https://api.openai.com',
-    'https://cdn.jsdelivr.net',
-  ],
+  dnsPrefetch: ['https://api.openai.com', 'https://cdn.jsdelivr.net'],
 
   // 预连接
-  preconnect: [
-    'https://api.openai.com',
-  ],
+  preconnect: ['https://api.openai.com'],
 
   // 预加载关键字体
-  prefetchFonts: [
-    '/fonts/Inter-Regular.woff2',
-    '/fonts/Inter-Bold.woff2',
-  ],
-}
+  prefetchFonts: ['/fonts/Inter-Regular.woff2', '/fonts/Inter-Bold.woff2'],
+};
 
 export default {
   dynamicImports,
@@ -159,4 +150,4 @@ export default {
   performanceMetrics,
   memoryOptimization,
   preloadStrategy,
-}
+};

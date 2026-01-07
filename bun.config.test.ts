@@ -48,4 +48,4 @@ export default {
       statements: 80,
     },
   },
-}
+};

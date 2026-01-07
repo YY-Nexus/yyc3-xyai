@@ -39,7 +39,10 @@ const createRedisLimiter = async (options: {
       insuranceLimiter: createMemoryLimiter(options), // 备用内存限制器
     });
   } catch (error) {
-    logger.warn('Failed to create Redis rate limiter, falling back to memory limiter:', error);
+    logger.warn(
+      'Failed to create Redis rate limiter, falling back to memory limiter:',
+      error
+    );
     return createMemoryLimiter(options);
   }
 };
@@ -95,7 +98,11 @@ export const uploadRateLimiter = createMemoryLimiter({
 
 // 创建速率限制器中间件
 const createRateLimitMiddleware = (limiter: any) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       // 跳过健康检查和静态文件
       if (req.path === '/health' || req.path.startsWith('/static')) {
@@ -119,7 +126,9 @@ const createRateLimitMiddleware = (limiter: any) => {
         'Retry-After': secs.toString(),
         'X-RateLimit-Limit': limiter.points.toString(),
         'X-RateLimit-Remaining': remainingPoints.toString(),
-        'X-RateLimit-Reset': new Date(Date.now() + rejRes.msBeforeNext).toISOString(),
+        'X-RateLimit-Reset': new Date(
+          Date.now() + rejRes.msBeforeNext
+        ).toISOString(),
       });
 
       // 记录速率限制触发
@@ -135,7 +144,10 @@ const createRateLimitMiddleware = (limiter: any) => {
       });
 
       // 返回错误响应
-      if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      if (
+        req.headers.accept &&
+        req.headers.accept.includes('application/json')
+      ) {
         res.status(429).json({
           success: false,
           error: 'Too Many Requests',
@@ -151,7 +163,9 @@ const createRateLimitMiddleware = (limiter: any) => {
           },
         });
       } else {
-        res.status(429).send(`Too Many Requests. Please try again in ${secs} seconds.`);
+        res
+          .status(429)
+          .send(`Too Many Requests. Please try again in ${secs} seconds.`);
       }
     }
   };
@@ -160,10 +174,13 @@ const createRateLimitMiddleware = (limiter: any) => {
 // 导出中间件
 export const rateLimitMiddleware = createRateLimitMiddleware(rateLimiter);
 export const apiRateLimitMiddleware = createRateLimitMiddleware(apiRateLimiter);
-export const authRateLimitMiddleware = createRateLimitMiddleware(authRateLimiter);
-export const passwordResetRateLimitMiddleware = createRateLimitMiddleware(passwordResetLimiter);
+export const authRateLimitMiddleware =
+  createRateLimitMiddleware(authRateLimiter);
+export const passwordResetRateLimitMiddleware =
+  createRateLimitMiddleware(passwordResetLimiter);
 export const aiRateLimitMiddleware = createRateLimitMiddleware(aiRateLimiter);
-export const uploadRateLimitMiddleware = createRateLimitMiddleware(uploadRateLimiter);
+export const uploadRateLimitMiddleware =
+  createRateLimitMiddleware(uploadRateLimiter);
 
 // 动态速率限制器（基于用户或IP）
 export const createDynamicRateLimiter = (options: {
@@ -174,7 +191,8 @@ export const createDynamicRateLimiter = (options: {
   skipFailedRequests?: boolean;
 }) => {
   const limiter = new RateLimiterMemory({
-    keyGenerator: options.keyGenerator || ((req: Request) => req.ip || 'unknown'),
+    keyGenerator:
+      options.keyGenerator || ((req: Request) => req.ip || 'unknown'),
     points: options.maxRequests,
     duration: options.windowMs / 1000,
     skipSuccessfulRequests: options.skipSuccessfulRequests || false,
@@ -200,7 +218,8 @@ export const sensitiveOperationLimiter = createDynamicRateLimiter({
   maxRequests: 5, // 5次敏感操作
   keyGenerator: (req: Request) => {
     const userId = (req as any).user?.id;
-    const operation = req.body?.operation || req.path.split('/').pop() || 'unknown';
+    const operation =
+      req.body?.operation || req.path.split('/').pop() || 'unknown';
     return `${userId || req.ip}:${operation}`;
   },
 });

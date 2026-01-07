@@ -17,18 +17,29 @@ class ClientLogger {
 
   constructor(config?: Partial<LoggerConfig>) {
     this.config = {
-      level: config?.level || (typeof window !== 'undefined' && window.location?.hostname === 'localhost' ? LogLevel.DEBUG : LogLevel.INFO),
+      level:
+        config?.level ||
+        (typeof window !== 'undefined' &&
+        window.location?.hostname === 'localhost'
+          ? LogLevel.DEBUG
+          : LogLevel.INFO),
       enableConsole: config?.enableConsole ?? true,
       enableStorage: config?.enableStorage ?? false,
       storageKey: config?.storageKey || 'yyc3-logs',
-      maxStorageEntries: config?.maxStorageEntries || 1000
+      maxStorageEntries: config?.maxStorageEntries || 1000,
     };
 
     this.loadFromStorage();
   }
 
   private shouldLog(level: LogLevel): boolean {
-    const levels = [LogLevel.ERROR, LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG, LogLevel.TRACE];
+    const levels = [
+      LogLevel.ERROR,
+      LogLevel.WARN,
+      LogLevel.INFO,
+      LogLevel.DEBUG,
+      LogLevel.TRACE,
+    ];
     return levels.indexOf(level) <= levels.indexOf(this.config.level);
   }
 
@@ -79,7 +90,10 @@ class ClientLogger {
     }
 
     try {
-      localStorage.setItem(this.config.storageKey, JSON.stringify(this.storage));
+      localStorage.setItem(
+        this.config.storageKey,
+        JSON.stringify(this.storage)
+      );
     } catch (error) {
       console.error('Failed to save logs to storage:', error);
     }
@@ -107,7 +121,7 @@ class ClientLogger {
       message,
       timestamp: new Date().toISOString(),
       context,
-      data
+      data,
     });
   }
 
@@ -117,7 +131,7 @@ class ClientLogger {
       message,
       timestamp: new Date().toISOString(),
       context,
-      data
+      data,
     });
   }
 
@@ -127,7 +141,7 @@ class ClientLogger {
       message,
       timestamp: new Date().toISOString(),
       context,
-      data
+      data,
     });
   }
 
@@ -137,7 +151,7 @@ class ClientLogger {
       message,
       timestamp: new Date().toISOString(),
       context,
-      data
+      data,
     });
   }
 
@@ -147,7 +161,7 @@ class ClientLogger {
       message,
       timestamp: new Date().toISOString(),
       context,
-      data
+      data,
     });
   }
 
@@ -194,19 +208,19 @@ class ClientLogger {
 export const clientLogger = new ClientLogger();
 
 // Export convenience functions
-export const error = (message: string, context?: string, data?: unknown) => 
+export const error = (message: string, context?: string, data?: unknown) =>
   clientLogger.error(message, context, data);
 
-export const warn = (message: string, context?: string, data?: unknown) => 
+export const warn = (message: string, context?: string, data?: unknown) =>
   clientLogger.warn(message, context, data);
 
-export const info = (message: string, context?: string, data?: unknown) => 
+export const info = (message: string, context?: string, data?: unknown) =>
   clientLogger.info(message, context, data);
 
-export const debug = (message: string, context?: string, data?: unknown) => 
+export const debug = (message: string, context?: string, data?: unknown) =>
   clientLogger.debug(message, context, data);
 
-export const trace = (message: string, context?: string, data?: unknown) => 
+export const trace = (message: string, context?: string, data?: unknown) =>
   clientLogger.trace(message, context, data);
 
 export default clientLogger;

@@ -16,7 +16,14 @@ export type MediaType = 'photo' | 'video';
  * 情感分析结果
  */
 export interface EmotionAnalysis {
-  emotion: 'happy' | 'sad' | 'neutral' | 'angry' | 'surprised' | 'fearful' | 'disgusted';
+  emotion:
+    | 'happy'
+    | 'sad'
+    | 'neutral'
+    | 'angry'
+    | 'surprised'
+    | 'fearful'
+    | 'disgusted';
   confidence: number;
   person?: string;
 }

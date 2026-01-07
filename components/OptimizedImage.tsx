@@ -1,20 +1,20 @@
-"use client"
+'use client';
 
-import { useState, useRef, useEffect } from "react"
-import { motion } from "framer-motion"
-import { cn } from "@/lib/utils"
+import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface OptimizedImageProps {
-  src: string
-  alt: string
-  width?: number
-  height?: number
-  className?: string
-  priority?: boolean
-  placeholder?: "blur" | "empty"
-  blurDataURL?: string
-  onLoad?: () => void
-  onError?: () => void
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+  priority?: boolean;
+  placeholder?: 'blur' | 'empty';
+  blurDataURL?: string;
+  onLoad?: () => void;
+  onError?: () => void;
 }
 
 export default function OptimizedImage({
@@ -24,59 +24,63 @@ export default function OptimizedImage({
   height,
   className,
   priority = false,
-  placeholder = "empty",
+  placeholder = 'empty',
   blurDataURL,
   onLoad,
   onError,
 }: OptimizedImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [hasError, setHasError] = useState(false)
-  const [isInView, setIsInView] = useState(priority)
-  const imgRef = useRef<HTMLDivElement>(null)
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [isInView, setIsInView] = useState(priority);
+  const imgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (priority || !imgRef.current) return
+    if (priority || !imgRef.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsInView(true)
-          observer.disconnect()
+          setIsInView(true);
+          observer.disconnect();
         }
       },
-      { rootMargin: "200px", threshold: 0.01 },
-    )
+      { rootMargin: '200px', threshold: 0.01 }
+    );
 
-    observer.observe(imgRef.current)
-    return () => observer.disconnect()
-  }, [priority])
+    observer.observe(imgRef.current);
+    return () => observer.disconnect();
+  }, [priority]);
 
   const handleLoad = () => {
-    setIsLoaded(true)
-    onLoad?.()
-  }
+    setIsLoaded(true);
+    onLoad?.();
+  };
 
   const handleError = () => {
-    setHasError(true)
-    onError?.()
-  }
+    setHasError(true);
+    onError?.();
+  };
 
   const defaultBlur =
-    "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmNWY5Ii8+PC9zdmc+"
+    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjFmNWY5Ii8+PC9zdmc+';
 
   return (
-    <div ref={imgRef} className={cn("relative overflow-hidden", className)} style={{ width, height }}>
+    <div
+      ref={imgRef}
+      className={cn('relative overflow-hidden', className)}
+      style={{ width, height }}
+    >
       {/* 占位背景 */}
-      {placeholder === "blur" && !isLoaded && (
+      {placeholder === 'blur' && !isLoaded && (
         <div
-          className="absolute inset-0 bg-cover bg-center blur-xl scale-110"
+          className='absolute inset-0 bg-cover bg-center blur-xl scale-110'
           style={{ backgroundImage: `url(${blurDataURL || defaultBlur})` }}
         />
       )}
 
       {/* 空占位 */}
-      {placeholder === "empty" && !isLoaded && !hasError && (
-        <div className="absolute inset-0 bg-slate-100 animate-pulse" />
+      {placeholder === 'empty' && !isLoaded && !hasError && (
+        <div className='absolute inset-0 bg-slate-100 animate-pulse' />
       )}
 
       {/* 实际图片 */}
@@ -91,21 +95,21 @@ export default function OptimizedImage({
           initial={{ opacity: 0 }}
           animate={{ opacity: isLoaded ? 1 : 0 }}
           transition={{ duration: 0.3 }}
-          className={cn("w-full h-full object-cover", !isLoaded && "invisible")}
-          loading={priority ? "eager" : "lazy"}
-          decoding="async"
+          className={cn('w-full h-full object-cover', !isLoaded && 'invisible')}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding='async'
         />
       )}
 
       {/* 错误状态 */}
       {hasError && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-100">
-          <div className="text-center text-slate-400">
-            <i className="ri-image-line text-2xl" />
-            <p className="text-xs mt-1">加载失败</p>
+        <div className='absolute inset-0 flex items-center justify-center bg-slate-100'>
+          <div className='text-center text-slate-400'>
+            <i className='ri-image-line text-2xl' />
+            <p className='text-xs mt-1'>加载失败</p>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

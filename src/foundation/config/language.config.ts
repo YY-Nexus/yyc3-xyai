@@ -6,7 +6,7 @@
 // 支持的语言列表
 export const supportedLanguages = ['zh-CN', 'en-US'] as const;
 
-export type Language = typeof supportedLanguages[number];
+export type Language = (typeof supportedLanguages)[number];
 
 // 默认语言
 export const defaultLanguage: Language = 'zh-CN';
@@ -41,7 +41,7 @@ export const baseLanguageResources: Record<Language, LanguageResources> = {
     'common.error': '操作失败',
     'common.warning': '警告',
     'common.info': '提示',
-    
+
     // 表单相关
     'form.required': '此项为必填',
     'form.email.invalid': '请输入有效的邮箱地址',
@@ -50,7 +50,7 @@ export const baseLanguageResources: Record<Language, LanguageResources> = {
     'form.password.medium': '密码强度中等',
     'form.password.strong': '密码强度较强',
     'form.password.confirm': '两次输入的密码不一致',
-    
+
     // 分页相关
     'pagination.previous': '上一页',
     'pagination.next': '下一页',
@@ -74,7 +74,7 @@ export const baseLanguageResources: Record<Language, LanguageResources> = {
     'common.error': 'Operation failed',
     'common.warning': 'Warning',
     'common.info': 'Info',
-    
+
     // 表单相关
     'form.required': 'This field is required',
     'form.email.invalid': 'Please enter a valid email address',
@@ -83,7 +83,7 @@ export const baseLanguageResources: Record<Language, LanguageResources> = {
     'form.password.medium': 'Medium password',
     'form.password.strong': 'Strong password',
     'form.password.confirm': 'Passwords do not match',
-    
+
     // 分页相关
     'pagination.previous': 'Previous',
     'pagination.next': 'Next',

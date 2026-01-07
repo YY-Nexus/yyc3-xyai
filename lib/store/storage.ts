@@ -19,7 +19,8 @@ const createSSRCompatibleStorage = (): WebStorage => {
           const value = window.localStorage.getItem(key);
           return Promise.resolve(value);
         } catch (error) {
-          const storageError: StorageError = error instanceof Error ? error : new Error(String(error));
+          const storageError: StorageError =
+            error instanceof Error ? error : new Error(String(error));
           storageError.code = 'ACCESS_DENIED';
           storageError.key = key;
           console.warn('Error reading from localStorage:', storageError);
@@ -31,7 +32,8 @@ const createSSRCompatibleStorage = (): WebStorage => {
           window.localStorage.setItem(key, value);
           return Promise.resolve(value);
         } catch (error) {
-          const storageError: StorageError = error instanceof Error ? error : new Error(String(error));
+          const storageError: StorageError =
+            error instanceof Error ? error : new Error(String(error));
           storageError.code = 'QUOTA_EXCEEDED';
           storageError.key = key;
           console.warn('Error writing to localStorage:', storageError);
@@ -43,7 +45,8 @@ const createSSRCompatibleStorage = (): WebStorage => {
           window.localStorage.removeItem(key);
           return Promise.resolve();
         } catch (error) {
-          const storageError: StorageError = error instanceof Error ? error : new Error(String(error));
+          const storageError: StorageError =
+            error instanceof Error ? error : new Error(String(error));
           storageError.code = 'ACCESS_DENIED';
           storageError.key = key;
           console.warn('Error removing from localStorage:', storageError);
