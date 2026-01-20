@@ -1,42 +1,71 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.95 0.02 240);
-  --foreground: oklch(0.2 0.01 240);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.6 0.15 250);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  /* 主色 */
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-primary-light: #60a5fa;
+  --color-primary-foreground: #ffffff;
+  
+  /* 辅助色 */
+  --color-secondary-purple: #8b5cf6;
+  --color-secondary-purple-foreground: #ffffff;
+  --color-secondary-pink: #ec4899;
+  --color-secondary-pink-foreground: #ffffff;
+  
+  /* 功能色 */
+  --color-success: #10b981;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f59e0b;
+  --color-warning-foreground: #ffffff;
+  --color-error: #ef4444;
+  --color-error-foreground: #ffffff;
+  --color-info: #3b82f6;
+  --color-info-foreground: #ffffff;
+  
+  /* 中性色 */
+  --color-white: #ffffff;
+  --color-gray-100: #f9fafb;
+  --color-gray-200: #f3f4f6;
+  --color-gray-300: #e5e7eb;
+  --color-gray-400: #d1d5db;
+  --color-gray-500: #9ca3af;
+  --color-gray-600: #6b7280;
+  --color-gray-700: #4b5563;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  
+  /* 背景色 */
+  --color-background: #f0f9ff;
+  --color-card: #ffffff;
+  --color-component: #f8fafc;
+  --color-hover: #f1f5f9;
+  --color-selected: #e0f2fe;
+  
+  /* 文本色 */
+  --color-foreground: #1f2937;
+  --color-muted-foreground: #6b7280;
+  --color-secondary-foreground: #4b5563;
+  
+  /* 边框色 */
+  --color-border: #e5e7eb;
+  --color-input: #e5e7eb;
+  --color-ring: #3b82f6;
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --shadow-glow: 0 0 15px rgba(255, 183, 77, 0.4);
+  
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
 
   /* 自定义颜色 */
   --sky-50: #f0f9ff;
@@ -53,47 +82,154 @@
   /* Warm色系 */
   --warm-orange: #ffb74d;
   --warm-dark: #37474f;
+
+  /* 保持与现有系统的兼容性 */
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-card);
+  --card-foreground: var(--color-foreground);
+  --popover: var(--color-card);
+  --popover-foreground: var(--color-foreground);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-primary-foreground);
+  --secondary: var(--color-gray-100);
+  --secondary-foreground: var(--color-secondary-foreground);
+  --muted: var(--color-gray-100);
+  --muted-foreground: var(--color-muted-foreground);
+  --accent: var(--color-gray-200);
+  --accent-foreground: var(--color-secondary-foreground);
+  --destructive: var(--color-error);
+  --destructive-foreground: var(--color-error-foreground);
+  --border: var(--color-border);
+  --input: var(--color-input);
+  --ring: var(--color-ring);
+  --chart-1: var(--color-warning);
+  --chart-2: var(--color-primary);
+  --chart-3: var(--color-secondary-purple);
+  --chart-4: var(--color-success);
+  --chart-5: var(--color-secondary-pink);
+  --sidebar: var(--color-card);
+  --sidebar-foreground: var(--color-foreground);
+  --sidebar-primary: var(--color-primary);
+  --sidebar-primary-foreground: var(--color-primary-foreground);
+  --sidebar-accent: var(--color-gray-100);
+  --sidebar-accent-foreground: var(--color-secondary-foreground);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-ring);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  /* 主色 */
+  --color-primary: #60a5fa;
+  --color-primary-dark: #3b82f6;
+  --color-primary-light: #93c5fd;
+  --color-primary-foreground: #ffffff;
+  
+  /* 辅助色 */
+  --color-secondary-purple: #a78bfa;
+  --color-secondary-purple-foreground: #ffffff;
+  --color-secondary-pink: #f472b6;
+  --color-secondary-pink-foreground: #ffffff;
+  
+  /* 功能色 */
+  --color-success: #34d399;
+  --color-success-foreground: #ffffff;
+  --color-warning: #fbbf24;
+  --color-warning-foreground: #ffffff;
+  --color-error: #f87171;
+  --color-error-foreground: #ffffff;
+  --color-info: #60a5fa;
+  --color-info-foreground: #ffffff;
+  
+  /* 中性色 */
+  --color-white: #111827;
+  --color-gray-100: #1f2937;
+  --color-gray-200: #374151;
+  --color-gray-300: #4b5563;
+  --color-gray-400: #6b7280;
+  --color-gray-500: #9ca3af;
+  --color-gray-600: #d1d5db;
+  --color-gray-700: #e5e7eb;
+  --color-gray-800: #f3f4f6;
+  --color-gray-900: #f9fafb;
+  
+  /* 背景色 */
+  --color-background: #0f172a;
+  --color-card: #1e293b;
+  --color-component: #334155;
+  --color-hover: #475569;
+  --color-selected: #334155;
+  
+  /* 文本色 */
+  --color-foreground: #f9fafb;
+  --color-muted-foreground: #9ca3af;
+  --color-secondary-foreground: #d1d5db;
+  
+  /* 边框色 */
+  --color-border: #374151;
+  --color-input: #4b5563;
+  --color-ring: #60a5fa;
+  
+  /* 保持与现有系统的兼容性 */
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-card);
+  --card-foreground: var(--color-foreground);
+  --popover: var(--color-card);
+  --popover-foreground: var(--color-foreground);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-primary-foreground);
+  --secondary: var(--color-gray-100);
+  --secondary-foreground: var(--color-secondary-foreground);
+  --muted: var(--color-gray-100);
+  --muted-foreground: var(--color-muted-foreground);
+  --accent: var(--color-gray-200);
+  --accent-foreground: var(--color-secondary-foreground);
+  --destructive: var(--color-error);
+  --destructive-foreground: var(--color-error-foreground);
+  --border: var(--color-border);
+  --input: var(--color-input);
+  --ring: var(--color-ring);
+  --chart-1: var(--color-warning);
+  --chart-2: var(--color-primary);
+  --chart-3: var(--color-secondary-purple);
+  --chart-4: var(--color-success);
+  --chart-5: var(--color-secondary-pink);
+  --sidebar: var(--color-card);
+  --sidebar-foreground: var(--color-foreground);
+  --sidebar-primary: var(--color-primary);
+  --sidebar-primary-foreground: var(--color-primary-foreground);
+  --sidebar-accent: var(--color-gray-100);
+  --sidebar-accent-foreground: var(--color-secondary-foreground);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-ring);
 }
 
 @theme inline {
+  /* 字体 */
   --font-sans: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-rounded: "YouYuan", "Varela Round", sans-serif;
+  
+  /* 排版层级 */
+  --font-h1: 32px/40px var(--font-sans);
+  --font-h2: 28px/36px var(--font-sans);
+  --font-h3: 24px/32px var(--font-sans);
+  --font-h4: 20px/28px var(--font-sans);
+  --font-h5: 18px/24px var(--font-sans);
+  --font-p1: 16px/24px var(--font-sans);
+  --font-p2: 14px/20px var(--font-sans);
+  --font-p3: 12px/16px var(--font-sans);
+  --font-p4: 10px/14px var(--font-sans);
+  
+  /* 字重 */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
 
+  /* 颜色 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -118,10 +254,14 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  
+  /* 圆角 */
+  --radius-sm: var(--radius-md);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  
+  /* 侧边栏 */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -131,6 +271,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  /* 阴影 */
   --shadow-soft: 0 10px 25px -5px rgba(148, 163, 184, 0.15);
   --shadow-glow: 0 0 15px rgba(255, 183, 77, 0.4);
 }
@@ -140,7 +281,61 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+  
+  /* 标题样式 */
+  h1 {
+    @apply text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100 leading-tight;
+  }
+  
+  h2 {
+    @apply text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200 leading-tight;
+  }
+  
+  h3 {
+    @apply text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-200 leading-tight;
+  }
+  
+  h4 {
+    @apply text-lg md:text-xl font-semibold text-gray-700 dark:text-gray-300 leading-tight;
+  }
+  
+  h5 {
+    @apply text-base md:text-lg font-medium text-gray-700 dark:text-gray-300 leading-tight;
+  }
+  
+  /* 段落样式 */
+  p {
+    @apply text-base text-gray-600 dark:text-gray-400 leading-relaxed;
+  }
+  
+  /* 辅助文本 */
+  .text-sm {
+    @apply text-sm text-gray-500 dark:text-gray-500 leading-relaxed;
+  }
+  
+  .text-xs {
+    @apply text-xs text-gray-400 dark:text-gray-600 leading-tight;
+  }
+  
+  /* 强调文本 */
+  strong {
+    @apply font-semibold text-gray-800 dark:text-gray-200;
+  }
+  
+  /* 链接样式 */
+  a {
+    @apply text-primary hover:text-[var(--color-primary-dark)] transition-colors duration-200;
+  }
+  
+  /* 列表样式 */
+  ul, ol {
+    @apply space-y-2;
+  }
+  
+  li {
+    @apply text-gray-600 dark:text-gray-400;
   }
 }
 
