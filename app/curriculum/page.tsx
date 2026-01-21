@@ -68,7 +68,7 @@ export default function CurriculumPage() {
 
   return (
     <div className='min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'>
-      <PageHeader icon='ri-calendar-schedule-line' title='智能课程表'>
+      <PageHeader icon='ri-calendar-schedule-line' title='智能课程表' showBack showHome>
         <div className='flex items-center gap-2'>
           <span className='text-sm text-slate-500'>{semester.name}</span>
         </div>

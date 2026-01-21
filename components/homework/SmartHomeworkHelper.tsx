@@ -71,15 +71,20 @@ export default function SmartHomeworkHelper({
 
       // Convert API results to our component format
       const formattedResults: HomeworkResult[] = correctionResult.results.map(
-        (result, index) => ({
-          id: result.uuid,
-          question: result.question,
-          correctAnswer: result.correct_answer,
-          userAnswer: result.user_answer,
-          isCorrect: result.is_correct,
-          explanation: result.explanation,
-          score: result.score,
-        })
+        (result, index) => {
+          const formatted: HomeworkResult = {
+            id: result.uuid,
+            question: result.question,
+            correctAnswer: result.correct_answer,
+            userAnswer: result.user_answer,
+            isCorrect: result.is_correct,
+            explanation: result.explanation,
+          };
+          if (result.score !== undefined) {
+            formatted.score = result.score;
+          }
+          return formatted;
+        }
       );
 
       setResults(formattedResults);

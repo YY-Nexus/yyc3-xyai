@@ -45,7 +45,7 @@ export function YYC3ThemeProvider({ children }: YYC3ThemeProviderProps) {
           --font-family: ${theme.typography.fontFamily};
           --font-size-xs: ${theme.typography.fontSize.xs};
           --font-size-sm: ${theme.typography.fontSize.sm};
-          --font-size-md: ${theme.typography.fontSize.md};
+          --font-size-md: ${theme.typography.fontSize.base};
           --font-size-lg: ${theme.typography.fontSize.lg};
           --font-size-xl: ${theme.typography.fontSize.xl};
           --font-size-2xl: ${theme.typography.fontSize['2xl']};
@@ -82,10 +82,10 @@ export function YYC3ThemeProvider({ children }: YYC3ThemeProviderProps) {
           --border-radius-full: ${theme.borderRadius.full};
 
           /* 阴影 */
-          --shadow-sm: ${theme.shadow.sm};
-          --shadow-md: ${theme.shadow.md};
-          --shadow-lg: ${theme.shadow.lg};
-          --shadow-xl: ${theme.shadow.xl};
+          --shadow-sm: ${theme.boxShadow.sm};
+          --shadow-md: ${theme.boxShadow.md};
+          --shadow-lg: ${theme.boxShadow.lg};
+          --shadow-xl: ${theme.boxShadow.xl};
         }
 
         /* 全局基础样式 */

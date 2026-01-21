@@ -46,6 +46,7 @@ export default function BirthdayWishForm({
     relationship: '',
     templateId: '',
     isCustomMessage: false,
+    customTitle: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -53,37 +54,37 @@ export default function BirthdayWishForm({
   // 生日祝福语模板
   const birthdayTemplates = [
     {
-      id: 1,
+      id: '1',
       title: '温馨祝福',
       message:
         '亲爱的小语，生日快乐！愿你的每一天都充满阳光和欢笑，愿你的未来像星星一样璀璨夺目。在新的一岁里，愿你健康快乐，心想事成！',
     },
     {
-      id: 2,
+      id: '2',
       title: '真挚祝福',
       message:
         '小语，生日快乐！时光荏苒，又一年过去了。愿你在新的一岁里，继续保持那份纯真与善良，勇敢追逐梦想，收获满满的幸福与成功。',
     },
     {
-      id: 3,
+      id: '3',
       title: '诗意祝福',
       message:
         '小语，生日快乐！愿你如春花般绚烂，如夏星般闪耀，如秋叶般静美，如冬雪般纯洁。愿你的生命之树常青，幸福之花常开。',
     },
     {
-      id: 4,
+      id: '4',
       title: '简约祝福',
       message:
         '小语，生日快乐！简单的一句话，包含最真挚的祝福：愿你健康、快乐、平安、幸福！',
     },
     {
-      id: 5,
+      id: '5',
       title: '活力祝福',
       message:
         '小语，生日快乐！愿你的生活充满活力与激情，每一天都像生日一样精彩！愿你在新的一岁里，创造更多美好回忆！',
     },
     {
-      id: 6,
+      id: '6',
       title: '感恩祝福',
       message:
         '小语，生日快乐！感谢你出现在我们的生命中，带来那么多美好时光。愿你的生日充满爱与温暖，新的一年里收获更多幸福与感动。',
@@ -123,6 +124,7 @@ export default function BirthdayWishForm({
       isCustomMessage: !prev.isCustomMessage,
       templateId: !prev.isCustomMessage ? '' : prev.templateId,
       message: !prev.isCustomMessage ? prev.message : '',
+      customTitle: !prev.isCustomMessage ? '' : prev.customTitle,
     }));
   };
 

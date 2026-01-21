@@ -3,8 +3,8 @@
 /* 基础彩色边线阴影 */
 .colored-shadow-border {
   box-shadow:
-    0 0 0 3px rgba(59, 130, 246, 0.5),   /* 蓝色边线 */
-    0 0 0 5px rgba(168, 85, 247, 0.3),   /* 紫色边线 */
+    0 0 0 3px rgba(var(--color-blue-rgb), 0.5),   /* 蓝色边线 */
+    0 0 0 5px rgba(var(--color-purple-rgb), 0.3),   /* 紫色边线 */
     0 4px 6px -1px rgba(0, 0, 0, 0.1),   /* 基础阴影 */
     0 2px 4px -1px rgba(0, 0, 0, 0.06);  /* 深阴影 */
   transition: all 0.3s ease;
@@ -12,18 +12,18 @@
 
 .colored-shadow-border:hover {
   box-shadow:
-    0 0 0 4px rgba(59, 130, 246, 0.6),   /* 蓝色边线增强 */
-    0 0 0 6px rgba(168, 85, 247, 0.4),   /* 紫色边线增强 */
+    0 0 0 4px rgba(var(--color-blue-rgb), 0.6),   /* 蓝色边线增强 */
+    0 0 0 6px rgba(var(--color-purple-rgb), 0.4),   /* 紫色边线增强 */
     0 10px 15px -3px rgba(0, 0, 0, 0.1),  /* 基础阴影增强 */
     0 4px 6px -2px rgba(0, 0, 0, 0.05);  /* 深阴影增强 */
 }
 
 /* 渐变彩色边线 */
 .gradient-shadow-border {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--color-purple-light) 0%, var(--color-purple) 100%);
   box-shadow:
     0 0 0 3px transparent,
-    0 0 0 5px rgba(102, 126, 234, 0.4),
+    0 0 0 5px rgba(var(--color-purple-rgb), 0.4),
     0 4px 6px -1px rgba(0, 0, 0, 0.1);
   position: relative;
 }
@@ -34,7 +34,7 @@
   inset: 0;
   border-radius: inherit;
   padding: 3px;
-  background: linear-gradient(135deg, #3b82f6, #a855f7, #ec4899);
+  background: linear-gradient(135deg, var(--color-blue), var(--color-purple), var(--color-pink));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
@@ -44,8 +44,8 @@
 /* 按钮彩色边线 */
 .btn-colored-shadow {
   box-shadow:
-    0 0 0 2px rgba(59, 130, 246, 0.5),
-    0 0 0 4px rgba(168, 85, 247, 0.3),
+    0 0 0 2px rgba(var(--color-blue-rgb), 0.5),
+    0 0 0 4px rgba(var(--color-purple-rgb), 0.3),
     0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   border: none;
@@ -60,7 +60,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+  background: linear-gradient(45deg, var(--color-blue), var(--color-purple-light), var(--color-pink));
   z-index: -1;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -72,8 +72,8 @@
 
 .btn-colored-shadow:hover {
   box-shadow:
-    0 0 0 3px rgba(59, 130, 246, 0.7),
-    0 0 0 5px rgba(168, 85, 247, 0.5),
+    0 0 0 3px rgba(var(--color-blue-rgb), 0.7),
+    0 0 0 5px rgba(var(--color-purple-rgb), 0.5),
     0 8px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
 }
@@ -81,8 +81,8 @@
 /* 卡片容器彩色边线 */
 .card-colored-shadow {
   box-shadow:
-    0 0 0 3px rgba(99, 102, 241, 0.3),
-    0 0 0 5px rgba(139, 92, 246, 0.2),
+    0 0 0 3px rgba(var(--color-purple-rgb), 0.3),
+    0 0 0 5px rgba(var(--color-purple-light-rgb), 0.2),
     0 10px 25px rgba(0, 0, 0, 0.1),
     0 6px 10px rgba(0, 0, 0, 0.05);
   border: none;
@@ -95,9 +95,9 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(135deg,
-    rgba(59, 130, 246, 0.1) 0%,
-    rgba(168, 85, 247, 0.1) 50%,
-    rgba(236, 72, 153, 0.1) 100%);
+    rgba(var(--color-blue-rgb), 0.1) 0%,
+    rgba(var(--color-purple-rgb), 0.1) 50%,
+    rgba(var(--color-pink-rgb), 0.1) 100%);
   pointer-events: none;
 }
 
@@ -107,8 +107,8 @@
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 0 0 3px rgba(239, 68, 68, 0.5),
-    0 0 0 5px rgba(249, 115, 22, 0.3),
+    0 0 0 3px rgba(var(--color-red-rgb), 0.5),
+    0 0 0 5px rgba(var(--color-orange-rgb), 0.3),
     0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   font-weight: 500;
@@ -118,49 +118,49 @@
 
 .btn-back-no-arrow:hover {
   box-shadow:
-    0 0 0 4px rgba(239, 68, 68, 0.7),
-    0 0 0 6px rgba(249, 115, 22, 0.5),
+    0 0 0 4px rgba(var(--color-red-rgb), 0.7),
+    0 0 0 6px rgba(var(--color-orange-rgb), 0.5),
     0 8px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
 }
 
 /* 性别主题色彩 */
 .theme-male {
-  --primary-color: #3b82f6;
-  --secondary-color: #60a5fa;
-  --accent-color: #93c5fd;
+  --primary-color: var(--color-blue);
+  --secondary-color: var(--color-blue-light);
+  --accent-color: var(--color-blue-lighter);
 }
 
 .theme-female {
-  --primary-color: #ec4899;
-  --secondary-color: #f472b6;
-  --accent-color: #f9a8d4;
+  --primary-color: var(--color-pink);
+  --secondary-color: var(--color-pink-light);
+  --accent-color: var(--color-pink-lighter);
 }
 
 /* Q版校色样式 */
 .q-style-male {
-  background: linear-gradient(135deg, #60a5fa, #93c5fd);
+  background: linear-gradient(135deg, var(--color-blue-light), var(--color-blue-lighter));
   border-radius: 20px;
   box-shadow:
-    0 0 0 3px rgba(96, 165, 250, 0.5),
-    0 0 0 5px rgba(147, 197, 253, 0.3),
-    0 4px 6px rgba(59, 130, 246, 0.1);
+    0 0 0 3px rgba(var(--color-blue-light-rgb), 0.5),
+    0 0 0 5px rgba(var(--color-blue-lighter-rgb), 0.3),
+    0 4px 6px rgba(var(--color-blue-rgb), 0.1);
 }
 
 .q-style-female {
-  background: linear-gradient(135deg, #f472b6, #f9a8d4);
+  background: linear-gradient(135deg, var(--color-pink-light), var(--color-pink-lighter));
   border-radius: 20px;
   box-shadow:
-    0 0 0 3px rgba(244, 114, 182, 0.5),
-    0 0 0 5px rgba(249, 168, 212, 0.3),
-    0 4px 6px rgba(236, 72, 153, 0.1);
+    0 0 0 3px rgba(var(--color-pink-light-rgb), 0.5),
+    0 0 0 5px rgba(var(--color-pink-lighter-rgb), 0.3),
+    0 4px 6px rgba(var(--color-pink-rgb), 0.1);
 }
 
 /* AI弹窗样式增强 */
 .ai-modal-enhanced {
   box-shadow:
-    0 0 0 4px rgba(139, 92, 246, 0.6),
-    0 0 0 8px rgba(168, 85, 247, 0.4),
+    0 0 0 4px rgba(var(--color-purple-light-rgb), 0.6),
+    0 0 0 8px rgba(var(--color-purple-rgb), 0.4),
     0 25px 50px rgba(0, 0, 0, 0.15);
   border: none;
   border-radius: 16px;
@@ -170,35 +170,35 @@
 /* 状态指示器 */
 .status-indicator {
   box-shadow:
-    0 0 0 2px rgba(34, 197, 94, 0.5),
-    0 0 0 4px rgba(34, 197, 94, 0.3);
+    0 0 0 2px rgba(var(--color-green-rgb), 0.5),
+    0 0 0 4px rgba(var(--color-green-rgb), 0.3);
 }
 
 .status-indicator.warning {
   box-shadow:
-    0 0 0 2px rgba(251, 191, 36, 0.5),
-    0 0 0 4px rgba(251, 191, 36, 0.3);
+    0 0 0 2px rgba(var(--color-yellow-rgb), 0.5),
+    0 0 0 4px rgba(var(--color-yellow-rgb), 0.3);
 }
 
 .status-indicator.error {
   box-shadow:
-    0 0 0 2px rgba(239, 68, 68, 0.5),
-    0 0 0 4px rgba(239, 68, 68, 0.3);
+    0 0 0 2px rgba(var(--color-red-rgb), 0.5),
+    0 0 0 4px rgba(var(--color-red-rgb), 0.3);
 }
 
 /* 响应式调整 */
 @media (max-width: 768px) {
   .colored-shadow-border {
     box-shadow:
-      0 0 0 2px rgba(59, 130, 246, 0.4),
-      0 0 0 3px rgba(168, 85, 247, 0.2),
+      0 0 0 2px rgba(var(--color-blue-rgb), 0.4),
+      0 0 0 3px rgba(var(--color-purple-rgb), 0.2),
       0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .btn-colored-shadow {
     box-shadow:
-      0 0 0 1px rgba(59, 130, 246, 0.4),
-      0 0 0 2px rgba(168, 85, 247, 0.2),
+      0 0 0 1px rgba(var(--color-blue-rgb), 0.4),
+      0 0 0 2px rgba(var(--color-purple-rgb), 0.2),
       0 1px 2px rgba(0, 0, 0, 0.1);
   }
 }
@@ -207,18 +207,18 @@
 @keyframes colorPulse {
   0% {
     box-shadow:
-      0 0 0 3px rgba(59, 130, 246, 0.5),
-      0 0 0 5px rgba(168, 85, 247, 0.3);
+      0 0 0 3px rgba(var(--color-blue-rgb), 0.5),
+      0 0 0 5px rgba(var(--color-purple-rgb), 0.3);
   }
   50% {
     box-shadow:
-      0 0 0 4px rgba(59, 130, 246, 0.7),
-      0 0 0 6px rgba(168, 85, 247, 0.5);
+      0 0 0 4px rgba(var(--color-blue-rgb), 0.7),
+      0 0 0 6px rgba(var(--color-purple-rgb), 0.5);
   }
   100% {
     box-shadow:
-      0 0 0 3px rgba(59, 130, 246, 0.5),
-      0 0 0 5px rgba(168, 85, 247, 0.3);
+      0 0 0 3px rgba(var(--color-blue-rgb), 0.5),
+      0 0 0 5px rgba(var(--color-purple-rgb), 0.3);
   }
 }
 

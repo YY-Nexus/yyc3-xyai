@@ -77,6 +77,8 @@ export default function ActivitiesPage() {
       <PageHeader
         icon='ri-heart-2-fill'
         title='公益活动中心'
+        showBack
+        showHome
         actions={[{ icon: 'ri-user-heart-fill', label: '我的参与' }]}
       />
 

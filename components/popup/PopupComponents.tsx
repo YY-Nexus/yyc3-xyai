@@ -138,7 +138,7 @@ export const Dialog: React.FC<DialogProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={title}
+      {...(title !== undefined && { title })}
       size="md"
       showCloseButton={showCloseButton}
       className={className}
@@ -170,12 +170,12 @@ export const Notification: React.FC<NotificationProps> = ({
   className = '',
 }) => {
   useEffect(() => {
-    if (isOpen && duration > 0) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, duration);
-      return () => clearTimeout(timer);
-    }
+    if (!isOpen || duration <= 0) return;
+
+    const timer = setTimeout(() => {
+      onClose();
+    }, duration);
+    return () => clearTimeout(timer);
   }, [isOpen, duration, onClose]);
 
   const variantIcons = {

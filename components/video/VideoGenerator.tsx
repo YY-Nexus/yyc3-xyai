@@ -75,6 +75,41 @@ const VIDEO_STYLE_CONFIG: Record<
     icon: '🧱',
     color: 'text-yellow-500',
   },
+  warm: {
+    name: '温馨',
+    description: '温馨暖色调风格',
+    thumbnail: '/placeholder.svg',
+    icon: '🌅',
+    color: 'text-amber-500',
+  },
+  dreamy: {
+    name: '梦幻',
+    description: '梦幻唯美风格',
+    thumbnail: '/placeholder.svg',
+    icon: '✨',
+    color: 'text-violet-500',
+  },
+  happy: {
+    name: '欢快',
+    description: '欢快明亮风格',
+    thumbnail: '/placeholder.svg',
+    icon: '🎉',
+    color: 'text-yellow-500',
+  },
+  calm: {
+    name: '宁静',
+    description: '宁静平和风格',
+    thumbnail: '/placeholder.svg',
+    icon: '🌊',
+    color: 'text-teal-500',
+  },
+  lullaby: {
+    name: '摇篮曲',
+    description: '摇篮曲风格',
+    thumbnail: '/placeholder.svg',
+    icon: '🌙',
+    color: 'text-indigo-500',
+  },
 };
 
 const MUSIC_STYLE_CONFIG: Record<

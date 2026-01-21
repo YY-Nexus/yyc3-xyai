@@ -19,7 +19,7 @@ export default function SettingsPage() {
 
   return (
     <div className='h-screen flex flex-col overflow-hidden relative bg-sky-100'>
-      <PageHeader icon='ri-settings-4-fill' title='设置与管理' />
+      <PageHeader icon='ri-settings-4-fill' title='设置与管理' showBack showHome />
 
       <main className='flex-1 overflow-y-auto w-full'>
         <section className='max-w-5xl mx-auto w-full px-8 pb-28 pt-4 grid grid-cols-1 md:grid-cols-2 gap-8'>

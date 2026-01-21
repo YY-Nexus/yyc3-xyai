@@ -199,7 +199,7 @@ function Ribbon({
         rotate: [-45, -40, -50, -45],
       }}
       transition={{
-        y: { duration: 2, delay, ease: 'bounce' },
+        y: { duration: 2, delay, ease: 'easeOut' },
         rotate: { duration: 3, delay, repeat: Infinity, ease: 'easeInOut' },
       }}
     >
@@ -279,7 +279,7 @@ export default function BirthdayDecorations() {
               delay={i * 0.3}
               x={10 + i * 12}
               y={Math.random() * 60 + 10}
-              color={balloonColors[i % balloonColors.length]}
+              color={balloonColors[i % balloonColors.length]!}
               swayAmount={Math.sin(i) * 30}
             />
           ))}
@@ -322,7 +322,7 @@ export default function BirthdayDecorations() {
               key={`ribbon-${i}`}
               delay={i * 0.4}
               x={15 + i * 25}
-              color={ribbonColors[i % ribbonColors.length]}
+              color={ribbonColors[i % ribbonColors.length]!}
             />
           ))}
         </>

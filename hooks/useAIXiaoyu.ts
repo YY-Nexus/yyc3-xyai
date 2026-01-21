@@ -146,7 +146,7 @@ export function useAIXiaoyu() {
     async (content: string, role?: AIRole) => {
       // 使用增强的智能角色选择系统
       const emotionAnalysis = analyzeUserEmotion(content);
-      const optimalRole = role || selectOptimalRole(content, emotionAnalysis);
+      const optimalRole = role || selectOptimalRole(content, undefined, undefined, emotionAnalysis).role;
 
       // 如果智能选择了不同的角色，更新当前角色
       if (optimalRole !== state.currentRole && !role) {

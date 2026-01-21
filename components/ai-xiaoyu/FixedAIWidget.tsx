@@ -119,7 +119,7 @@ const FixedAIWidget: React.FC = () => {
       ];
 
       const randomResponse =
-        responses[Math.floor(Math.random() * responses.length)];
+        responses[Math.floor(Math.random() * responses.length)] || '这是一个很好的问题，让我帮您分析一下。';
 
       const aiMessage: Message = {
         id: generateId(),

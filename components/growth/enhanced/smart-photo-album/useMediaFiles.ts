@@ -265,31 +265,32 @@ export const useMediaFiles = () => {
             id: Date.now().toString() + Math.random(),
             type: file.type.startsWith('video/') ? 'video' : 'photo',
             url: URL.createObjectURL(file),
-            thumbnail: URL.createObjectURL(file), // 在实际应用中需要生成缩略图
+            thumbnail: URL.createObjectURL(file),
             filename: file.name,
             size: file.size,
-            dimensions: { width: 1920, height: 1080 }, // 模拟尺寸
-            date: new Date().toISOString().split('T')[0],
+            dimensions: { width: 1920, height: 1080 },
+            date: new Date().toISOString().split('T')[0]!,
             age: calculateAge(new Date(), new Date('2024-12-27')),
             people: autoTagging ? ['小语'] : [],
             tags: autoTagging ? generateSmartTags(file.name) : [],
             emotions: [],
             description: '',
             isFavorite: false,
-            aiAnalysis: autoTagging
-              ? {
-                  objects: ['婴儿', '玩具'],
-                  scene: '家庭环境',
-                  quality: 'high',
-                  colorScheme: ['白色', '粉色'],
-                  相似度: Math.random() * 0.3 + 0.7,
-                }
-              : undefined,
             metadata: {
               fileSize: formatFileSize(file.size),
               format: file.type.split('/')[1]?.toUpperCase() || 'UNKNOWN',
             },
           };
+
+          if (autoTagging) {
+            newFile.aiAnalysis = {
+              objects: ['婴儿', '玩具'],
+              scene: '家庭环境',
+              quality: 'high',
+              colorScheme: ['白色', '粉色'],
+              相似度: Math.random() * 0.3 + 0.7,
+            };
+          }
 
           setMediaFiles(prev => [newFile, ...prev]);
         } catch (error) {

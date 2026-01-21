@@ -276,6 +276,7 @@ export default function EnhancedGrowthTimeline({
       element.addEventListener('scroll', handleScroll);
       return () => element.removeEventListener('scroll', handleScroll);
     }
+    return undefined;
   }, []);
 
   // 时间线动画函数

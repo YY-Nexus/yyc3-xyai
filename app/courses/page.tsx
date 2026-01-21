@@ -65,7 +65,7 @@ export default function CoursesPage() {
 
   return (
     <div className='h-screen flex flex-col overflow-hidden relative bg-sky-100'>
-      <PageHeader icon='ri-macbook-fill' title='我的公益课程' showBack>
+      <PageHeader icon='ri-macbook-fill' title='我的公益课程' showBack showHome>
         <div className='relative w-1/3 max-w-xs hidden md:block'>
           <input
             type='text'

@@ -595,8 +595,8 @@ export class AgenticCore extends EventEmitter {
       context: {
         userInput: input.text,
         timestamp: input.timestamp,
-        sessionId: input.sessionId,
-        userId: input.userId,
+        ...(input.sessionId && { sessionId: input.sessionId }),
+        ...(input.userId && { userId: input.userId }),
       },
       suggestedActions,
     };
@@ -617,7 +617,7 @@ export class AgenticCore extends EventEmitter {
 
     timePatterns.forEach(({ pattern, key }) => {
       const match = text.match(pattern);
-      if (match) {
+      if (match && match[1]) {
         entities[key] = parseInt(match[1]);
       }
     });
@@ -669,7 +669,7 @@ export class AgenticCore extends EventEmitter {
 
     // 时间约束
     const timeMatch = text.match(/(\d+)\s*(分钟|小时|天)/);
-    if (timeMatch) {
+    if (timeMatch && timeMatch[1] && timeMatch[2]) {
       const value = parseInt(timeMatch[1]);
       const unit = timeMatch[2];
 
@@ -803,22 +803,21 @@ export class AgenticCore extends EventEmitter {
    * 提取任务约束
    */
   private extractConstraints(intent: AnalyzedIntent): TaskConstraints {
-    return {
-      maxExecutionTime: intent.constraints.maxExecutionTime,
-      accuracyThreshold: intent.constraints.accuracyThreshold,
-      realTimeRequirement: intent.constraints.realTimeRequirement,
-      allowedModels:
-        intent.context.userPreferences?.privacyMode === 'strict'
-          ? [
-              'time_series_exponential_smoothing',
-              'statistical_anomaly_detection',
-            ]
-          : undefined,
-      privacyConstraints:
-        intent.context.userPreferences?.privacyMode === 'strict'
-          ? ['no_data_sharing', 'local_processing']
-          : undefined,
+    const constraints: TaskConstraints = {
+      ...(intent.constraints.maxExecutionTime !== undefined && { maxExecutionTime: intent.constraints.maxExecutionTime }),
+      ...(intent.constraints.accuracyThreshold !== undefined && { accuracyThreshold: intent.constraints.accuracyThreshold }),
+      ...(intent.constraints.realTimeRequirement !== undefined && { realTimeRequirement: intent.constraints.realTimeRequirement }),
     };
+
+    if (intent.context.userPreferences?.privacyMode === 'strict') {
+      constraints.allowedModels = [
+        'time_series_exponential_smoothing',
+        'statistical_anomaly_detection',
+      ];
+      constraints.privacyConstraints = ['no_data_sharing', 'local_processing'];
+    }
+
+    return constraints;
   }
 
   /**
@@ -1078,23 +1077,66 @@ export class AgenticCore extends EventEmitter {
     subtask: Subtask,
     task: AgentTask
   ): Promise<SubtaskResult> {
-    const availableModels = [
+    const availableModels: readonly string[] = [
       'adaptive_ensemble',
       'time_series_exponential_smoothing',
       'statistical_anomaly_detection',
     ];
 
+    const selectedModelIndex = Math.floor(Math.random() * availableModels.length);
+    const selectedModelId = availableModels[selectedModelIndex] ?? 'adaptive_ensemble';
+
     const modelSelection: ModelSelection = {
-      selectedModel:
-        availableModels[Math.floor(Math.random() * availableModels.length)],
+      selectedModel: {
+        modelId: selectedModelId,
+        accuracy: 0.85 + Math.random() * 0.1,
+        fittingTime: 100 + Math.random() * 200,
+        complexityScore: 0.5 + Math.random() * 0.5,
+        generalizationScore: 0.7 + Math.random() * 0.2,
+        confidenceScore: 0.8 + Math.random() * 0.15,
+      },
       alternativeModels: availableModels
         .filter(m => m !== 'adaptive_ensemble')
-        .slice(0, 3),
+        .slice(0, 3)
+        .map(modelId => ({
+          modelId,
+          accuracy: 0.8 + Math.random() * 0.15,
+          fittingTime: 100 + Math.random() * 200,
+          complexityScore: 0.5 + Math.random() * 0.5,
+          generalizationScore: 0.7 + Math.random() * 0.2,
+          confidenceScore: 0.8 + Math.random() * 0.15,
+        })),
       reasoning: '基于数据特征和性能要求的智能选择',
       confidence: 0.8 + Math.random() * 0.2,
       selectionReason: '基于数据特征和性能要求的智能选择',
       expectedPerformance: 0.85 + Math.random() * 0.15,
       fittingTime: 100 + Math.random() * 200,
+      goodnessOfFit: 0.85 + Math.random() * 0.1,
+      residualAnalysis: {
+        residuals: [],
+        mean: 0,
+        std: 0,
+        pattern: 'random',
+        timestamp: new Date(),
+      },
+      stabilityMetrics: {
+        modelId: selectedModelId,
+        score: 0.8 + Math.random() * 0.15,
+        variance: 0.1 + Math.random() * 0.1,
+        drift: 0.05 + Math.random() * 0.05,
+        timestamp: new Date(),
+      },
+      biasVarianceTradeoff: {
+        bias: 0.1 + Math.random() * 0.1,
+        variance: 0.2 + Math.random() * 0.1,
+        irreducibleError: 0.1 + Math.random() * 0.05,
+        totalError: 0.3 + Math.random() * 0.1,
+        optimalComplexity: 0.7 + Math.random() * 0.2,
+      },
+      recommendations: [
+        '建议使用集成模型提高预测准确性',
+        '定期重新训练模型以适应数据变化',
+      ],
     };
 
     return {
@@ -1110,15 +1152,24 @@ export class AgenticCore extends EventEmitter {
     subtask: Subtask,
     task: AgentTask
   ): Promise<SubtaskResult> {
+    const availableModels: readonly string[] = [
+      'adaptive_ensemble',
+      'time_series_exponential_smoothing',
+      'statistical_anomaly_detection',
+    ];
+    const selectedModelId = availableModels[Math.floor(Math.random() * availableModels.length)] ?? 'adaptive_ensemble';
+
     const numPredictions = Math.floor(Math.random() * 10) + 5;
     const predictions: PredictionResult[] = [];
 
     for (let i = 0; i < numPredictions; i++) {
       predictions.push({
         id: `pred_${Date.now()}_${i}`,
+        modelId: selectedModelId,
         prediction: Math.random() * 100,
+        values: [Math.random() * 100],
         confidence: 0.7 + Math.random() * 0.3,
-        timestamp: Date.now() + i * 1000,
+        timestamp: new Date(Date.now() + i * 1000),
       });
     }
 
@@ -1515,8 +1566,8 @@ class LearningSystem {
         subtaskId: st.id,
         type: st.type,
         status: st.status,
-        confidence: st.confidence,
-        actualTime: st.actualTime,
+        ...(st.confidence !== undefined && { confidence: st.confidence }),
+        ...(st.actualTime !== undefined && { actualTime: st.actualTime }),
       })),
     });
 

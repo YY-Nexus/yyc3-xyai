@@ -3,6 +3,7 @@ import ts from 'typescript-eslint';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
+import customRules from './.eslintrc.custom-rules.js';
 
 /**
  * YYC³ TypeScript ESLint 配置文件
@@ -53,6 +54,7 @@ export default [
       react,
       'react-hooks': reactHooks,
       import: importPlugin,
+      'no-hardcoded-colors': customRules,
     },
 
     rules: {
@@ -110,6 +112,18 @@ export default [
       ],
       'react/react-in-jsx-scope': 'off', // 现代 React 不需要导入 React
       'react/prop-types': 'off', // 使用 TypeScript 类型而不是 PropTypes
+
+      // 自定义规则 - 禁止硬编码颜色
+      'no-hardcoded-colors/no-hardcoded-colors': [
+        'error',
+        {
+          allowedColors: [],
+          allowedPatterns: [/^var\(--[\w-]+\)$/, /^transparent$/],
+          checkProperties: true,
+          checkStrings: true,
+          checkTemplateLiterals: true,
+        },
+      ],
     },
   },
 ];

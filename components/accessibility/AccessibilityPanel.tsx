@@ -128,9 +128,12 @@ export default function AccessibilityPanel({
                       const sizes: Array<
                         'small' | 'medium' | 'large' | 'extra-large'
                       > = ['small', 'medium', 'large', 'extra-large'];
-                      const currentIndex = sizes.indexOf(settings.fontSize);
+                      const currentIndex = sizes.indexOf(settings.fontSize || 'medium');
                       const prevIndex = Math.max(currentIndex - 1, 0);
-                      updateSetting('fontSize', sizes[prevIndex]);
+                      const newSize = sizes[prevIndex];
+                      if (newSize) {
+                        updateSetting('fontSize', newSize);
+                      }
                     }}
                     className='p-1 hover:bg-gray-100 rounded'
                     aria-label='减小字体'
@@ -162,12 +165,15 @@ export default function AccessibilityPanel({
                       const sizes: Array<
                         'small' | 'medium' | 'large' | 'extra-large'
                       > = ['small', 'medium', 'large', 'extra-large'];
-                      const currentIndex = sizes.indexOf(settings.fontSize);
+                      const currentIndex = sizes.indexOf(settings.fontSize || 'medium');
                       const nextIndex = Math.min(
                         currentIndex + 1,
                         sizes.length - 1
                       );
-                      updateSetting('fontSize', sizes[nextIndex]);
+                      const newSize = sizes[nextIndex];
+                      if (newSize) {
+                        updateSetting('fontSize', newSize);
+                      }
                     }}
                     className='p-1 hover:bg-gray-100 rounded'
                     aria-label='增大字体'

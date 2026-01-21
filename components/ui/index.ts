@@ -14,7 +14,6 @@ export {
   CharacterThemeProvider,
   useCharacterTheme,
 } from './CharacterThemeContext';
-export { CharacterSelector } from './CharacterSelector';
 
 // 主题化组件库
 export * from './character-themed';

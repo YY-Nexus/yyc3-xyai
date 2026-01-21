@@ -43,8 +43,7 @@ export default function LazyLoadWrapper({
 
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       const entry = entries[0];
-      if (entry.isIntersecting) {
-        // 延迟加载
+      if (entry?.isIntersecting) {
         timeoutId = setTimeout(() => {
           setIsInView(true);
         }, delay);
@@ -144,7 +143,7 @@ export function useLazyImage(
 
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       const entry = entries[0];
-      if (entry.isIntersecting) {
+      if (entry?.isIntersecting) {
         setIsLoading(true);
 
         const newImg = new Image();

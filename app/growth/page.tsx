@@ -136,7 +136,7 @@ export default function GrowthPage() {
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50 pb-24'>
-      <PageHeader title='成长记录' showBack />
+      <PageHeader title='成长记录' showBack showHome />
 
       <main className='px-4 py-4 space-y-6'>
         {currentChild && (
@@ -238,7 +238,7 @@ interface OverviewTabProps {
   milestoneProgress: UseGrowthStageResult['milestoneProgress'];
   stageTransition: {
     daysUntilTransition: number;
-    nextStage?: { name: string; description?: string };
+    nextStage?: { name: string; description?: string } | undefined;
   };
   recommendations: UseGrowthStageResult['recommendations'];
   childName: string;

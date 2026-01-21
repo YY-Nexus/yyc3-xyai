@@ -39,7 +39,10 @@ export function MediaUploader({
   const removeFile = (index: number) => {
     const newFiles = files.filter((_, i) => i !== index);
     const newPreviews = previews.filter((_, i) => i !== index);
-    URL.revokeObjectURL(previews[index]); // 释放内存
+    const previewUrl = previews[index];
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
     setPreviews(newPreviews);
     onChange(newFiles);
   };

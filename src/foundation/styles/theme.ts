@@ -35,6 +35,7 @@ export const theme = {
       700: '#374151',
       800: '#1F2937',
       900: '#111827',
+      950: '#030712',
     },
   },
 
@@ -64,6 +65,7 @@ export const theme = {
       loose: '2',
     },
     fontWeight: {
+      light: '300',
       normal: '400',
       medium: '500',
       semibold: '600',

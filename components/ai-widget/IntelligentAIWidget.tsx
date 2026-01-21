@@ -718,7 +718,9 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
       setAvailableModels(models);
 
       if (models.length > 0 && !currentModel) {
-        setCurrentModel(models[0].name);
+        if (models[0]) {
+          setCurrentModel(models[0].name);
+        }
       }
     } catch (error) {
       console.error('加载模型列表失败:', error);

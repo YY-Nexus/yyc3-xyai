@@ -97,7 +97,7 @@ export default function SchedulePage() {
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-blue-50 to-white pb-24'>
-      <PageHeader title='智能日程' showBack />
+      <PageHeader title='智能日程' showBack showHome />
 
       <div className='px-4 py-4 space-y-4'>
         {currentChild && (

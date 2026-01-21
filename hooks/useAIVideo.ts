@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import {
-  type VideoGenerationRequest,
+  type VideoGenerationRequest as ApiVideoGenerationRequest,
   type GeneratedVideo,
   type VideoType,
   type VideoStyle,
@@ -10,6 +10,32 @@ import {
   type VideoTemplate,
   VIDEO_TEMPLATES,
 } from '@/types/ai-video';
+
+interface ExtendedVideoGenerationRequest {
+  childId: string;
+  type: VideoType;
+  title: string;
+  sourceImages?: string[];
+  duration?: number;
+  style: VideoStyle;
+  voiceover?: {
+    enabled: boolean;
+    text?: string;
+    voice?: string;
+    language?: string;
+    emotion?: string;
+    speed?: number;
+  };
+  music?: {
+    enabled: boolean;
+    style?: string;
+    volume?: number;
+    fadeIn?: boolean;
+    fadeOut?: boolean;
+  };
+  captions?: boolean;
+  storyText?: string;
+}
 
 const VIDEO_STORAGE_KEY = 'yyc3_videos';
 
@@ -70,7 +96,7 @@ export function useAIVideo() {
 
   // 模拟视频生成过程
   const simulateGeneration = useCallback(
-    async (request: VideoGenerationRequest): Promise<GeneratedVideo> => {
+    async (request: ExtendedVideoGenerationRequest): Promise<GeneratedVideo> => {
       const steps = [
         { progress: 10, task: '分析图片内容...' },
         { progress: 25, task: '生成动画序列...' },
@@ -91,22 +117,28 @@ export function useAIVideo() {
       // 生成模拟视频数据
       const video: GeneratedVideo = {
         id: generateId('video'),
-        childId: request.childId,
         type: request.type,
         title: request.title,
         description: `${request.type === 'memory-recap' ? '成长回忆' : '创意视频'} - ${request.title}`,
-        videoUrl: `/placeholder.svg?height=720&width=1280&query=${encodeURIComponent(request.title + ' video preview')}`,
+        thumbnail: `/placeholder.svg?height=180&width=320&query=${encodeURIComponent(request.title + ' thumbnail')}`,
         thumbnailUrl: `/placeholder.svg?height=180&width=320&query=${encodeURIComponent(request.title + ' thumbnail')}`,
-        duration: request.duration,
+        duration: request.duration ?? 30,
+        resolution: '1080p',
         style: request.style,
-        sourceImages: request.sourceImages,
-        voiceoverText: request.voiceover?.text,
-        musicStyle: request.music?.style,
+        scenes: [],
+        settings: {
+          backgroundMusic: request.music?.enabled ?? false,
+          voiceover: request.voiceover?.enabled ?? false,
+          subtitles: false,
+          aspectRatio: '16:9',
+          fps: 30,
+        },
         status: 'completed',
-        progress: 100,
         isFavorite: false,
         viewCount: 0,
         createdAt: new Date(),
+        updatedAt: new Date(),
+        ...(request.voiceover?.text && { voiceoverText: request.voiceover.text }),
       };
 
       return video;
@@ -116,7 +148,7 @@ export function useAIVideo() {
 
   // 生成视频
   const generateVideo = useCallback(
-    async (request: VideoGenerationRequest): Promise<GeneratedVideo> => {
+    async (request: ExtendedVideoGenerationRequest): Promise<GeneratedVideo> => {
       setIsGenerating(true);
       setGenerationProgress(0);
       setCurrentTask('准备生成...');
@@ -142,7 +174,7 @@ export function useAIVideo() {
   const generateMemoryRecap = useCallback(
     async (config: MemoryRecapConfig): Promise<GeneratedVideo> => {
       // 构建回忆视频请求
-      const request: VideoGenerationRequest = {
+      const request: ExtendedVideoGenerationRequest = {
         childId: config.childId,
         type: 'memory-recap',
         title: `${config.period.name}成长回忆`,
@@ -181,7 +213,7 @@ export function useAIVideo() {
       style: VideoStyle,
       duration: number
     ): Promise<GeneratedVideo> => {
-      const request: VideoGenerationRequest = {
+      const request: ExtendedVideoGenerationRequest = {
         childId,
         type: 'image-to-video',
         title,
@@ -210,7 +242,7 @@ export function useAIVideo() {
       title: string,
       images: string[]
     ): Promise<GeneratedVideo> => {
-      const request: VideoGenerationRequest = {
+      const request: ExtendedVideoGenerationRequest = {
         childId,
         type: 'story-animation',
         title,
@@ -256,7 +288,7 @@ export function useAIVideo() {
     (videoId: string) => {
       const video = videos.find(v => v.id === videoId);
       if (video) {
-        updateVideo(videoId, { viewCount: video.viewCount + 1 });
+        updateVideo(videoId, { viewCount: (video.viewCount ?? 0) + 1 });
       }
     },
     [videos, updateVideo]

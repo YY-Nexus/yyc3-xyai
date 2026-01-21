@@ -78,6 +78,8 @@ interface DataQualityMetrics {
   accuracy: number;
   validity: number;
   uniqueness: number;
+  missingPatterns?: Record<string, number>;
+  anomalyCount?: number;
 }
 
 interface ChartDataPoint {
@@ -168,12 +170,12 @@ const RealTimePredictionMonitor: React.FC<RealTimePredictionMonitorProps> = ({
     // 处理数据用于图表显示
     const chartData = filteredData.map((data, index) => ({
       timestamp: new Date(data.timestamp).toLocaleTimeString(),
-      value: Array.isArray(data.prediction) ? data.prediction[0] : data.prediction,
+      value: Array.isArray(data.prediction) ? (data.prediction[0] ?? 0) : (data.prediction ?? 0),
       confidence: data.confidence * 100,
       latency: data.processingTime,
       index: index,
       modelVersion: data.modelVersion,
-      quality: data.dataQuality?.overallScore || 0,
+      quality: data.dataQuality?.overallScore ?? 0,
     }));
 
     dataHistoryRef.current = chartData.slice(-maxDataPoints);
@@ -305,13 +307,13 @@ const RealTimePredictionMonitor: React.FC<RealTimePredictionMonitorProps> = ({
     if (!threshold) return '#8884d8';
 
     if (type === 'latency' || type === 'error') {
-      if (value <= threshold.good) return '#10b981'; // green
-      if (value <= threshold.warning) return '#f59e0b'; // yellow
-      return '#ef4444'; // red
+      if (value <= threshold.good) return 'var(--color-green)';
+      if (value <= threshold.warning) return 'var(--color-yellow)';
+      return 'var(--color-red)';
     } else {
-      if (value >= threshold.good) return '#10b981'; // green
-      if (value >= threshold.warning) return '#f59e0b'; // yellow
-      return '#ef4444'; // red
+      if (value >= threshold.good) return 'var(--color-green)';
+      if (value >= threshold.warning) return 'var(--color-yellow)';
+      return 'var(--color-red)';
     }
   }, []);
 

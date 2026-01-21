@@ -25,6 +25,8 @@ import {
 import { EmotionType, EmotionInsight } from '@/types/emotion';
 import { useChildren } from './useChildren';
 
+type ExtendedEmotionType = EmotionType | 'confusion' | 'excitement';
+
 export interface UseEmotionMonitorOptions {
   autoAnalyzeInput?: boolean;
   autoTrackBehavior?: boolean;
@@ -89,7 +91,7 @@ export function useEmotionMonitor(options: UseEmotionMonitorOptions = {}) {
 
       if (state) {
         // 更新AI助手情感状态
-        dispatch(setAIEmotion(state.currentEmotion));
+        dispatch(setAIEmotion(state.currentEmotion as any));
 
         // 生成情感洞察
         generateEmotionInsights(state);

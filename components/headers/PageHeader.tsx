@@ -1,14 +1,18 @@
 'use client';
 
 import type React from 'react';
-
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { IconWrapper } from '@/components/ui/IconWrapper';
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   icon?: string;
-  title: string;
+  title?: string;
   subtitle?: string;
   showBack?: boolean;
+  showHome?: boolean;
+  homeHref?: string;
   actions?: Array<{ icon: string; label: string; onClick?: () => void }>;
   children?: React.ReactNode;
 }
@@ -18,9 +22,17 @@ export default function PageHeader({
   title,
   subtitle,
   showBack,
+  showHome = true,
+  homeHref = '/',
   actions,
   children,
 }: PageHeaderProps) {
+  const router = useRouter();
+
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <motion.header
       className='w-full px-8 py-4 flex items-center justify-between z-20'
@@ -30,9 +42,25 @@ export default function PageHeader({
     >
       <div className='flex items-center gap-3'>
         {showBack && (
-          <button className='text-blue-500 hover:text-blue-600 transition-colors'>
-            <i className='fas fa-arrow-left' />
-          </button>
+          <IconWrapper
+            size='md'
+            variant='primary'
+            onClick={handleBack}
+            aria-label='返回'
+          >
+            <i className='ri-arrow-left-line' />
+          </IconWrapper>
+        )}
+        {showHome && (
+          <Link href={homeHref}>
+            <IconWrapper
+              size='md'
+              variant='secondary'
+              aria-label='首页'
+            >
+              <i className='ri-home-line' />
+            </IconWrapper>
+          </Link>
         )}
         {icon && <i className={`${icon} text-blue-500`} />}
         <div>

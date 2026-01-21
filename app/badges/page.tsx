@@ -12,7 +12,7 @@ export default function BadgesPage() {
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-yellow-50'>
-      <PageHeader title='勋章殿堂' showBack />
+      <PageHeader title='勋章殿堂' showBack showHome />
       
       <main className='px-4 py-4'>
         {currentChild ? (

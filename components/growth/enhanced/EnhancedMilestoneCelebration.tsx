@@ -241,43 +241,6 @@ export default function EnhancedMilestoneCelebration({
     { title: '庆祝时刻', icon: PartyPopper, delay: 2400 },
   ];
 
-  useEffect(() => {
-    if (isVisible && milestone) {
-      setShowEffects(true);
-      setCurrentStep(0);
-
-      // 逐步显示庆祝步骤
-      const stepTimer = setInterval(() => {
-        setCurrentStep(prev => {
-          if (prev >= celebrationSteps.length - 1) {
-            clearInterval(stepTimer);
-            return prev;
-          }
-          return prev + 1;
-        });
-      }, 800);
-
-      // 播放庆祝音效
-      playCelebrationSound();
-
-      // 自动关闭
-      if (autoClose) {
-        const closeTimer = setTimeout(() => {
-          onClose();
-        }, 8000);
-        return () => {
-          clearTimeout(stepTimer);
-          clearTimeout(closeTimer);
-        };
-      }
-
-      return () => clearInterval(stepTimer);
-    } else {
-      setShowEffects(false);
-      setCurrentStep(0);
-    }
-  }, [isVisible, milestone, autoClose, onClose]);
-
   const playCelebrationSound = useCallback(() => {
     try {
       interface WebkitAudioContext extends AudioContext {}
@@ -294,10 +257,9 @@ export default function EnhancedMilestoneCelebration({
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
 
-      // 庆祝旋律
-      const melody = [523.25, 587.33, 659.25, 783.99, 880.0, 987.77, 1046.5]; // C5, D5, E5, G5, A5, B5, C6
+      const melody = [523.25, 587.33, 659.25, 783.99, 880.0, 987.77, 1046.5];
 
-      oscillator.frequency.value = melody[0];
+      oscillator.frequency.value = melody[0]!;
       oscillator.type = 'sine';
       gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(
@@ -309,7 +271,7 @@ export default function EnhancedMilestoneCelebration({
       const playNextNote = () => {
         if (noteIndex < melody.length && oscillator) {
           oscillator.frequency.setValueAtTime(
-            melody[noteIndex],
+            melody[noteIndex]!,
             audioContext.currentTime
           );
           noteIndex++;
@@ -327,6 +289,41 @@ export default function EnhancedMilestoneCelebration({
       console.log('音频播放失败:', error);
     }
   }, []);
+
+  useEffect(() => {
+    if (!isVisible || !milestone) {
+      setShowEffects(false);
+      setCurrentStep(0);
+      return;
+    }
+
+    setShowEffects(true);
+    setCurrentStep(0);
+
+    const stepTimer = setInterval(() => {
+      setCurrentStep(prev => {
+        if (prev >= celebrationSteps.length - 1) {
+          clearInterval(stepTimer);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 800);
+
+    playCelebrationSound();
+
+    if (autoClose) {
+      const closeTimer = setTimeout(() => {
+        onClose();
+      }, 8000);
+      return () => {
+        clearTimeout(stepTimer);
+        clearTimeout(closeTimer);
+      };
+    }
+
+    return () => clearInterval(stepTimer);
+  }, [isVisible, milestone, autoClose, onClose, playCelebrationSound]);
 
   if (!milestone) return null;
 
@@ -391,7 +388,7 @@ export default function EnhancedMilestoneCelebration({
                 <ConfettiParticle
                   key={i}
                   delay={Math.random() * 2}
-                  color={config.colors[i % config.colors.length]}
+                  color={config.colors[i % config.colors.length]!}
                   duration={config.animationDuration}
                   x={Math.random() * 100}
                   rotation={Math.random() * 360}
@@ -405,7 +402,7 @@ export default function EnhancedMilestoneCelebration({
                   delay={0.3 + i * 0.2}
                   x={15 + Math.random() * 70}
                   y={20 + Math.random() * 40}
-                  color={config.colors[i % config.colors.length]}
+                  color={config.colors[i % config.colors.length]!}
                 />
               ))}
 

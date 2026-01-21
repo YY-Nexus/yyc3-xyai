@@ -328,11 +328,11 @@ export default function GrowthDataVisualization() {
     if (!latest) return [];
 
     return [
-      { name: '运动发展', value: latest.skills.motor, color: '#8B5CF6' },
-      { name: '认知发展', value: latest.skills.cognitive, color: '#EC4899' },
-      { name: '语言发展', value: latest.skills.language, color: '#F59E0B' },
-      { name: '社交发展', value: latest.skills.social, color: '#10B981' },
-      { name: '情感发展', value: latest.skills.emotional, color: '#3B82F6' },
+      { name: '运动发展', value: latest.skills.motor, color: 'var(--color-purple-light)' },
+      { name: '认知发展', value: latest.skills.cognitive, color: 'var(--color-pink)' },
+      { name: '语言发展', value: latest.skills.language, color: 'var(--color-yellow)' },
+      { name: '社交发展', value: latest.skills.social, color: 'var(--color-green)' },
+      { name: '情感发展', value: latest.skills.emotional, color: 'var(--color-blue)' },
     ];
   }, [filteredData]);
 

@@ -71,6 +71,8 @@ export default function MessagesPage() {
       <PageHeader
         icon='ri-message-3-fill'
         title='消息中心'
+        showBack
+        showHome
         actions={[{ icon: 'ri-mail-open-line', label: '全部标为已读' }]}
       />
 

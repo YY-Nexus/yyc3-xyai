@@ -69,7 +69,7 @@ export default function ChildrenPage() {
 
   return (
     <div className='min-h-screen flex flex-col bg-gradient-to-b from-sky-50 to-white'>
-      <PageHeader title='儿童档案' subtitle='管理孩子的成长档案' showBack />
+      <PageHeader title='儿童档案' subtitle='管理孩子的成长档案' showBack showHome />
 
       <main className='flex-1 px-4 pb-24 pt-4'>
         <div className='max-w-4xl mx-auto'>

@@ -71,7 +71,7 @@ export default function InteractionsPage() {
 
   return (
     <div className='min-h-screen flex flex-col bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50'>
-      <PageHeader icon='ri-heart-3-line' title='成长互动记录'>
+      <PageHeader icon='ri-heart-3-line' title='成长互动记录' showBack showHome>
         <div className='flex items-center gap-2'>
           <span className='text-sm text-slate-500'>记录每一次温暖陪伴</span>
         </div>

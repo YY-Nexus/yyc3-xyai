@@ -161,14 +161,15 @@ export function useAIChat(childId?: string): UseAIChatReturn {
         const result = await apiClient.getConversationHistory(targetChildId, {
           page,
           limit: 50,
-          sessionId,
+          ...(sessionId && { sessionId }),
         });
 
         if (result.success && result.data) {
+          const conversations = result.data.conversations || [];
           if (page === 1) {
-            setMessages(result.data.conversations);
+            setMessages(conversations);
           } else {
-            setMessages(prev => [...prev, ...result.data.conversations]);
+            setMessages(prev => [...prev, ...conversations]);
           }
           setCurrentPage(page);
         }
@@ -193,8 +194,12 @@ export function useAIChat(childId?: string): UseAIChatReturn {
           setSessions(result.data.sessions);
 
           // Set current session if not set
-          if (result.data.sessions.length > 0 && !currentSessionId) {
-            setCurrentSessionId(result.data.sessions[0].sessionId);
+          const sessions = result.data.sessions || [];
+          if (sessions.length > 0 && !currentSessionId) {
+            const firstSession = sessions[0];
+            if (firstSession) {
+              setCurrentSessionId(firstSession.sessionId);
+            }
           }
         }
       } catch (err) {
@@ -224,12 +229,22 @@ export function useAIChat(childId?: string): UseAIChatReturn {
       setError(null);
 
       try {
-        const result = await apiClient.chat({
+        const chatData: {
+          childId: string;
+          message: string;
+          aiRole: 'listener' | 'recorder' | 'guardian' | 'advisor' | 'cultural_mentor';
+        } & { sessionId?: string } = {
           childId: targetChildId,
           message: message.trim(),
           aiRole,
-          sessionId: sessionId || currentSessionId || undefined,
-        });
+        };
+
+        const sessionValue = sessionId || currentSessionId;
+        if (sessionValue) {
+          chatData.sessionId = sessionValue;
+        }
+
+        const result = await apiClient.chat(chatData);
 
         if (result.success && result.data) {
           const newMessage: AIMessage = {
@@ -237,7 +252,7 @@ export function useAIChat(childId?: string): UseAIChatReturn {
             sessionId: result.data.sessionId,
             userMessage: result.data.message,
             aiResponse: result.data.aiResponse,
-            aiRole: result.data.aiRole,
+            aiRole: result.data.aiRole as 'recorder' | 'guardian' | 'listener' | 'advisor' | 'cultural_mentor',
             aiRoleName: result.data.aiRoleName,
             emotion: result.data.emotion,
             createdAt: new Date().toISOString(),

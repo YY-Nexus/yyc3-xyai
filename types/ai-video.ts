@@ -19,6 +19,7 @@ export interface AIVideoProject {
   settings: VideoSettings;
   viewCount?: number;
   isFavorite?: boolean;
+  voiceoverText?: string;
 }
 
 // 类型别名：用于兼容性

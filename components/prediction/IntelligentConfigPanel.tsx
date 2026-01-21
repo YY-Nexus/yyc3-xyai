@@ -233,25 +233,46 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
 
   // 应用模型模板
   const applyModelTemplate = useCallback((template: ModelTemplate) => {
-    setConfig(prev => ({
-      ...prev,
-      algorithm: template.id,
-      name: `${template.name}预测任务`,
-      parameters: { ...template.parameters },
-      constraints: {
-        maxTrainingTime:
-          template.constraints.maxTrainingTime ||
-          prev.constraints?.maxTrainingTime,
-        memoryLimit:
-          template.constraints.memoryLimit || prev.constraints?.memoryLimit,
-        accuracyThreshold:
-          template.constraints.accuracyThreshold ||
-          prev.constraints?.accuracyThreshold,
-        realTimeCapability:
-          template.constraints.realTimeCapability ??
-          prev.constraints?.realTimeCapability,
-      },
-    }));
+    setConfig(prev => {
+      const newConfig: PredictionConfig = {
+        ...prev,
+        algorithm: template.id,
+        name: `${template.name}预测任务`,
+        parameters: { ...template.parameters },
+      };
+
+      const constraints: PredictionConfig['constraints'] = {};
+
+      if (template.constraints.maxTrainingTime !== undefined) {
+        constraints.maxTrainingTime = template.constraints.maxTrainingTime;
+      } else if (prev.constraints?.maxTrainingTime !== undefined) {
+        constraints.maxTrainingTime = prev.constraints.maxTrainingTime;
+      }
+
+      if (template.constraints.memoryLimit !== undefined) {
+        constraints.memoryLimit = template.constraints.memoryLimit;
+      } else if (prev.constraints?.memoryLimit !== undefined) {
+        constraints.memoryLimit = prev.constraints.memoryLimit;
+      }
+
+      if (template.constraints.accuracyThreshold !== undefined) {
+        constraints.accuracyThreshold = template.constraints.accuracyThreshold;
+      } else if (prev.constraints?.accuracyThreshold !== undefined) {
+        constraints.accuracyThreshold = prev.constraints.accuracyThreshold;
+      }
+
+      if (template.constraints.realTimeCapability !== undefined) {
+        constraints.realTimeCapability = template.constraints.realTimeCapability;
+      } else if (prev.constraints?.realTimeCapability !== undefined) {
+        constraints.realTimeCapability = prev.constraints.realTimeCapability;
+      }
+
+      if (Object.keys(constraints).length > 0) {
+        newConfig.constraints = constraints;
+      }
+
+      return newConfig;
+    });
   }, []);
 
   // 自动优化参数
@@ -443,7 +464,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                   <Label htmlFor='task-name'>任务名称</Label>
                   <Input
                     id='task-name'
-                    value={config.name}
+                    {...(config.name !== undefined && { value: config.name })}
                     onChange={e => updateConfig({ name: e.target.value })}
                     placeholder='输入预测任务名称'
                   />
@@ -451,7 +472,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className='space-y-2'>
                   <Label htmlFor='algorithm'>算法选择</Label>
                   <Select
-                    value={config.algorithm}
+                    {...(config.algorithm !== undefined && { value: config.algorithm })}
                     onValueChange={value => updateConfig({ algorithm: value })}
                   >
                     <SelectTrigger>
@@ -479,7 +500,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                   <div className='space-y-2'>
                     <Label>准确度</Label>
                     <Select
-                      value={config.requirements?.accuracy}
+                      {...(config.requirements?.accuracy !== undefined && { value: config.requirements.accuracy })}
                       onValueChange={(value: 'high' | 'medium' | 'low') =>
                         updateConfig({
                           requirements: {
@@ -502,7 +523,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                   <div className='space-y-2'>
                     <Label>速度</Label>
                     <Select
-                      value={config.requirements?.speed}
+                      {...(config.requirements?.speed !== undefined && { value: config.requirements.speed })}
                       onValueChange={(value: 'high' | 'medium' | 'low') =>
                         updateConfig({
                           requirements: {
@@ -525,7 +546,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                   <div className='space-y-2'>
                     <Label>可解释性</Label>
                     <Select
-                      value={config.requirements?.interpretability}
+                      {...(config.requirements?.interpretability !== undefined && { value: config.requirements.interpretability })}
                       onValueChange={(value: 'high' | 'medium' | 'low') =>
                         updateConfig({
                           requirements: {
@@ -548,7 +569,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                   <div className='space-y-2'>
                     <Label>可扩展性</Label>
                     <Select
-                      value={config.requirements?.scalability}
+                      {...(config.requirements?.scalability !== undefined && { value: config.requirements.scalability })}
                       onValueChange={(value: 'high' | 'medium' | 'low') =>
                         updateConfig({
                           requirements: {
@@ -606,7 +627,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className='flex items-center space-x-2'>
                   <Switch
                     id='normalize'
-                    checked={config.preprocessing?.normalize}
+                    {...(config.preprocessing?.normalize !== undefined && { checked: config.preprocessing.normalize })}
                     onCheckedChange={checked =>
                       updateConfig({
                         preprocessing: {
@@ -621,7 +642,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className='flex items-center space-x-2'>
                   <Switch
                     id='feature-engineering'
-                    checked={config.preprocessing?.featureEngineering}
+                    {...(config.preprocessing?.featureEngineering !== undefined && { checked: config.preprocessing.featureEngineering })}
                     onCheckedChange={checked =>
                       updateConfig({
                         preprocessing: {
@@ -636,7 +657,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className='flex items-center space-x-2'>
                   <Switch
                     id='outlier-removal'
-                    checked={config.preprocessing?.outlierRemoval}
+                    {...(config.preprocessing?.outlierRemoval !== undefined && { checked: config.preprocessing.outlierRemoval })}
                     onCheckedChange={checked =>
                       updateConfig({
                         preprocessing: {
@@ -651,7 +672,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className='space-y-2'>
                   <Label>缺失值处理</Label>
                   <Select
-                    value={config.preprocessing?.handleMissing}
+                    {...(config.preprocessing?.handleMissing !== undefined && { value: config.preprocessing.handleMissing })}
                     onValueChange={(
                       value: 'interpolate' | 'mean' | 'median' | 'drop'
                     ) =>
@@ -929,7 +950,7 @@ const IntelligentConfigPanel: React.FC<IntelligentConfigPanelProps> = ({
                 <div className='flex items-center space-x-2'>
                   <Switch
                     id='realtime-capability'
-                    checked={config.constraints?.realTimeCapability || false}
+                    {...(config.constraints?.realTimeCapability !== undefined && { checked: config.constraints.realTimeCapability })}
                     onCheckedChange={checked =>
                       updateConfig({
                         constraints: {

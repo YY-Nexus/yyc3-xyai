@@ -63,7 +63,7 @@ export default function AIGrowthCompanion({
   useEffect(() => {
     if (aiMessages.length > 0) {
       const lastMessage = aiMessages[aiMessages.length - 1];
-      if (lastMessage.role === 'assistant') {
+      if (lastMessage && lastMessage.role === 'assistant') {
         const aiMessage = {
           role: 'assistant' as const,
           content: lastMessage.content,

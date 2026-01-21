@@ -15,9 +15,14 @@ export type Variant =
   | 'default'
   | 'primary'
   | 'secondary'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'info'
   | 'destructive'
   | 'outline'
-  | 'ghost';
+  | 'ghost'
+  | 'text';
 
 /**
  * 加载状态

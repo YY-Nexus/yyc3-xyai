@@ -117,7 +117,7 @@ export default function CreateRecordModal({
         audioNotes: [],
       },
       tags,
-      emotion: emotionResult,
+      ...(emotionResult ? { emotion: emotionResult } : {}),
     };
 
     onSubmit(record);

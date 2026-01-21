@@ -31,7 +31,7 @@ export default function VideoPlayer({
     if (isPlaying) {
       progressInterval.current = setInterval(() => {
         setCurrentTime(prev => {
-          if (prev >= video.duration) {
+          if (video.duration && prev >= video.duration) {
             setIsPlaying(false);
             return 0;
           }
@@ -73,7 +73,9 @@ export default function VideoPlayer({
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const percent = (e.clientX - rect.left) / rect.width;
-    setCurrentTime(percent * video.duration);
+    if (video.duration) {
+      setCurrentTime(percent * video.duration);
+    }
   };
 
   return (
@@ -144,7 +146,7 @@ export default function VideoPlayer({
               >
                 <div
                   className='h-full bg-white rounded-full relative transition-all'
-                  style={{ width: `${(currentTime / video.duration) * 100}%` }}
+                  style={{ width: video.duration ? `${(currentTime / video.duration) * 100}%` : '0%' }}
                 >
                   <div className='absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity' />
                 </div>
@@ -164,7 +166,7 @@ export default function VideoPlayer({
 
                   {/* 时间显示 */}
                   <span className='text-white text-sm'>
-                    {formatTime(currentTime)} / {formatTime(video.duration)}
+                    {formatTime(currentTime)} / {formatTime(video.duration || 0)}
                   </span>
 
                   {/* 音量 */}

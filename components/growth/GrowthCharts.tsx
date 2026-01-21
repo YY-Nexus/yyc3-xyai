@@ -235,7 +235,7 @@ function RadarChart({ scores }: { scores: Record<string, number> }) {
 
   const points = dimensions.map((dim, i) => {
     const angle = (Math.PI * 2 * i) / dimensions.length - Math.PI / 2;
-    const value = scores[dim] / 100;
+    const value = (scores[dim] ?? 0) / 100;
     return {
       x: center + Math.cos(angle) * radius * value,
       y: center + Math.sin(angle) * radius * value,

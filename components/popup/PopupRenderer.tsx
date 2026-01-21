@@ -40,11 +40,11 @@ export const PopupRenderer: React.FC = () => {
           <Modal
             key={options.id}
             {...commonProps}
-            title={options.title}
+            {...(options.title !== undefined && { title: options.title })}
             size={options.size as any}
-            showCloseButton={options.showCloseButton}
-            closeOnOverlayClick={options.closeOnOverlayClick}
-            closeOnEscape={options.closeOnEscape}
+            {...(options.showCloseButton !== undefined && { showCloseButton: options.showCloseButton })}
+            {...(options.closeOnOverlayClick !== undefined && { closeOnOverlayClick: options.closeOnOverlayClick })}
+            {...(options.closeOnEscape !== undefined && { closeOnEscape: options.closeOnEscape })}
           >
             {options.content}
           </Modal>
@@ -55,8 +55,8 @@ export const PopupRenderer: React.FC = () => {
           <Dialog
             key={options.id}
             {...commonProps}
-            title={options.title}
-            showCloseButton={options.showCloseButton}
+            {...(options.title !== undefined && { title: options.title })}
+            {...(options.showCloseButton !== undefined && { showCloseButton: options.showCloseButton })}
           >
             {options.content}
           </Dialog>
@@ -67,10 +67,10 @@ export const PopupRenderer: React.FC = () => {
           <Notification
             key={options.id}
             {...commonProps}
-            title={options.title}
-            variant={options.variant}
-            duration={options.duration}
-            position={options.position as any}
+            {...(options.title !== undefined && { title: options.title })}
+            {...(options.variant !== undefined && { variant: options.variant })}
+            {...(options.duration !== undefined && { duration: options.duration })}
+            {...(options.position !== undefined && { position: options.position as any })}
           >
             {options.content}
           </Notification>
@@ -81,10 +81,10 @@ export const PopupRenderer: React.FC = () => {
           <Confirm
             key={options.id}
             {...commonProps}
-            title={options.title}
-            confirmText={options.confirmText}
-            cancelText={options.cancelText}
-            variant={options.variant as any}
+            {...(options.title !== undefined && { title: options.title })}
+            {...(options.confirmText !== undefined && { confirmText: options.confirmText })}
+            {...(options.cancelText !== undefined && { cancelText: options.cancelText })}
+            {...(options.variant !== undefined && { variant: options.variant as any })}
             onConfirm={() => {
               if (options.onConfirm) {
                 options.onConfirm();

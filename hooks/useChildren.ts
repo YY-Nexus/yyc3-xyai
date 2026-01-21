@@ -36,7 +36,10 @@ export function useChildren(userId?: string): UseChildrenReturn {
 
       // 自动选择第一个孩子作为当前孩子
       if (data.length > 0 && !currentChild) {
-        setCurrentChild(data[0]);
+        const firstChild = data[0];
+        if (firstChild) {
+          setCurrentChild(firstChild);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '加载失败');

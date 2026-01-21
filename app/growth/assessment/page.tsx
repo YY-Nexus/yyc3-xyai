@@ -109,7 +109,7 @@ export default function AssessmentPage() {
 
   return (
     <div className='h-screen flex flex-col overflow-hidden bg-slate-50'>
-      <PageHeader icon='ri-pulse-line' title='发展评估' />
+      <PageHeader icon='ri-pulse-line' title='发展评估' showBack showHome />
 
       {/* 进度条 */}
       <div className='bg-white border-b border-slate-200 px-4 py-3'>

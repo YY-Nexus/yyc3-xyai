@@ -71,7 +71,10 @@ export function useChildrenMock(userId?: string): UseChildrenReturn {
 
       // Auto-select first child as current child
       if (data.length > 0 && !currentChild) {
-        setCurrentChild(data[0]);
+        const firstChild = data[0];
+        if (firstChild) {
+          setCurrentChild(firstChild);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '加载失败');

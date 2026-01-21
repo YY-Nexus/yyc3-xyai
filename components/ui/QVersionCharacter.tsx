@@ -61,10 +61,10 @@ export default function QVersionCharacter({
 
   // 根据用户信息和心情获取角色信息
   const getCharacterImage = (
-    child: MockChild | null,
+    child: MockChild | null | undefined,
     currentMood: string
   ): string => {
-    const character = characterManager.getCharacterForUser(child);
+    const character = characterManager.getCharacterForUser(child || null);
     return characterManager.getCharacterImagePath(character, currentMood);
   };
 

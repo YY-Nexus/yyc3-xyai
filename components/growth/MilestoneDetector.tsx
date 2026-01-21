@@ -122,7 +122,7 @@ export default function MilestoneDetector({
       setDetectedMilestones(detected);
       setIsAnalyzing(false);
       if (detected.length > 0 && onMilestoneDetected) {
-        onMilestoneDetected(detected[0]);
+        onMilestoneDetected(detected[0]!);
       }
     }, 500);
   };

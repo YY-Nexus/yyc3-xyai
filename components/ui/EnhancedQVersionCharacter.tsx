@@ -28,6 +28,7 @@ interface MockChild {
 
 interface EnhancedQVersionCharacterProps {
   child?: MockChild | null;
+  character?: CharacterConfig;
   className?: string;
   showName?: boolean;
   interactive?: boolean;
@@ -44,6 +45,7 @@ interface EnhancedQVersionCharacterProps {
 
 export default function EnhancedQVersionCharacter({
   child,
+  character,
   className = '',
   showName = true,
   interactive = false,
@@ -74,31 +76,31 @@ export default function EnhancedQVersionCharacter({
   }, [preloadImages]);
 
   // 获取角色配置
-  const character = characterManager.getCharacterForUser(child);
-  characterRef.current = character;
+  const characterConfig = character || characterManager.getCharacterForUser(child);
+  characterRef.current = characterConfig;
 
   // 同步外部传入的主题和表情
   useEffect(() => {
-    if (theme && character.themes.find(t => t.name === theme)) {
+    if (theme && characterConfig.themes.find(t => t.name === theme)) {
       setCurrentTheme(theme);
     }
-    if (expression && character.expressions.find(e => e.name === expression)) {
+    if (expression && characterConfig.expressions.find(e => e.name === expression)) {
       setCurrentExpression(expression);
     }
-  }, [character, theme, expression]);
+  }, [characterConfig, theme, expression]);
 
   // 获取角色图片路径
   const imagePath = characterManager.getCharacterImagePath(
-    character,
+    characterConfig,
     currentExpression,
     currentTheme
   );
   const themeColors = characterManager.getCharacterThemeColors(
-    character,
+    characterConfig,
     currentTheme
   );
   const currentExpressionConfig = characterManager.getCharacterExpression(
-    character,
+    characterConfig,
     currentExpression
   );
 
@@ -124,9 +126,15 @@ export default function EnhancedQVersionCharacter({
 
     setIsAnimating(true);
     setCurrentExpression(newExpression);
-    onExpressionChange?.(newExpression);
 
-    setTimeout(() => setIsAnimating(false), 400);
+    const randomExpression = characterManager.getRandomExpression(characterConfig);
+
+    setTimeout(() => {
+      setIsAnimating(false);
+      onExpressionChange?.(newExpression);
+      onClick?.(characterConfig);
+      triggerInteractionEvent(characterConfig, randomExpression);
+    }, 300);
   };
 
   // 主题切换动画
@@ -144,15 +152,17 @@ export default function EnhancedQVersionCharacter({
   const handleInteraction = () => {
     if (!interactive) return;
 
+    if (!characterConfig) return;
+
     // 随机切换表情
-    const randomExpression = characterManager.getRandomExpression(character);
+    const randomExpression = characterManager.getRandomExpression(characterConfig);
     handleExpressionChange(randomExpression.name);
 
     // 触发回调
-    onClick?.(character);
+    onClick?.(characterConfig);
 
     // 触发交互事件
-    triggerInteractionEvent(character, randomExpression);
+    triggerInteractionEvent(characterConfig, randomExpression);
   };
 
   // 触发交互事件（供其他组件监听）
@@ -190,7 +200,7 @@ export default function EnhancedQVersionCharacter({
     if (!interactive) return '';
 
     if (currentExpressionConfig) {
-      const actionTexts = {
+      const actionTexts: Record<string, string[]> = {
         happy: ['开心一下！', '真棒！', '继续加油！'],
         excited: ['太棒了！', '好兴奋！', '超赞！'],
         thinking: ['思考中...', '想一想...', '仔细考虑...'],
@@ -198,7 +208,7 @@ export default function EnhancedQVersionCharacter({
         loving: ['好可爱！', '好暖心！', '超有爱心！'],
       };
 
-      const texts = actionTexts[currentExpression.name] || ['点击互动'];
+      const texts = actionTexts[currentExpressionConfig.name] || ['点击互动'];
       return texts[Math.floor(Math.random() * texts.length)];
     }
 
@@ -264,11 +274,11 @@ export default function EnhancedQVersionCharacter({
           >
             <img
               src={imagePath}
-              alt={`${character.name} - ${currentExpressionConfig?.displayName || '默认表情'}`}
+              alt={`${characterConfig.name} - ${currentExpressionConfig?.displayName || '默认表情'}`}
               className={`
                 w-full h-full object-cover
-                ${imageError ? 'hidden' : ''}
-              `}
+                ${imageError ? 'hidden' : ''
+              }`}
               onLoad={handleImageLoad}
               onError={handleImageError}
             />
@@ -283,7 +293,7 @@ export default function EnhancedQVersionCharacter({
                   ${currentSize.iconSize}
                 `}
               >
-                {character.gender === 'male' ? '言' : '语'}
+                {characterConfig.gender === 'male' ? '言' : '语'}
               </div>
             )}
           </motion.div>
@@ -344,7 +354,7 @@ export default function EnhancedQVersionCharacter({
         {/* 主题切换按钮 - 仅在详细模式显示 */}
         {mode === 'interactive' && (
           <div className='absolute -top-1 -right-1 flex gap-1'>
-            {character.themes.map((theme, index) => (
+            {characterConfig.themes.map((theme, index) => (
               <button
                 key={theme.id}
                 className={`
@@ -372,7 +382,7 @@ export default function EnhancedQVersionCharacter({
       {/* 角色信息显示 */}
       {showName && mode !== 'compact' && (
         <motion.div
-          key={`info-${currentExpression}-${currentTheme}-${character.name}`}
+          key={`info-${currentExpression}-${currentTheme}-${characterConfig.name}`}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className='mt-2 text-center'
@@ -383,7 +393,7 @@ export default function EnhancedQVersionCharacter({
               className='bg-gradient-to-r bg-clip-text text-transparent font-bold'
               style={{ backgroundImage: themeColors.gradient }}
             >
-              {character.name}
+              {characterConfig.name}
             </span>
             {child?.nickname && (
               <span className='text-gray-500 ml-1'>({child.nickname})</span>
@@ -420,7 +430,7 @@ export default function EnhancedQVersionCharacter({
                 font-medium bg-gray-100 text-gray-600 border border-gray-200
               `}
             >
-              {character.themes.find(t => t.name === currentTheme)?.displayName}
+              {characterConfig.themes.find(t => t.name === currentTheme)?.displayName}
             </motion.div>
           )}
         </motion.div>
@@ -435,7 +445,7 @@ export default function EnhancedQVersionCharacter({
           className='mt-1 text-center'
         >
           <span className={`${currentSize.nameSize} font-medium text-gray-700`}>
-            {character.name}
+            {characterConfig.name}
           </span>
         </motion.div>
       )}
@@ -469,8 +479,8 @@ export function ChildQVersionAvatar({
     <EnhancedQVersionCharacter
       child={child}
       size={size}
-      theme={theme}
-      expression={expression}
+      {...(theme && { theme })}
+      {...(expression && { expression })}
       interactive={false}
       showName={true}
       mode='default'
@@ -518,7 +528,6 @@ export function GenderSelector({
               expression='happy'
               interactive={true}
               mode='interactive'
-              onThemeChange={handleCharacterClick}
               onClick={() => handleCharacterClick('female')}
             />
           </div>
@@ -556,7 +565,6 @@ export function GenderSelector({
               expression='cool'
               interactive={true}
               mode='interactive'
-              onThemeChange={handleCharacterClick}
               onClick={() => handleCharacterClick('male')}
             />
           </div>
@@ -617,11 +625,11 @@ export function CharacterInteractionPanel({
   isOpen,
   onClose,
 }: {
-  child?: Child | null | null;
+  child?: MockChild | null;
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const character = characterManager.getCharacterForUser(child);
+  const characterConfig = characterManager.getCharacterForUser(child);
   const [selectedExpression, setSelectedExpression] = useState<string>('happy');
   const [selectedTheme, setSelectedTheme] = useState<string>('pink');
 
@@ -655,7 +663,7 @@ export function CharacterInteractionPanel({
         {/* 角色展示 */}
         <div className='flex justify-center mb-6'>
           <EnhancedQVersionCharacter
-            child={child}
+            {...(child && { child })}
             size='xl'
             expression={selectedExpression}
             theme={selectedTheme}
@@ -670,7 +678,7 @@ export function CharacterInteractionPanel({
         <div className='mb-6'>
           <h4 className='text-md font-semibold text-gray-700 mb-3'>表情选择</h4>
           <div className='grid grid-cols-3 gap-2'>
-            {character.expressions.map(expression => (
+            {characterConfig.expressions.map(expression => (
               <button
                 key={expression.id}
                 onClick={() => setSelectedExpression(expression.name)}
@@ -678,7 +686,7 @@ export function CharacterInteractionPanel({
                   p-3 rounded-lg border-2 transition-all duration-200
                   ${
                     selectedExpression === expression.name
-                      ? `${character.gender === 'female' ? 'border-pink-400 bg-pink-100 text-pink-700' : 'border-blue-400 bg-blue-100 text-blue-700'}`
+                      ? `${characterConfig.gender === 'female' ? 'border-pink-400 bg-pink-100 text-pink-700' : 'border-blue-400 bg-blue-100 text-blue-700'}`
                       : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }
                 `}
@@ -698,7 +706,7 @@ export function CharacterInteractionPanel({
         <div className='mb-6'>
           <h4 className='text-md font-semibold text-gray-700 mb-3'>主题选择</h4>
           <div className='grid grid-cols-3 gap-2'>
-            {character.themes.map(theme => (
+            {characterConfig.themes.map(theme => (
               <button
                 key={theme.id}
                 onClick={() => setSelectedTheme(theme.name)}
@@ -728,7 +736,7 @@ export function CharacterInteractionPanel({
           <h4 className='text-md font-semibold text-gray-700 mb-3'>经典用语</h4>
           <div className='bg-gray-50 rounded-lg p-4'>
             <p className='text-center text-gray-700 italic'>
-              "{characterManager.getCatchphrase(character)}"
+              "{characterManager.getCatchphrase(characterConfig)}"
             </p>
           </div>
         </div>
@@ -737,10 +745,10 @@ export function CharacterInteractionPanel({
         <div className='border-t pt-4'>
           <h4 className='text-md font-semibold text-gray-700 mb-3'>语音设置</h4>
           <div className='space-y-2 text-sm text-gray-600'>
-            <div>性别偏好: {character.voiceSettings.preferredGender}</div>
-            <div>语速: {character.voiceSettings.speechRate.toFixed(1)}x</div>
-            <div>音调: {character.voiceSettings.pitch.toFixed(1)}x</div>
-            <div>音量: {Math.round(character.voiceSettings.volume * 100)}%</div>
+            <div>性别偏好: {characterConfig.voiceSettings.preferredGender}</div>
+            <div>语速: {characterConfig.voiceSettings.speechRate.toFixed(1)}x</div>
+            <div>音调: {characterConfig.voiceSettings.pitch.toFixed(1)}x</div>
+            <div>音量: {Math.round(characterConfig.voiceSettings.volume * 100)}%</div>
           </div>
         </div>
       </motion.div>

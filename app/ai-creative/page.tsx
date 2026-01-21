@@ -124,6 +124,7 @@ export default function AICreativePage() {
         icon='ri-palette-line'
         title='AI创意工坊'
         showBack
+        showHome
         actions={[{ icon: 'ri-question-line', label: '使用帮助' }]}
       />
 

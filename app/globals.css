@@ -44,10 +44,10 @@
   --color-hover: #f1f5f9;
   --color-selected: #e0f2fe;
   
-  /* 文本色 */
+  /* 文本色 - 优化对比度以符合WCAG AA标准 */
   --color-foreground: #1f2937;
-  --color-muted-foreground: #6b7280;
-  --color-secondary-foreground: #4b5563;
+  --color-muted-foreground: #4b5563;
+  --color-secondary-foreground: #374151;
   
   /* 边框色 */
   --color-border: #e5e7eb;
@@ -361,5 +361,35 @@
   scrollbar-width: none;
 }
 
+/* 动画可访问性 - 支持prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* 禁用所有动画 */
+  [data-animate] {
+    animation: none !important;
+  }
+
+  /* 禁用过渡效果 */
+  [data-transition] {
+    transition: none !important;
+  }
+
+  /* 禁用变换效果 */
+  [data-transform] {
+    transform: none !important;
+  }
+}
+
 /* 全局UI组件统一化样式 - 彩色边线阴影效果 */
 @import '../styles/global-ui-enhancements.css';
+
+/* 统一图标彩色响应交互样式 */
+@import '../styles/icon-interactive.css';

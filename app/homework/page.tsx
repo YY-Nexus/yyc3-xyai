@@ -65,6 +65,7 @@ export default function HomeworkPage() {
       <PageHeader
         icon='ri-book-open-fill'
         title='我的作业任务'
+        showHome
         actions={[
           { icon: 'ri-filter-2-line', label: '按学科筛选' },
           { icon: 'ri-sort-asc', label: '按截止日期排序' },

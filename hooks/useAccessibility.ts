@@ -345,26 +345,26 @@ export function useAccessibility() {
     toggleScreenReader: () =>
       updateSetting('screenReaderEnabled', !settings.screenReaderEnabled),
     increaseFontSize: () => {
-      const sizes: Array<'small' | 'medium' | 'large' | 'extra-large'> = [
+      const sizes: readonly ['small', 'medium', 'large', 'extra-large'] = [
         'small',
         'medium',
         'large',
         'extra-large',
       ];
-      const currentIndex = sizes.indexOf(settings.fontSize);
+      const currentIndex = settings.fontSize ? Math.max(0, sizes.indexOf(settings.fontSize)) : 0;
       const nextIndex = Math.min(currentIndex + 1, sizes.length - 1);
-      updateSetting('fontSize', sizes[nextIndex]);
+      updateSetting('fontSize', sizes[nextIndex] as 'small' | 'medium' | 'large' | 'extra-large');
     },
     decreaseFontSize: () => {
-      const sizes: Array<'small' | 'medium' | 'large' | 'extra-large'> = [
+      const sizes: readonly ['small', 'medium', 'large', 'extra-large'] = [
         'small',
         'medium',
         'large',
         'extra-large',
       ];
-      const currentIndex = sizes.indexOf(settings.fontSize);
+      const currentIndex = settings.fontSize ? Math.max(0, sizes.indexOf(settings.fontSize)) : 0;
       const prevIndex = Math.max(currentIndex - 1, 0);
-      updateSetting('fontSize', sizes[prevIndex]);
+      updateSetting('fontSize', sizes[prevIndex] as 'small' | 'medium' | 'large' | 'extra-large');
     },
   };
 }

@@ -78,7 +78,7 @@ export const VoiceSynthesis: React.FC<VoiceSynthesisProps> = ({
             localService: voice.localService,
             voiceURI: voice.voiceURI,
           })),
-          selectedVoice: filteredVoices.length > 0 ? {
+          selectedVoice: filteredVoices.length > 0 && filteredVoices[0] ? {
             name: filteredVoices[0].name,
             lang: filteredVoices[0].lang,
             localService: filteredVoices[0].localService,

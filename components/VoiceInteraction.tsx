@@ -18,8 +18,8 @@ interface VoiceInteractionProps {
 }
 
 interface WindowWithSpeechRecognition extends Window {
-  SpeechRecognition?: typeof SpeechRecognition;
-  webkitSpeechRecognition?: typeof SpeechRecognition;
+  SpeechRecognition?: any;
+  webkitSpeechRecognition?: any;
 }
 
 interface WindowWithAudioContext extends Window {
@@ -58,9 +58,9 @@ export default function VoiceInteraction({
   const isSupported = () => {
     return !!(
       (navigator.mediaDevices &&
-        navigator.mediaDevices.getUserMedia &&
-        window.SpeechRecognition) ||
-      (window as WindowWithSpeechRecognition).webkitSpeechRecognition
+        typeof navigator.mediaDevices.getUserMedia === 'function' &&
+        ((window as WindowWithSpeechRecognition).SpeechRecognition ||
+        (window as WindowWithSpeechRecognition).webkitSpeechRecognition))
     );
   };
 
@@ -71,12 +71,12 @@ export default function VoiceInteraction({
       return;
     }
 
-    const SpeechRecognition =
+    const SpeechRecognitionConstructor =
       (window as WindowWithSpeechRecognition).SpeechRecognition ||
       (window as WindowWithSpeechRecognition).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
+    if (!SpeechRecognitionConstructor) return;
 
-    const recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognitionConstructor();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'zh-CN';
@@ -86,8 +86,14 @@ export default function VoiceInteraction({
       let interimTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
+        const resultItem = event.results[i];
+        if (!resultItem) continue;
+        
+        const result = resultItem[0];
+        if (!result) continue;
+        
+        const transcript = result.transcript;
+        if (resultItem.isFinal) {
           finalTranscript += transcript + ' ';
         } else {
           interimTranscript += transcript;

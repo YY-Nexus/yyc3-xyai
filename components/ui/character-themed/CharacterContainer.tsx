@@ -158,7 +158,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
     ...variantStyles,
     position: 'relative' as const,
     overflow: 'hidden',
-  };
+  } as any;
 
   // 装饰元素
   const decorationElement =
@@ -174,7 +174,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
 
   const MotionComponent = motion[
     Component as keyof typeof motion
-  ] as React.ComponentType<React.HTMLAttributes<HTMLElement>>;
+  ] as React.ComponentType<any>;
 
   return (
     <MotionComponent

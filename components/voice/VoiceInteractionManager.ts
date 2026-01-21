@@ -107,7 +107,7 @@ export class VoiceInteractionManager {
           `明白了，我会根据"${text}"为您提供帮助。`,
         ];
         const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-        resolve(randomResponse);
+        resolve(randomResponse || `我听到了您说的"${text}"，让我来帮您处理。`);
       }, 500);
     });
   }

@@ -167,7 +167,7 @@ class APIClient {
         sessionId: string;
         userMessage: string;
         aiResponse: string;
-        aiRole: string;
+        aiRole: 'recorder' | 'guardian' | 'listener' | 'advisor' | 'cultural_mentor';
         aiRoleName: string;
         emotion: string;
         createdAt: string;

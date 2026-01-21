@@ -1,0 +1,1504 @@
+/**
+ * 统一图标彩色响应交互样式指南
+ * 确保所有图标组件具有一致的hover/active状态和色彩变化
+ */
+
+/* 图标交互基础样式 */
+.icon-interactive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  outline: none;
+}
+
+.icon-interactive:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 图标尺寸 */
+.icon-interactive-sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+}
+
+.icon-interactive-md {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.125rem;
+}
+
+.icon-interactive-lg {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.25rem;
+}
+
+.icon-interactive-xl {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.5rem;
+}
+
+/* 图标变体 - 默认 */
+.icon-interactive-default {
+  color: var(--color-gray-600);
+}
+
+.icon-interactive-default:hover {
+  color: var(--color-primary);
+  background-color: var(--color-gray-100);
+}
+
+.icon-interactive-default:active {
+  color: var(--color-primary-dark);
+  background-color: var(--color-gray-200);
+  transform: scale(0.95);
+}
+
+/* 图标变体 - 主色 */
+.icon-interactive-primary {
+  color: var(--color-primary);
+}
+
+.icon-interactive-primary:hover {
+  color: var(--color-primary-light);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.icon-interactive-primary:active {
+  color: var(--color-primary-dark);
+  background-color: rgba(59, 130, 246, 0.2);
+  transform: scale(0.95);
+}
+
+/* 图标变体 - 辅助紫色 */
+.icon-interactive-secondary {
+  color: var(--color-secondary-purple);
+}
+
+.icon-interactive-secondary:hover {
+  color: var(--color-secondary-purple-light);
+  background-color: rgba(139, 92, 246, 0.1);
+}
+
+.icon-interactive-secondary:active {
+  color: var(--color-secondary-purple-dark);
+  background-color: rgba(139, 92, 246, 0.2);
+  transform: scale(0.95);
+}
+
+/* 图标变体 - 辅助粉色 */
+.icon-interactive-accent {
+  color: var(--color-secondary-pink);
+}
+
+.icon-interactive-accent:hover {
+  color: var(--color-secondary-pink-light);
+  background-color: rgba(236, 72, 153, 0.1);
+}
+
+.icon-interactive-accent:active {
+  color: var(--color-secondary-pink-dark);
+  background-color: rgba(236, 72, 153, 0.2);
+  transform: scale(0.95);
+}
+
+/* 图标变体 - 成功 */
+.icon-interactive-success {
+  color: var(--color-success);
+}
+
+.icon-interactive-success:hover {
+  color: var(--color-success-light);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.icon-interactive-success:active {
+  color: var(--color-success-dark);
+  background-color: rgba(16, 185, 129, 0.2);
+  transform: scale(0.95);
+}
+
+/* 图标变体 - 警告 */
+.icon-interactive-warning {
+  color: var(--color-warning);
+}
+
+.icon-interactive-warning:hover {
+  color: var(--color-warning-light);
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.icon-interactive-warning:active {
+  color: var(--color-warning-dark);
+  background-color: rgba(245, 158, 11, 0.2);
+  transform: scale(0.95);
+}
+
+/* 图标变体 - 错误 */
+.icon-interactive-error {
+  color: var(--color-error);
+}
+
+.icon-interactive-error:hover {
+  color: var(--color-error-light);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.icon-interactive-error:active {
+  color: var(--color-error-dark);
+  background-color: rgba(239, 68, 68, 0.2);
+  transform: scale(0.95);
+}
+
+/* 禁用状态 */
+.icon-interactive-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 图标动画 */
+.icon-interactive-animated {
+  animation: icon-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes icon-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 图标旋转动画 */
+.icon-interactive-rotating {
+  animation: icon-spin 1s linear infinite;
+}
+
+@keyframes icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 图标弹跳动画 */
+.icon-interactive-bouncing {
+  animation: icon-bounce 1s infinite;
+}
+
+@keyframes icon-bounce {
+  0%, 100% {
+    transform: translateY(-5%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+/* 图标摇晃动画 */
+.icon-interactive-shaking {
+  animation: icon-shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes icon-shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+/* 图标发光效果 */
+.icon-interactive-glow {
+  box-shadow: 0 0 10px currentColor;
+}
+
+.icon-interactive-glow:hover {
+  box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+}
+
+/* 图标渐变效果 */
+.icon-interactive-gradient {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 图标悬浮效果 */
+.icon-interactive-float {
+  animation: icon-float 3s ease-in-out infinite;
+}
+
+@keyframes icon-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 图标缩放效果 */
+.icon-interactive-scale {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-interactive-scale:hover {
+  transform: scale(1.2);
+}
+
+/* 图标旋转效果 */
+.icon-interactive-rotate {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-interactive-rotate:hover {
+  transform: rotate(180deg);
+}
+
+/* 图标翻转效果 */
+.icon-interactive-flip {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.icon-interactive-flip:hover {
+  transform: rotateY(180deg);
+}
+
+/* 图标3D效果 */
+.icon-interactive-3d {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.icon-interactive-3d:hover {
+  transform: rotateX(10deg) rotateY(10deg);
+}
+
+/* 图标霓虹效果 */
+.icon-interactive-neon {
+  text-shadow:
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+}
+
+/* 图标玻璃效果 */
+.icon-interactive-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 图标描边效果 */
+.icon-interactive-outline {
+  border: 2px solid currentColor;
+  color: transparent;
+}
+
+.icon-interactive-outline:hover {
+  background-color: currentColor;
+  color: white;
+}
+
+/* 图标填充效果 */
+.icon-interactive-fill {
+  background-color: currentColor;
+  color: white;
+}
+
+.icon-interactive-fill:hover {
+  background-color: transparent;
+  color: currentColor;
+}
+
+/* 图标圆形效果 */
+.icon-interactive-circle {
+  border-radius: 50%;
+}
+
+/* 图标方形效果 */
+.icon-interactive-square {
+  border-radius: 0;
+}
+
+/* 图标圆角效果 */
+.icon-interactive-rounded {
+  border-radius: 0.5rem;
+}
+
+/* 图标阴影效果 */
+.icon-interactive-shadow {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.icon-interactive-shadow:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 图标内阴影效果 */
+.icon-interactive-inset-shadow {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 图标外阴影效果 */
+.icon-interactive-outset-shadow {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 图标渐变阴影效果 */
+.icon-interactive-gradient-shadow {
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.icon-interactive-gradient-shadow:hover {
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4);
+}
+
+/* 图标彩虹效果 */
+.icon-interactive-rainbow {
+  background: linear-gradient(
+    90deg,
+    var(--color-red),
+    var(--color-yellow),
+    var(--color-green),
+    var(--color-blue),
+    var(--color-purple-light),
+    var(--color-pink)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 图标闪烁效果 */
+.icon-interactive-blink {
+  animation: icon-blink 1s step-end infinite;
+}
+
+@keyframes icon-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* 图标波浪效果 */
+.icon-interactive-wave {
+  animation: icon-wave 2s ease-in-out infinite;
+}
+
+@keyframes icon-wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-5px);
+  }
+  75% {
+    transform: translateY(5px);
+  }
+}
+
+/* 图标弹性效果 */
+.icon-interactive-elastic {
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.icon-interactive-elastic:hover {
+  transform: scale(1.3);
+}
+
+/* 图标弹簧效果 */
+.icon-interactive-spring {
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.icon-interactive-spring:hover {
+  transform: scale(1.2);
+}
+
+/* 图标回弹效果 */
+.icon-interactive-bounce-back {
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.icon-interactive-bounce-back:active {
+  transform: scale(0.8);
+}
+
+/* 图标滑入效果 */
+.icon-interactive-slide-in {
+  animation: icon-slide-in 0.5s ease-out;
+}
+
+@keyframes icon-slide-in {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 图标滑出效果 */
+.icon-interactive-slide-out {
+  animation: icon-slide-out 0.5s ease-out;
+}
+
+@keyframes icon-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* 图标淡入效果 */
+.icon-interactive-fade-in {
+  animation: icon-fade-in 0.5s ease-out;
+}
+
+@keyframes icon-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 图标淡出效果 */
+.icon-interactive-fade-out {
+  animation: icon-fade-out 0.5s ease-out;
+}
+
+@keyframes icon-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* 图标缩放淡入效果 */
+.icon-interactive-scale-fade-in {
+  animation: icon-scale-fade-in 0.5s ease-out;
+}
+
+@keyframes icon-scale-fade-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 图标缩放淡出效果 */
+.icon-interactive-scale-fade-out {
+  animation: icon-scale-fade-out 0.5s ease-out;
+}
+
+@keyframes icon-scale-fade-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* 图标旋转淡入效果 */
+.icon-interactive-rotate-fade-in {
+  animation: icon-rotate-fade-in 0.5s ease-out;
+}
+
+@keyframes icon-rotate-fade-in {
+  from {
+    transform: rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0);
+    opacity: 1;
+  }
+}
+
+/* 图标旋转淡出效果 */
+.icon-interactive-rotate-fade-out {
+  animation: icon-rotate-fade-out 0.5s ease-out;
+}
+
+@keyframes icon-rotate-fade-out {
+  from {
+    transform: rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标翻转淡入效果 */
+.icon-interactive-flip-fade-in {
+  animation: icon-flip-fade-in 0.5s ease-out;
+}
+
+@keyframes icon-flip-fade-in {
+  from {
+    transform: rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标翻转淡出效果 */
+.icon-interactive-flip-fade-out {
+  animation: icon-flip-fade-out 0.5s ease-out;
+}
+
+@keyframes icon-flip-fade-out {
+  from {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标3D旋转淡入效果 */
+.icon-interactive-3d-rotate-fade-in {
+  animation: icon-3d-rotate-fade-in 0.5s ease-out;
+}
+
+@keyframes icon-3d-rotate-fade-in {
+  from {
+    transform: rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标3D旋转淡出效果 */
+.icon-interactive-3d-rotate-fade-out {
+  animation: icon-3d-rotate-fade-out 0.5s ease-out;
+}
+
+@keyframes icon-3d-rotate-fade-out {
+  from {
+    transform: rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性缩放淡入效果 */
+.icon-interactive-elastic-scale-fade-in {
+  animation: icon-elastic-scale-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-fade-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性缩放淡出效果 */
+.icon-interactive-elastic-scale-fade-out {
+  animation: icon-elastic-scale-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-fade-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧缩放淡入效果 */
+.icon-interactive-spring-scale-fade-in {
+  animation: icon-spring-scale-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-fade-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧缩放淡出效果 */
+.icon-interactive-spring-scale-fade-out {
+  animation: icon-spring-scale-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-fade-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹缩放淡入效果 */
+.icon-interactive-bounce-back-scale-fade-in {
+  animation: icon-bounce-back-scale-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-fade-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹缩放淡出效果 */
+.icon-interactive-bounce-back-scale-fade-out {
+  animation: icon-bounce-back-scale-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-fade-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性旋转淡入效果 */
+.icon-interactive-elastic-rotate-fade-in {
+  animation: icon-elastic-rotate-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-rotate-fade-in {
+  from {
+    transform: rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性旋转淡出效果 */
+.icon-interactive-elastic-rotate-fade-out {
+  animation: icon-elastic-rotate-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-rotate-fade-out {
+  from {
+    transform: rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧旋转淡入效果 */
+.icon-interactive-spring-rotate-fade-in {
+  animation: icon-spring-rotate-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-rotate-fade-in {
+  from {
+    transform: rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧旋转淡出效果 */
+.icon-interactive-spring-rotate-fade-out {
+  animation: icon-spring-rotate-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-rotate-fade-out {
+  from {
+    transform: rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹旋转淡入效果 */
+.icon-interactive-bounce-back-rotate-fade-in {
+  animation: icon-bounce-back-rotate-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-rotate-fade-in {
+  from {
+    transform: rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹旋转淡出效果 */
+.icon-interactive-bounce-back-rotate-fade-out {
+  animation: icon-bounce-back-rotate-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-rotate-fade-out {
+  from {
+    transform: rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性翻转淡入效果 */
+.icon-interactive-elastic-flip-fade-in {
+  animation: icon-elastic-flip-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-flip-fade-in {
+  from {
+    transform: rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性翻转淡出效果 */
+.icon-interactive-elastic-flip-fade-out {
+  animation: icon-elastic-flip-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-flip-fade-out {
+  from {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧翻转淡入效果 */
+.icon-interactive-spring-flip-fade-in {
+  animation: icon-spring-flip-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-flip-fade-in {
+  from {
+    transform: rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧翻转淡出效果 */
+.icon-interactive-spring-flip-fade-out {
+  animation: icon-spring-flip-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-flip-fade-out {
+  from {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹翻转淡入效果 */
+.icon-interactive-bounce-back-flip-fade-in {
+  animation: icon-bounce-back-flip-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-flip-fade-in {
+  from {
+    transform: rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹翻转淡出效果 */
+.icon-interactive-bounce-back-flip-fade-out {
+  animation: icon-bounce-back-flip-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-flip-fade-out {
+  from {
+    transform: rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性3D旋转淡入效果 */
+.icon-interactive-elastic-3d-rotate-fade-in {
+  animation: icon-elastic-3d-rotate-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-3d-rotate-fade-in {
+  from {
+    transform: rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性3D旋转淡出效果 */
+.icon-interactive-elastic-3d-rotate-fade-out {
+  animation: icon-elastic-3d-rotate-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-3d-rotate-fade-out {
+  from {
+    transform: rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧3D旋转淡入效果 */
+.icon-interactive-spring-3d-rotate-fade-in {
+  animation: icon-spring-3d-rotate-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-3d-rotate-fade-in {
+  from {
+    transform: rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧3D旋转淡出效果 */
+.icon-interactive-spring-3d-rotate-fade-out {
+  animation: icon-spring-3d-rotate-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-3d-rotate-fade-out {
+  from {
+    transform: rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹3D旋转淡入效果 */
+.icon-interactive-bounce-back-3d-rotate-fade-in {
+  animation: icon-bounce-back-3d-rotate-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-3d-rotate-fade-in {
+  from {
+    transform: rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹3D旋转淡出效果 */
+.icon-interactive-bounce-back-3d-rotate-fade-out {
+  animation: icon-bounce-back-3d-rotate-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-3d-rotate-fade-out {
+  from {
+    transform: rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性缩放旋转淡入效果 */
+.icon-interactive-elastic-scale-rotate-fade-in {
+  animation: icon-elastic-scale-rotate-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-rotate-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性缩放旋转淡出效果 */
+.icon-interactive-elastic-scale-rotate-fade-out {
+  animation: icon-elastic-scale-rotate-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-rotate-fade-out {
+  from {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧缩放旋转淡入效果 */
+.icon-interactive-spring-scale-rotate-fade-in {
+  animation: icon-spring-scale-rotate-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-rotate-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧缩放旋转淡出效果 */
+.icon-interactive-spring-scale-rotate-fade-out {
+  animation: icon-spring-scale-rotate-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-rotate-fade-out {
+  from {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹缩放旋转淡入效果 */
+.icon-interactive-bounce-back-scale-rotate-fade-in {
+  animation: icon-bounce-back-scale-rotate-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-rotate-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹缩放旋转淡出效果 */
+.icon-interactive-bounce-back-scale-rotate-fade-out {
+  animation: icon-bounce-back-scale-rotate-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-rotate-fade-out {
+  from {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性缩放翻转淡入效果 */
+.icon-interactive-elastic-scale-flip-fade-in {
+  animation: icon-elastic-scale-flip-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-flip-fade-in {
+  from {
+    transform: scale(0) rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性缩放翻转淡出效果 */
+.icon-interactive-elastic-scale-flip-fade-out {
+  animation: icon-elastic-scale-flip-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-flip-fade-out {
+  from {
+    transform: scale(1) rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧缩放翻转淡入效果 */
+.icon-interactive-spring-scale-flip-fade-in {
+  animation: icon-spring-scale-flip-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-flip-fade-in {
+  from {
+    transform: scale(0) rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧缩放翻转淡出效果 */
+.icon-interactive-spring-scale-flip-fade-out {
+  animation: icon-spring-scale-flip-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-flip-fade-out {
+  from {
+    transform: scale(1) rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹缩放翻转淡入效果 */
+.icon-interactive-bounce-back-scale-flip-fade-in {
+  animation: icon-bounce-back-scale-flip-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-flip-fade-in {
+  from {
+    transform: scale(0) rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹缩放翻转淡出效果 */
+.icon-interactive-bounce-back-scale-flip-fade-out {
+  animation: icon-bounce-back-scale-flip-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-flip-fade-out {
+  from {
+    transform: scale(1) rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性缩放3D旋转淡入效果 */
+.icon-interactive-elastic-scale-3d-rotate-fade-in {
+  animation: icon-elastic-scale-3d-rotate-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-3d-rotate-fade-in {
+  from {
+    transform: scale(0) rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性缩放3D旋转淡出效果 */
+.icon-interactive-elastic-scale-3d-rotate-fade-out {
+  animation: icon-elastic-scale-3d-rotate-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-3d-rotate-fade-out {
+  from {
+    transform: scale(1) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧缩放3D旋转淡入效果 */
+.icon-interactive-spring-scale-3d-rotate-fade-in {
+  animation: icon-spring-scale-3d-rotate-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-3d-rotate-fade-in {
+  from {
+    transform: scale(0) rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧缩放3D旋转淡出效果 */
+.icon-interactive-spring-scale-3d-rotate-fade-out {
+  animation: icon-spring-scale-3d-rotate-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-3d-rotate-fade-out {
+  from {
+    transform: scale(1) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹缩放3D旋转淡入效果 */
+.icon-interactive-bounce-back-scale-3d-rotate-fade-in {
+  animation: icon-bounce-back-scale-3d-rotate-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-3d-rotate-fade-in {
+  from {
+    transform: scale(0) rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹缩放3D旋转淡出效果 */
+.icon-interactive-bounce-back-scale-3d-rotate-fade-out {
+  animation: icon-bounce-back-scale-3d-rotate-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-3d-rotate-fade-out {
+  from {
+    transform: scale(1) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性缩放旋转翻转淡入效果 */
+.icon-interactive-elastic-scale-rotate-flip-fade-in {
+  animation: icon-elastic-scale-rotate-flip-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-rotate-flip-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg) rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性缩放旋转翻转淡出效果 */
+.icon-interactive-elastic-scale-rotate-flip-fade-out {
+  animation: icon-elastic-scale-rotate-flip-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-rotate-flip-fade-out {
+  from {
+    transform: scale(1) rotate(0) rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg) rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧缩放旋转翻转淡入效果 */
+.icon-interactive-spring-scale-rotate-flip-fade-in {
+  animation: icon-spring-scale-rotate-flip-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-rotate-flip-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg) rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧缩放旋转翻转淡出效果 */
+.icon-interactive-spring-scale-rotate-flip-fade-out {
+  animation: icon-spring-scale-rotate-flip-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-rotate-flip-fade-out {
+  from {
+    transform: scale(1) rotate(0) rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg) rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹缩放旋转翻转淡入效果 */
+.icon-interactive-bounce-back-scale-rotate-flip-fade-in {
+  animation: icon-bounce-back-scale-rotate-flip-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-rotate-flip-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg) rotateY(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹缩放旋转翻转淡出效果 */
+.icon-interactive-bounce-back-scale-rotate-flip-fade-out {
+  animation: icon-bounce-back-scale-rotate-flip-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-rotate-flip-fade-out {
+  from {
+    transform: scale(1) rotate(0) rotateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg) rotateY(180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹性缩放旋转3D翻转淡入效果 */
+.icon-interactive-elastic-scale-rotate-3d-flip-fade-in {
+  animation: icon-elastic-scale-rotate-3d-flip-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-rotate-3d-flip-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg) rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹性缩放旋转3D翻转淡出效果 */
+.icon-interactive-elastic-scale-rotate-3d-flip-fade-out {
+  animation: icon-elastic-scale-rotate-3d-flip-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-elastic-scale-rotate-3d-flip-fade-out {
+  from {
+    transform: scale(1) rotate(0) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg) rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标弹簧缩放旋转3D翻转淡入效果 */
+.icon-interactive-spring-scale-rotate-3d-flip-fade-in {
+  animation: icon-spring-scale-rotate-3d-flip-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-rotate-3d-flip-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg) rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标弹簧缩放旋转3D翻转淡出效果 */
+.icon-interactive-spring-scale-rotate-3d-flip-fade-out {
+  animation: icon-spring-scale-rotate-3d-flip-fade-out 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes icon-spring-scale-rotate-3d-flip-fade-out {
+  from {
+    transform: scale(1) rotate(0) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg) rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}
+
+/* 图标回弹缩放旋转3D翻转淡入效果 */
+.icon-interactive-bounce-back-scale-rotate-3d-flip-fade-in {
+  animation: icon-bounce-back-scale-rotate-3d-flip-fade-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-rotate-3d-flip-fade-in {
+  from {
+    transform: scale(0) rotate(-180deg) rotate3d(1, 1, 1, -180deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+}
+
+/* 图标回弹缩放旋转3D翻转淡出效果 */
+.icon-interactive-bounce-back-scale-rotate-3d-flip-fade-out {
+  animation: icon-bounce-back-scale-rotate-3d-flip-fade-out 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes icon-bounce-back-scale-rotate-3d-flip-fade-out {
+  from {
+    transform: scale(1) rotate(0) rotate3d(1, 1, 1, 0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) rotate(180deg) rotate3d(1, 1, 1, 180deg);
+    opacity: 0;
+  }
+}

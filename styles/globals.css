@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import './card-styles.css';
+@import './typography.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -37,6 +39,39 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --color-blue: #3b82f6;
+  --color-blue-rgb: 59, 130, 246;
+  --color-blue-light: #60a5fa;
+  --color-blue-light-rgb: 96, 165, 250;
+  --color-blue-lighter: #93c5fd;
+  --color-blue-lighter-rgb: 147, 197, 253;
+  --color-purple: #a855f7;
+  --color-purple-rgb: 168, 85, 247;
+  --color-purple-light: #8b5cf6;
+  --color-purple-light-rgb: 139, 92, 246;
+  --color-pink: #ec4899;
+  --color-pink-rgb: 236, 72, 153;
+  --color-pink-light: #f472b6;
+  --color-pink-light-rgb: 244, 114, 182;
+  --color-pink-lighter: #f9a8d4;
+  --color-pink-lighter-rgb: 249, 168, 212;
+  --color-orange: #f97316;
+  --color-orange-rgb: 249, 115, 22;
+  --color-orange-light: #fb923c;
+  --color-orange-light-rgb: 251, 146, 60;
+  --color-red: #ef4444;
+  --color-red-rgb: 239, 68, 68;
+  --color-green: #10b981;
+  --color-green-rgb: 16, 185, 129;
+  --color-yellow: #f59e0b;
+  --color-yellow-rgb: 245, 158, 11;
+  --color-white: #ffffff;
+  --color-white-rgb: 255, 255, 255;
+  --color-gray-600: #6b7280;
+  --color-gray-600-rgb: 107, 114, 128;
+  --color-selected: #e0f2fe;
+  --color-selected-rgb: 224, 242, 254;
 }
 
 .dark {

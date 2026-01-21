@@ -74,15 +74,15 @@ export const COURSE_TYPES = [
 ] as const;
 
 export const SUBJECT_COLORS: Record<string, string> = {
-  语文: '#ef4444',
-  数学: '#3b82f6',
-  英语: '#10b981',
-  物理: '#f59e0b',
-  化学: '#8b5cf6',
+  语文: 'var(--color-error)',
+  数学: 'var(--color-primary)',
+  英语: 'var(--color-success)',
+  物理: 'var(--color-warning)',
+  化学: 'var(--color-secondary-purple)',
   生物: '#06b6d4',
   历史: '#f97316',
   地理: '#14b8a6',
-  政治: '#ec4899',
+  政治: 'var(--color-secondary-pink)',
   体育: '#84cc16',
   音乐: '#a855f7',
   美术: '#f43f5e',
@@ -95,7 +95,7 @@ export const SUBJECT_COLORS: Record<string, string> = {
   阅读: '#4ade80',
   写作: '#fb923c',
   口语: '#38bdf8',
-  其他: '#6b7280',
+  其他: 'var(--color-gray-600)',
 };
 
 export function formatTimeRange(startTime: string, endTime: string): string {

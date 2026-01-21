@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import PageHeader from '@/components/PageHeader';
+import PageHeader from '@/components/headers/PageHeader';
 import Navigation from '@/components/Navigation';
 import { useAIVideo } from '@/hooks/useAIVideo';
 import { useChildren } from '@/hooks/useChildren';
@@ -68,6 +68,7 @@ export default function VideosPage() {
         title='AI视频工坊'
         subtitle='将美好回忆变成精彩视频'
         showBack
+        showHome
       />
 
       <div className='px-4 space-y-6'>

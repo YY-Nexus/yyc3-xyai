@@ -92,16 +92,16 @@ export default function MilestoneCelebration({
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    if (isVisible) {
-      setShowConfetti(true);
-      // 5秒后自动关闭
-      const timer = setTimeout(() => {
-        onClose();
-      }, 5000);
-      return () => clearTimeout(timer);
-    } else {
+    if (!isVisible) {
       setShowConfetti(false);
+      return;
     }
+
+    setShowConfetti(true);
+    const timer = setTimeout(() => {
+      onClose();
+    }, 5000);
+    return () => clearTimeout(timer);
   }, [isVisible, onClose]);
 
   if (!milestone) return null;
@@ -139,7 +139,7 @@ export default function MilestoneCelebration({
                 <ConfettiParticle
                   key={i}
                   delay={Math.random() * 0.5}
-                  color={confettiColors[i % confettiColors.length]}
+                  color={confettiColors[i % confettiColors.length]!}
                 />
               ))}
               {Array.from({ length: 8 }).map((_, i) => (

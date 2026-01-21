@@ -82,7 +82,7 @@ interface UseDraggableReturn {
   size: Size;
   isDragging: boolean;
   isResizing: boolean;
-  dragRef: React.RefObject<HTMLDivElement>;
+  dragRef: React.RefObject<HTMLDivElement | null>;
   handleMouseDown: (e: React.MouseEvent) => void;
   handleTouchStart: (e: React.TouchEvent) => void;
   resetPosition: () => void;
@@ -404,6 +404,8 @@ export function useDraggable(
       if (disabled) return;
 
       const touch = e.touches[0];
+      if (!touch) return;
+
       const startX = touch.clientX - position.x;
       const startY = touch.clientY - position.y;
 
@@ -421,6 +423,8 @@ export function useDraggable(
         if (!isMounted.current) return;
 
         const touch = e.touches[0];
+        if (!touch) return;
+
         const newX = touch.clientX - startX;
         const newY = touch.clientY - startY;
 

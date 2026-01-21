@@ -17,6 +17,8 @@ export type CharacterVariant =
   | 'filled';
 export type CharacterColorScheme = 'light' | 'dark' | 'auto';
 
+export type CharacterTheme = CharacterThemeConfig;
+
 // 尺寸配置接口
 export interface SizeConfig {
   padding: string;
@@ -34,6 +36,7 @@ export interface VariantConfig {
   borderColor?: string;
   borderWidth?: number;
   boxShadow?: string;
+  transform?: string;
   hover?: {
     backgroundColor?: string;
     color?: string;

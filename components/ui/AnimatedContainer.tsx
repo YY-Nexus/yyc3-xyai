@@ -2,7 +2,7 @@
 
 import React, { ReactNode, useRef, useEffect, useState } from 'react';
 import { motion, useInView, useAnimation, MotionProps } from 'framer-motion';
-import { useResponsiveValue } from '@/lib/responsive-system';
+import { useResponsiveValue, ResponsiveValue } from '@/lib/responsive-system';
 import {
   createVariants,
   COMMON_VARIANTS,
@@ -10,6 +10,11 @@ import {
   DURATIONS,
   EASINGS,
 } from '@/lib/animation-system';
+import {
+  prefersReducedMotion,
+  getAnimationConfig,
+  getMotionVariants,
+} from '@/lib/animation-accessibility';
 
 export interface AnimatedContainerProps {
   children: ReactNode;
@@ -31,7 +36,7 @@ export interface AnimatedContainerProps {
   viewport?: {
     once?: boolean;
     amount?: 'some' | 'all' | number;
-    margin?: string;
+    margin?: string | number;
   };
   className?: string;
   onAnimationStart?: () => void;
@@ -58,7 +63,17 @@ export const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
   isPlaying = true,
 }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, viewport);
+  const viewOptions: any = {};
+  if (viewport?.once !== undefined) {
+    viewOptions.once = viewport.once;
+  }
+  if (viewport?.amount !== undefined) {
+    viewOptions.amount = viewport.amount;
+  }
+  if (viewport?.margin !== undefined) {
+    viewOptions.margin = viewport.margin;
+  }
+  const isInView = useInView(ref, viewOptions);
   const controls = useAnimation();
   const [hasAnimated, setHasAnimated] = useState(false);
 
@@ -70,13 +85,16 @@ export const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
   const getAnimationVariants = () => {
     if (animation === 'none') return {};
 
+    const reducedMotion = prefersReducedMotion();
+    const variants = getMotionVariants();
+
     const baseVariants = {
-      fadeIn: COMMON_VARIANTS.fadeInOut,
-      slideUp: COMMON_VARIANTS.slideUpDown,
-      slideLeft: COMMON_VARIANTS.slideLeftRight,
-      scale: COMMON_VARIANTS.scale,
-      rotateIn: COMMON_VARIANTS.rotateIn,
-      bounceIn: MICRO_INTERACTIONS.bounceIn,
+      fadeIn: variants.fadeIn,
+      slideUp: variants.slideIn,
+      slideLeft: variants.slideIn,
+      scale: variants.scale,
+      rotateIn: variants.scale,
+      bounceIn: variants.bounce,
     };
 
     return baseVariants[animation] || baseVariants.fadeIn;
@@ -85,6 +103,7 @@ export const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
   // 配置动画选项
   const getAnimationOptions = (): MotionProps => {
     const variants = getAnimationVariants();
+    const config = getAnimationConfig();
 
     const baseOptions: MotionProps = {
       variants,
@@ -92,39 +111,47 @@ export const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
       animate: shouldAnimate() ? 'visible' : 'hidden',
       exit: 'exit',
       transition: {
-        duration: resolvedDuration || DURATIONS.normal,
-        delay: resolvedDelay || 0,
-        ease: EASINGS.easeInOut,
+        duration: config.enabled ? (resolvedDuration || DURATIONS.normal) : 0,
+        delay: config.enabled ? (resolvedDelay || 0) : 0,
+        ease: config.enabled ? EASINGS.easeInOut : 'linear',
       },
-      onAnimationStart,
-      onAnimationComplete,
     };
 
-    // 添加交互效果
-    if (hover) {
+    if (onAnimationStart !== undefined) {
+      baseOptions.onAnimationStart = onAnimationStart as any;
+    }
+    if (onAnimationComplete !== undefined) {
+      baseOptions.onAnimationComplete = onAnimationComplete as any;
+    }
+
+    // 添加交互效果（仅在动画启用时）
+    if (hover && config.enabled) {
       baseOptions.whileHover = {
         scale: 1.02,
         transition: { duration: DURATIONS.fast },
       };
     }
 
-    if (tap) {
+    if (tap && config.enabled) {
       baseOptions.whileTap = {
         scale: 0.98,
         transition: { duration: DURATIONS.fast },
       };
     }
 
-    // 重复动画
-    if (repeat === true || (typeof repeat === 'number' && repeat > 1)) {
-      baseOptions.animate = {
-        ...baseOptions.animate,
-        transition: {
-          ...baseOptions.transition,
-          repeat: repeat === true ? Infinity : repeat - 1,
-          repeatType: 'reverse' as const,
-        },
-      };
+    // 重复动画（仅在动画启用时）
+    if ((repeat === true || (typeof repeat === 'number' && repeat > 1)) && config.enabled) {
+      const currentAnimate = baseOptions.animate;
+      if (typeof currentAnimate === 'object') {
+        baseOptions.animate = {
+          ...currentAnimate,
+          transition: {
+            ...(typeof baseOptions.transition === 'object' ? baseOptions.transition : {}),
+            repeat: repeat === true ? Infinity : repeat - 1,
+            repeatType: 'reverse' as const,
+          },
+        };
+      }
     }
 
     return baseOptions;
@@ -265,7 +292,7 @@ export const StaggerContainer: React.FC<{
     visible: {
       transition: {
         staggerChildren: staggerDelay,
-      },
+      } as any,
     },
   };
 
@@ -275,7 +302,7 @@ export const StaggerContainer: React.FC<{
       opacity: 1,
       y: 0,
       transition: {
-        type: 'spring',
+        type: 'spring' as const,
         stiffness: 300,
         damping: 30,
       },

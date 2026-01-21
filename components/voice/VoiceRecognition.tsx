@@ -222,7 +222,8 @@ export const VoiceRecognition: React.FC<VoiceRecognitionProps> = ({
       let x = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-        barHeight = dataArray[i] / 2;
+        const value = dataArray[i] ?? 0;
+        barHeight = value / 2;
 
         const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
         gradient.addColorStop(0, '#667EEA');

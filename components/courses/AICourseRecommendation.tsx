@@ -66,7 +66,7 @@ export default function AICourseRecommendation({
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant') {
+      if (lastMessage && lastMessage.role === 'assistant') {
         setChatMessages(prev => [
           ...prev,
           { role: 'assistant', content: lastMessage.content },

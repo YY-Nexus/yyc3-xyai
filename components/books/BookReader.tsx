@@ -77,6 +77,7 @@ export default function BookReader({
     } else {
       setHighlightedWord(-1);
     }
+    return undefined
   }, [isPlaying, page, currentPage]);
 
   const handleMouseMove = () => {

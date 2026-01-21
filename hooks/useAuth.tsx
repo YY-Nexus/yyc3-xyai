@@ -262,10 +262,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const result = await apiClient.updateProfile(profileData);
 
-      if (result.success && result.data) {
+      if (result.success && result.data?.user) {
+        const userData = result.data.user;
         setAuthState(prev => ({
           ...prev,
-          user: result.data.user,
+          user: userData,
           isLoading: false,
           error: null,
         }));
@@ -301,10 +302,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const result = await apiClient.getProfile();
 
-      if (result.success && result.data) {
+      if (result.success && result.data?.user) {
+        const userData = result.data.user;
         setAuthState(prev => ({
           ...prev,
-          user: result.data.user,
+          user: userData,
           isLoading: false,
           error: null,
         }));
@@ -433,13 +435,23 @@ export function useAuthLegacy(): UseAuthReturn {
       lastName?: string,
       phone?: string
     ) => {
-      return auth.register({
+      const registerData: {
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+      } & { phone?: string } = {
         email,
         password,
         firstName: firstName || '',
         lastName: lastName || '',
-        phone,
-      });
+      };
+
+      if (phone) {
+        registerData.phone = phone;
+      }
+
+      return auth.register(registerData);
     },
     signIn: auth.login,
     signOut: auth.logout,

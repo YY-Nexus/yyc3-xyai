@@ -1,10 +1,8 @@
 'use client';
 
-import type React from 'react';
-
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import PageHeader from '@/components/PageHeader';
+import PageHeader from '@/components/headers/PageHeader';
 import Navigation from '@/components/Navigation';
 import BookReader from '@/components/books/BookReader';
 import { usePictureBook } from '@/hooks/usePictureBook';
@@ -36,7 +34,7 @@ export default function BooksPage() {
     filterByCategory(category);
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
     searchBooks(query);
@@ -66,7 +64,7 @@ export default function BooksPage() {
 
   return (
     <div className='min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 pb-24'>
-      <PageHeader title='有声绘本' showBack />
+      <PageHeader title='有声绘本' showBack showHome />
 
       {/* 搜索栏 */}
       <div className='px-4 py-3'>

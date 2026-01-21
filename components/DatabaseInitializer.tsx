@@ -47,7 +47,7 @@ export function DatabaseInitializer() {
         setDbStatus({
           status: 'error',
           type: 'error',
-          details: connection.details,
+          ...(connection.details ? { details: connection.details } : {}),
         });
       }
     } catch (error) {
@@ -55,7 +55,7 @@ export function DatabaseInitializer() {
       setDbStatus({
         status: 'error',
         type: 'error',
-        details: error instanceof Error ? error.message : '未知错误',
+        details: error instanceof Error ? error.message : (error as Error)?.message || '未知错误',
       });
     }
   };
