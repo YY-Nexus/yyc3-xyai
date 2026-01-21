@@ -3,9 +3,15 @@
  * Winston 日志系统整合脚本
  *
  * 本脚本用于将所有 console 调用替换为 logger 调用
+ * @author YYC³
+ * @version 2.0.0
+ * @created 2026-01-19
+ * @copyright Copyright (c) 2026 YYC³
+ * @license MIT
  */
 
-import { glob } from 'glob';
+import pkg from 'glob';
+const { glob } = pkg;
 import { readFile, writeFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -13,8 +19,7 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// 统计
-let stats = {
+const stats = {
   totalFiles: 0,
   modifiedFiles: 0,
   consoleLog: 0,
@@ -24,19 +29,12 @@ let stats = {
   consoleDebug: 0,
 };
 
-/**
- * 替换 console 调用为 logger 调用
- */
-function replaceConsoleCalls(content: string, filepath: string): string {
+function replaceConsoleCalls(content: string, filepath: string): string | null {
   let modified = false;
   let newContent = content;
 
-  // 检查是否已经导入了 logger
-  const hasLoggerImport = /import.*logger.*from.*['"].*logger['"]/.test(
-    content
-  );
+  const hasLoggerImport = /import.*logger.*from.*['"].*logger['"]/.test(content);
 
-  // 如果没有导入 logger，添加导入语句
   if (
     !hasLoggerImport &&
     (content.includes('console.log') ||
@@ -45,8 +43,7 @@ function replaceConsoleCalls(content: string, filepath: string): string {
       content.includes('console.info') ||
       content.includes('console.debug'))
   ) {
-    // 找到第一个 import 语句
-    const importRegex = /^(import\s+.*(?:from\s+['"].*['"]\s*;?)$/gm;
+    const importRegex = /^(import\s+.*from\s+['"][^'"]+['"].*;?)$/gm;
     const imports = content.match(importRegex);
 
     if (imports && imports.length > 0) {
@@ -54,76 +51,65 @@ function replaceConsoleCalls(content: string, filepath: string): string {
       const insertPosition =
         content.lastIndexOf(lastImport) + lastImport.length;
 
-      // 计算相对路径
       const relativePath = getRelativePath(filepath);
 
       newContent =
         newContent.slice(0, insertPosition) +
-        `\nimport { log as logger } from '${relativePath}';` +
+        `\nimport { error, warn, info, debug } from '${relativePath}';` +
         newContent.slice(insertPosition);
       modified = true;
     }
   }
 
-  // 替换 console.log
   newContent = newContent.replace(/console\.log\(([^)]+)\)/g, (match, args) => {
     stats.consoleLog++;
     modified = true;
-    return `logger.info(${args})`;
+    return `info(${args})`;
   });
 
-  // 替换 console.error
   newContent = newContent.replace(
     /console\.error\(([^)]+)\)/g,
     (match, args) => {
       stats.consoleError++;
       modified = true;
-      return `logger.error(${args})`;
+      return `error(${args})`;
     }
   );
 
-  // 替换 console.warn
   newContent = newContent.replace(
     /console\.warn\(([^)]+)\)/g,
     (match, args) => {
       stats.consoleWarn++;
       modified = true;
-      return `logger.warn(${args})`;
+      return `warn(${args})`;
     }
   );
 
-  // 替换 console.info
   newContent = newContent.replace(
     /console\.info\(([^)]+)\)/g,
     (match, args) => {
       stats.consoleInfo++;
       modified = true;
-      return `logger.info(${args})`;
+      return `info(${args})`;
     }
   );
 
-  // 替换 console.debug
   newContent = newContent.replace(
     /console\.debug\(([^)]+)\)/g,
     (match, args) => {
       stats.consoleDebug++;
       modified = true;
-      return `logger.debug(${args})`;
+      return `debug(${args})`;
     }
   );
 
   return modified ? newContent : null;
 }
 
-/**
- * 计算相对路径
- */
 function getRelativePath(filepath: string): string {
-  // 计算从文件到 lib/logger.ts 的相对路径
   const projectRoot = '/Users/yanyu/yyc3-xiaoyu-AAA/yyc3-xy-ai';
   const absFilepath = filepath;
 
-  // 如果文件在项目根目录或 lib/ 目录下
   if (absFilepath.startsWith(join(projectRoot, 'lib'))) {
     return './logger';
   } else if (absFilepath.startsWith(join(projectRoot, 'hooks'))) {
@@ -143,19 +129,14 @@ function getRelativePath(filepath: string): string {
   } else if (absFilepath.startsWith(join(projectRoot, 'backend'))) {
     return '../lib/logger';
   } else {
-    // 默认使用绝对路径
     return 'yyc3-xy-ai/lib/logger';
   }
 }
 
-/**
- * 主函数
- */
 async function main() {
   console.log('🚀 开始替换 console 调用为 logger 调用...\n');
 
-  // 搜索所有 .ts 和 .tsx 文件
-  const files = await glob('**/*.{ts,tsx}', {
+  const globResult = await glob('**/*.{ts,tsx}', {
     cwd: '/Users/yanyu/yyc3-xiaoyu-AAA/yyc3-xy-ai',
     ignore: [
       '**/node_modules/**',
@@ -170,13 +151,15 @@ async function main() {
       '**/*.spec.ts',
       '**/*.spec.tsx',
     ],
+    nodir: true,
   });
+
+  const files = Array.isArray(globResult) ? globResult : [];
 
   stats.totalFiles = files.length;
 
   console.log(`📁 找到 ${files.length} 个文件\n`);
 
-  // 处理每个文件
   for (const file of files) {
     const filepath = join('/Users/yanyu/yyc3-xiaoyu-AAA/yyc3-xy-ai', file);
 
@@ -194,7 +177,6 @@ async function main() {
     }
   }
 
-  // 输出统计结果
   console.log('\n' + '='.repeat(50));
   console.log('📊 替换统计:');
   console.log('='.repeat(50));
@@ -212,5 +194,4 @@ async function main() {
   console.log('\n✅ 替换完成！');
 }
 
-// 运行主函数
 main().catch(console.error);

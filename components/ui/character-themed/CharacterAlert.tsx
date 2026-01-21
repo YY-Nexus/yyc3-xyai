@@ -51,6 +51,7 @@ export const CharacterAlert: React.FC<CharacterAlertProps> = ({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [autoDismiss, autoDismissDelay]);
 
   // 关闭处理
@@ -177,7 +178,7 @@ export const CharacterAlert: React.FC<CharacterAlertProps> = ({
       y: 0,
       scale: 1,
       transition: {
-        type: 'spring',
+        type: "spring" as const,
         stiffness: 400,
         damping: 25,
       },
@@ -187,7 +188,7 @@ export const CharacterAlert: React.FC<CharacterAlertProps> = ({
       scale: 0.95,
       transition: {
         duration: 0.2,
-        ease: 'easeIn',
+        ease: "easeIn" as const,
       },
     },
   };
@@ -287,7 +288,6 @@ export const CharacterAlert: React.FC<CharacterAlertProps> = ({
                   style={{
                     backgroundColor: typeConfig.borderColor,
                     color: 'white',
-                    focusRingColor: typeConfig.borderColor,
                   }}
                   onClick={action.onClick}
                   initial={{ opacity: 0, y: 10 }}

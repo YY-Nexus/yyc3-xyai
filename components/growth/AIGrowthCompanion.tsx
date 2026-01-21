@@ -48,15 +48,37 @@ export default function AIGrowthCompanion({
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { currentChild } = useChildren();
-  const { sendMessage, isProcessing: aiProcessing } = useAIXiaoyu();
+  const { sendMessage, isProcessing: aiProcessing, messages: aiMessages } = useAIXiaoyu();
 
   const childBirthDate = currentChild?.birth_date
     ? new Date(currentChild.birth_date)
     : new Date();
   const childName = currentChild?.name || '小朋友';
-  const childAge = currentChild?.age_months || 0;
+  const childAge = currentChild?.birth_date 
+    ? Math.floor((new Date().getTime() - new Date(currentChild.birth_date).getTime()) / (1000 * 60 * 60 * 24 * 30))
+    : 0;
 
-  const { stage } = useGrowthStage(childBirthDate);
+  const { currentStage: stage } = useGrowthStage(childBirthDate);
+
+  useEffect(() => {
+    if (aiMessages.length > 0) {
+      const lastMessage = aiMessages[aiMessages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        const aiMessage = {
+          role: 'assistant' as const,
+          content: lastMessage.content,
+          timestamp: new Date(),
+        };
+        setChatHistory(prev => {
+          const lastChatMessage = prev[prev.length - 1];
+          if (lastChatMessage?.role === 'assistant' && lastChatMessage.content === aiMessage.content) {
+            return prev;
+          }
+          return [...prev, aiMessage];
+        });
+      }
+    }
+  }, [aiMessages]);
 
   // 生成AI成长洞察
   const generateGrowthInsights = async () => {
@@ -75,7 +97,7 @@ export default function AIGrowthCompanion({
         请用温暖、鼓励的语气，语言要简单易懂，适合家长阅读。
       `;
 
-      const response = await sendMessage(prompt);
+      await sendMessage(prompt);
 
       // 解析AI响应并生成洞察
       const generatedInsights: GrowthInsight[] = [
@@ -146,17 +168,9 @@ export default function AIGrowthCompanion({
     setChatMessage('');
 
     try {
-      const response = await sendMessage(
+      await sendMessage(
         `我是${childName}的家长，${chatMessage}请以专业、温暖的角度回答，关注儿童发展心理和成长规律。`
       );
-
-      const aiMessage = {
-        role: 'assistant' as const,
-        content: response.content,
-        timestamp: new Date(),
-      };
-
-      setChatHistory(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('发送消息失败:', error);
     }
@@ -179,10 +193,9 @@ export default function AIGrowthCompanion({
         请基于${stage?.name || '当前发展阶段'}的特点，制定具体、可执行的计划。
       `;
 
-      const response = await sendMessage(prompt);
+      await sendMessage(prompt);
 
-      // 可以将响应保存为成长计划
-      console.log('成长计划:', response.content);
+      console.log('成长计划已生成');
     } catch (error) {
       console.error('生成成长计划失败:', error);
     } finally {

@@ -57,6 +57,7 @@ export const MediaFileList: React.FC<MediaFileListProps> = ({
   const gridClassName = {
     grid: 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4',
     list: 'space-y-2',
+    timeline: 'space-y-6',
   }[viewMode];
 
   // 获取媒体类型图标

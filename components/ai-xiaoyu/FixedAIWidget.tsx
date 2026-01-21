@@ -172,13 +172,14 @@ const FixedAIWidget: React.FC = () => {
 
   return (
     <div
-      className={`fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300 ${
+      className={`fixed backdrop-blur-3xl bg-white/99 dark:bg-gray-800/99 rounded-lg shadow-2xl border-2 border-gray-200/20 dark:border-gray-700/30 transition-all duration-300 ${
         state.isMinimized ? 'w-60 h-12 bottom-4 right-4' : 'bottom-4 right-4'
       }`}
       style={{
         width: state.isMinimized ? undefined : state.position.width,
         height: state.isMinimized ? undefined : state.position.height,
         zIndex: 1000,
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)',
       }}
     >
       {/* 头部 */}

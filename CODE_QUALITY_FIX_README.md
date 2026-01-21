@@ -41,6 +41,7 @@ cd /Users/yanyu/yyc3-xiaoyu-AAA/yyc3-xy-ai
 ## 📝 详细文档
 
 详细的修复报告请参阅：
+
 - **[CODE_QUALITY_FIX_SUMMARY.md](./CODE_QUALITY_FIX_SUMMARY.md)** - 代码质量修复总结报告
 - **[CODE_QUALITY_FIX_REPORT.md](./CODE_QUALITY_FIX_REPORT.md)** - 代码质量修复报告
 
@@ -98,8 +99,8 @@ const emotion = {
 ## 📞 联系方式
 
 - **项目名称**: 小语AI智能成长守护系统
-- **Git仓库**: https://github.com/YY-Nexus/yyc3-xyai.git
-- **管理员邮箱**: admin@0379.email
+- **Git仓库**: <https://github.com/YY-Nexus/yyc3-xyai.git>
+- **管理员邮箱**: <admin@0379.email>
 - **项目版本**: v2.0.0
 
 ---

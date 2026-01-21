@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageHeader from '@/components/PageHeader';
+import Navigation from '@/components/Navigation';
 import { useAIVideo } from '@/hooks/useAIVideo';
 import { useChildren } from '@/hooks/useChildren';
 import VideoGenerator from '@/components/video/VideoGenerator';
@@ -47,7 +48,8 @@ export default function VideosPage() {
       ? videos
       : videos.filter(v => v.type === activeFilter);
 
-  const formatDuration = (seconds: number): string => {
+  const formatDuration = (seconds?: number): string => {
+    if (!seconds) return '0秒';
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return mins > 0 ? `${mins}分${secs}秒` : `${secs}秒`;
@@ -362,6 +364,8 @@ export default function VideosPage() {
           />
         )}
       </AnimatePresence>
+
+      <Navigation />
     </div>
   );
 }

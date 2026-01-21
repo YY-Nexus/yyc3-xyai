@@ -17,7 +17,7 @@ type ExtendedEmotionType = EmotionType | 'confusion' | 'excitement';
 interface EmotionTransition {
   from: ExtendedEmotionType;
   to: ExtendedEmotionType;
-  timestamp: Date;
+  timestamp: string;
   reason: string;
 }
 
@@ -38,8 +38,8 @@ interface AIResponseMetadata {
 }
 
 interface SessionMetrics {
-  startTime: Date;
-  endTime?: Date;
+  startTime: string;
+  endTime?: string;
   messageCount: number;
   emotionChanges: EmotionTransition[];
   topicsDiscussed: string[];
@@ -50,7 +50,7 @@ export interface AIMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  timestamp: Date;
+  timestamp: string;
   emotion?: ExtendedEmotionType;
   attachments?: MessageAttachment[];
   metadata?: AIResponseMetadata;
@@ -73,7 +73,7 @@ export interface MessageAttachment {
 export interface MessageReaction {
   emoji: string;
   userId?: string;
-  timestamp: Date;
+  timestamp: string;
 }
 
 export interface AIAssistantState {
@@ -105,7 +105,7 @@ export interface AIAssistantState {
 
   // 响应状态
   isProcessing: boolean;
-  pendingRequests: Map<string, Date>;
+  pendingRequests: string[];
 
   // 个性化设置
   personality: 'gentle' | 'energetic' | 'educational' | 'playful';
@@ -145,7 +145,7 @@ const initialState: AIAssistantState = {
   interactionCount: 0,
   sessionDuration: 0,
   sessionMetrics: {
-    startTime: new Date(),
+    startTime: new Date().toISOString(),
     messageCount: 0,
     emotionChanges: [],
     topicsDiscussed: [],
@@ -153,7 +153,7 @@ const initialState: AIAssistantState = {
 
   // 响应状态
   isProcessing: false,
-  pendingRequests: new Map(),
+  pendingRequests: [],
 
   // 个性化设置
   personality: 'gentle',
@@ -186,7 +186,7 @@ export const sendAIMessage = createAsyncThunk(
       id: Date.now().toString(),
       role: 'assistant',
       content: generateAIResponse(payload.message),
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       emotion,
       context: payload.context,
       metadata: {
@@ -310,7 +310,7 @@ const aiAssistantSlice = createSlice({
         id: Date.now().toString(),
         role: 'user',
         content: action.payload.content,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         attachments: action.payload.attachments,
       };
       state.messages.push(message);
@@ -451,12 +451,11 @@ const aiAssistantSlice = createSlice({
       .addCase(sendAIMessage.rejected, (state, action) => {
         state.isProcessing = false;
         state.removePendingRequest(action.meta.requestId);
-        // 添加错误消息
         state.addAIMessage({
           id: Date.now().toString(),
           role: 'assistant',
           content: '抱歉，我现在有点困惑，能再试一次吗？',
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
           emotion: EmotionTypeExtended.CONFUSION,
         });
       })

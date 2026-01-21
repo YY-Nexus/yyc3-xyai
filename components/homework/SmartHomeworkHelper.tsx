@@ -3,17 +3,9 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
-import {
-  getHomeworkCorrectionService,
-  type HomeworkResult,
-} from '@/lib/api/homework-correction';
+import { getHomeworkCorrectionService } from '@/lib/api/homework-correction';
 import { getVoiceService } from '@/lib/api/voice-services';
-
-interface VoiceRecording {
-  url: string;
-  duration: number;
-  transcript: string;
-}
+import type { HomeworkResult, VoiceRecording } from '@/types';
 
 interface SmartHomeworkHelperProps {
   homeworkId: string;

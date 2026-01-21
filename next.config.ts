@@ -23,6 +23,9 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_NAME: 'YYC³ 智能守护系统',
     NEXT_PUBLIC_APP_VERSION: '2.0.0',
   },
+
+  // 配置Turbopack
+  turbopack: {},
 };
 
 export default nextConfig;

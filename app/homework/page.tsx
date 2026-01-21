@@ -9,27 +9,7 @@ import { useChildren } from '@/hooks/useChildren';
 import type { Child } from '@/lib/db/client';
 import { useGrowthStage } from '@/hooks/useGrowthStage';
 import SmartHomeworkHelper from '@/components/homework/SmartHomeworkHelper';
-
-type HomeworkStatus = 'pending' | 'done' | 'review';
-
-interface Homework {
-  id: string;
-  subject: string;
-  title: string;
-  dueDate: string;
-  status: HomeworkStatus;
-  description: string;
-  progress?: number;
-}
-
-interface HomeworkResult {
-  score: number;
-  feedback: string;
-  correctAnswers: number;
-  totalQuestions: number;
-  timeTaken: number;
-  suggestions?: string[];
-}
+import type { Homework, HomeworkStatus, HomeworkResult } from '@/types';
 
 const homeworkData: Homework[] = [
   {
@@ -53,7 +33,7 @@ const homeworkData: Homework[] = [
     subject: '英语',
     title: '单词拼写',
     dueDate: '昨天',
-    status: 'done',
+    status: 'completed',
     description: '记住20个新单词',
     progress: 100,
   },
@@ -121,8 +101,8 @@ export default function HomeworkPage() {
           <div className='w-full bg-blue-100/50 p-1.5 rounded-full flex gap-1 mb-6 max-w-lg mx-auto'>
             {[
               { id: 'pending', label: '待完成' },
-              { id: 'done', label: '已完成' },
-              { id: 'review', label: '待批改' },
+              { id: 'completed', label: '已完成' },
+              { id: 'overdue', label: '已过期' },
             ].map(tab => (
               <motion.button
                 key={tab.id}
@@ -265,16 +245,16 @@ function HomeworkCard({
 
       <motion.button
         className={`w-full py-2 rounded-full font-bold transition ${
-          homework.status === 'done'
+          homework.status === 'completed'
             ? 'bg-green-100 text-green-600'
             : 'bg-blue-400 text-white hover:bg-blue-500'
         }`}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => onStartHomework(homework.id)}
-        disabled={homework.status === 'done'}
+        disabled={homework.status === 'completed'}
       >
-        {homework.status === 'done' ? (
+        {homework.status === 'completed' ? (
           <>
             <i className='ri-check-line mr-2' />
             已完成 ✓

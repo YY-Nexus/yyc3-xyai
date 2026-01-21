@@ -68,6 +68,7 @@ import type {
   QualityMetrics,
   PredictionInsights,
   DataDriftMetrics,
+  DriftAlert,
 } from '@/types/prediction/common';
 
 interface DataQualityMetrics {
@@ -161,13 +162,13 @@ const RealTimePredictionMonitor: React.FC<RealTimePredictionMonitorProps> = ({
       '1h': 60 * 60 * 1000,
     };
 
-    const cutoff = now - ranges[selectedTimeRange];
+    const cutoff = new Date(now - ranges[selectedTimeRange]);
     const filteredData = streamData.filter(d => d.timestamp >= cutoff);
 
     // 处理数据用于图表显示
     const chartData = filteredData.map((data, index) => ({
       timestamp: new Date(data.timestamp).toLocaleTimeString(),
-      value: data.prediction,
+      value: Array.isArray(data.prediction) ? data.prediction[0] : data.prediction,
       confidence: data.confidence * 100,
       latency: data.processingTime,
       index: index,

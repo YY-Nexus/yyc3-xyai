@@ -178,7 +178,7 @@ export interface GrowthRecord {
   domain: DevelopmentalDomain;
   activityType: ActivityType;
   content: MultimodalContent[];
-  performance: PerformanceMetrics;
+  performance: XiaoyuMultimodalPerformanceMetrics;
   progress: ProgressIndicator;
   insights: GrowthInsight[];
   recommendations: string[];
@@ -272,7 +272,7 @@ export interface Milestone {
 }
 
 // 性能指标
-export interface PerformanceMetrics {
+export interface XiaoyuMultimodalPerformanceMetrics {
   accuracy?: number;
   efficiency?: number;
   engagement?: number;

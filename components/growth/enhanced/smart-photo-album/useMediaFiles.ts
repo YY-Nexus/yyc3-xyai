@@ -96,7 +96,7 @@ const mockMediaFiles: MediaFile[] = [
     tags: ['说话', '第一次', '成长', '家庭'],
     emotions: [
       { emotion: 'happy', confidence: 0.9, person: '小语' },
-      { emotion: 'excited', confidence: 0.95, person: '妈妈' },
+      { emotion: 'happy', confidence: 0.95, person: '妈妈' },
     ],
     description: '小语第一次清晰地说出"妈妈"，这是最珍贵的时刻！',
     isFavorite: true,

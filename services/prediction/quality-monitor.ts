@@ -15,7 +15,7 @@ import type {
   BiasReport,
   CalibrationResult,
   SensitiveData,
-} from '@/types/prediction/common';
+} from '../../types/prediction/common';
 
 interface ConfidenceCalibrationMetrics {
   avgConfidence: number;

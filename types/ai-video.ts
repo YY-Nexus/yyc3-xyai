@@ -14,7 +14,7 @@ export interface AIVideoProject {
   duration?: number;
   resolution: '720p' | '1080p' | '4k';
   style: VideoStyle;
-  type?: VideoStyle;
+  type?: VideoType;
   scenes: VideoScene[];
   settings: VideoSettings;
   viewCount?: number;
@@ -23,7 +23,12 @@ export interface AIVideoProject {
 
 // 类型别名：用于兼容性
 export type GeneratedVideo = AIVideoProject;
-export type VideoType = VideoStyle;
+
+export type VideoType =
+  | 'slideshow'
+  | 'image-to-video'
+  | 'story-animation'
+  | 'memory-recap';
 
 export type VideoStyle =
   | 'cartoon'
@@ -31,7 +36,12 @@ export type VideoStyle =
   | 'anime'
   | 'watercolor'
   | '3d-animation'
-  | 'clay-animation';
+  | 'clay-animation'
+  | 'warm'
+  | 'dreamy'
+  | 'happy'
+  | 'calm'
+  | 'lullaby';
 
 export interface VideoScene {
   id: string;
@@ -77,4 +87,69 @@ export const VIDEO_STYLE_CONFIG: Record<
   watercolor: { name: '水彩', color: 'from-cyan-500 to-blue-500' },
   '3d-animation': { name: '3D动画', color: 'from-orange-500 to-yellow-500' },
   'clay-animation': { name: '粘土动画', color: 'from-green-500 to-teal-500' },
+  warm: { name: '温馨', color: 'from-amber-500 to-orange-500' },
+  dreamy: { name: '梦幻', color: 'from-violet-500 to-purple-500' },
+  happy: { name: '欢快', color: 'from-yellow-500 to-amber-500' },
+  calm: { name: '宁静', color: 'from-teal-500 to-cyan-500' },
+  lullaby: { name: '摇篮曲', color: 'from-indigo-500 to-violet-500' },
 };
+
+// 视频模板接口
+export interface VideoTemplate {
+  id: string;
+  name: string;
+  description: string;
+  thumbnail: string;
+  suitableFor: VideoType[];
+  defaultStyle: VideoStyle;
+  defaultDuration: number;
+  features: string[];
+}
+
+// 视频模板配置
+export const VIDEO_TEMPLATES: VideoTemplate[] = [
+  {
+    id: 'template-memory-recap',
+    name: '成长回忆',
+    description: '将照片和视频片段转化为温馨的成长回忆视频',
+    thumbnail: '/templates/memory-recap.jpg',
+    suitableFor: ['memory-recap'],
+    defaultStyle: 'warm',
+    defaultDuration: 30,
+    features: ['背景音乐', '文字说明', '流畅转场']
+  },
+  {
+    id: 'template-story-animation',
+    name: '故事动画',
+    description: '将文字故事转化为生动的动画视频',
+    thumbnail: '/templates/story-animation.jpg',
+    suitableFor: ['story-animation'],
+    defaultStyle: 'dreamy',
+    defaultDuration: 60,
+    features: ['角色动画', '语音旁白', '背景音效']
+  },
+  {
+    id: 'template-image-to-video',
+    name: '照片转视频',
+    description: '将多张照片组合成精美的幻灯片视频',
+    thumbnail: '/templates/image-to-video.jpg',
+    suitableFor: ['image-to-video', 'slideshow'],
+    defaultStyle: 'cartoon',
+    defaultDuration: 45,
+    features: ['照片特效', '背景音乐', '文字标题']
+  }
+];
+
+// 回忆视频配置接口
+export interface MemoryRecapConfig {
+  childId: string;
+  period: {
+    name: string;
+    startDate: Date;
+    endDate: Date;
+  };
+  maxDuration: number;
+  includeVoiceover: boolean;
+  includeMusic: boolean;
+  includeCaptions: boolean;
+}

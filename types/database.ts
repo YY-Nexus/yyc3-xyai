@@ -229,7 +229,7 @@ export interface UpdateChild {
   is_active?: boolean;
 }
 
-export interface GrowthRecord {
+export interface DatabaseGrowthRecord {
   id: UUID;
   child_id: UUID;
   title: string;
@@ -243,7 +243,7 @@ export interface GrowthRecord {
   updated_at: Timestamp;
 }
 
-export interface CreateGrowthRecord {
+export interface CreateDatabaseGrowthRecord {
   child_id: UUID;
   title: string;
   description?: string;
@@ -254,7 +254,7 @@ export interface CreateGrowthRecord {
   is_public?: boolean;
 }
 
-export interface UpdateGrowthRecord {
+export interface UpdateDatabaseGrowthRecord {
   title?: string;
   description?: string;
   category?: GrowthCategory;

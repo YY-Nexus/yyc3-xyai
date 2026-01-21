@@ -56,10 +56,10 @@ export interface PredictionTask {
   description: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   constraints: {
-    maxTrainingTime: number;
-    memoryLimit: number;
-    accuracyThreshold: number;
-    realTimeCapability: boolean;
+    maxTrainingTime?: number;
+    memoryLimit?: number;
+    accuracyThreshold?: number;
+    realTimeCapability?: boolean;
   };
   requirements: {
     minAccuracy?: number;
@@ -73,6 +73,8 @@ export interface PredictionTask {
  * 预测配置
  */
 export interface PredictionConfig {
+  name?: string;
+  algorithm?: string;
   modelType: 'regression' | 'classification' | 'forecasting' | 'anomaly_detection';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   constraints?: {
@@ -85,17 +87,26 @@ export interface PredictionConfig {
     minAccuracy?: number;
     maxLatency?: number;
     preferredModels?: string[];
+    accuracy?: 'low' | 'medium' | 'high';
+    speed?: 'low' | 'medium' | 'high';
+    interpretability?: 'low' | 'medium' | 'high';
+    scalability?: 'low' | 'medium' | 'high';
   };
   parameters?: Record<string, any>;
   preprocessing?: {
     normalize?: boolean;
     scale?: boolean;
-    handleMissing?: 'drop' | 'fill' | 'interpolate';
+    handleMissing?: 'drop' | 'fill' | 'interpolate' | 'mean' | 'median';
+    featureEngineering?: boolean;
+    outlierRemoval?: boolean;
   };
   validation?: {
+    method?: 'cross_validation' | 'holdout' | 'time_series_split';
     crossValidation?: boolean;
     testSplit?: number;
+    testSize?: number;
     validationSplit?: number;
+    folds?: number;
   };
 }
 
@@ -153,6 +164,7 @@ export interface QualityMetrics {
 export interface BiasReport {
   modelId: string;
   biasScore: number;
+  overall?: 'low' | 'medium' | 'high';
   biasMetrics: {
     genderBias?: number;
     ageBias?: number;
@@ -502,7 +514,7 @@ export interface PredictionInsights {
   recommendations: Recommendation[];
   timestamp: Date;
   keyPoints?: KeyInsight[];
-  performanceMetrics?: PerformanceMetrics;
+  performanceMetrics?: ModelPerformanceMetrics;
   driftAlerts?: DriftAlert[];
   riskAssessment?: RiskAssessment;
   confidence?: number;
@@ -537,7 +549,7 @@ export interface DataStream {
 /**
  * 性能指标
  */
-export interface PerformanceMetrics {
+export interface ModelPerformanceMetrics {
   modelId: string;
   accuracy: number;
   precision: number;
@@ -555,6 +567,7 @@ export interface PerformanceMetrics {
 export interface DriftAlert {
   modelId: string;
   alertType: 'concept_drift' | 'data_drift' | 'performance_degradation';
+  type?: string;
   severity: 'low' | 'medium' | 'high';
   message: string;
   timestamp: number;
@@ -578,6 +591,7 @@ export interface Recommendation {
 export interface RiskAssessment {
   modelId: string;
   riskLevel: 'low' | 'medium' | 'high';
+  overall?: 'low' | 'medium' | 'high';
   riskFactors: string[];
   mitigationStrategies: string[];
   timestamp: Date;
@@ -590,5 +604,8 @@ export interface KeyInsight {
   type: string;
   description: string;
   importance: number;
+  severity?: 'low' | 'medium' | 'high';
+  confidence?: number;
+  actionability?: boolean;
   timestamp: Date;
 }

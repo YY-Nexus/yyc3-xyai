@@ -50,12 +50,11 @@ export default function GrowthChart({ childId }: GrowthChartProps) {
   }, [selectedPeriod]);
 
   const maxStudyTime = Math.max(...growthData.map(d => d.studyTime));
-  const averageMood =
+  const averageMoodNumber =
     growthData.length > 0
-      ? (
-          growthData.reduce((sum, d) => sum + d.mood, 0) / growthData.length
-        ).toFixed(1)
+      ? growthData.reduce((sum, d) => sum + d.mood, 0) / growthData.length
       : 0;
+  const averageMood = averageMoodNumber.toFixed(1);
   const totalActivities = growthData.reduce((sum, d) => sum + d.activities, 0);
 
   const getAssistantName = () => {
@@ -221,7 +220,7 @@ export default function GrowthChart({ childId }: GrowthChartProps) {
         <p className='text-sm font-medium text-slate-700'>
           {totalActivities > 20
             ? '太棒了！你完成了很多活动！'
-            : averageMood >= 4
+            : averageMoodNumber >= 4
               ? '心情不错，继续保持哦！'
               : '继续努力，${getAssistantName()}为你加油！💪'}
         </p>

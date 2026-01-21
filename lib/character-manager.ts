@@ -9,6 +9,8 @@
  * @license MIT
  */
 
+import { warn } from './logger';
+
 // 自定义 Child 接口，替代 @prisma/client 依赖
 export interface Child {
   id: string;
@@ -756,7 +758,7 @@ export class CharacterManager {
         const img = new Image();
         img.onload = () => resolve();
         img.onerror = () => {
-          console.warn(`Failed to preload image: ${path}`);
+          warn(`Failed to preload image: ${path}`, 'CharacterManager');
           resolve(); // 继续执行，不阻塞
         };
         img.src = path;

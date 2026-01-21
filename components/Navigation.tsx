@@ -28,6 +28,7 @@ const navItems = [
     href: '/curriculum',
   },
   { id: 'growth', icon: 'ri-trophy-fill', label: '成长', href: '/growth' },
+  { id: 'badges', icon: 'ri-medal-fill', label: '勋章', href: '/badges', badge: true },
   {
     id: 'settings',
     icon: 'ri-settings-4-fill',

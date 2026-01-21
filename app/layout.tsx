@@ -18,6 +18,7 @@ import { AuthProvider } from '@/hooks/useAuth';
 import ReduxProvider from '@/components/ReduxProvider';
 import DndProvider from '@/components/DndProvider';
 import { MuiThemeProvider } from '@/components/material/MuiThemeProvider';
+import { PopupRenderer } from '@/components/popup/PopupRenderer';
 // import { DatabaseInitializer } from "@/components/DatabaseInitializer"
 import './globals.css';
 
@@ -111,7 +112,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='zh-CN'>
+    <html lang='zh-CN' suppressHydrationWarning>
       <head>
         <link
           href='https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css'
@@ -119,22 +120,26 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} antialiased selection:bg-orange-200 selection:text-orange-900`}
+        className='antialiased selection:bg-orange-200 selection:text-orange-900'
+        suppressHydrationWarning
       >
-        <ErrorBoundary>
-          <DndProvider>
-            <ReduxProvider>
-              <MuiThemeProvider>
-                <AuthProvider>
-                  {children}
-                  <ClientWrapper />
-                </AuthProvider>
-              </MuiThemeProvider>
-            </ReduxProvider>
-          </DndProvider>
-        </ErrorBoundary>
-        <Analytics />
-        <SpeedInsights />
+        <div className={inter.className}>
+          <ErrorBoundary>
+            <DndProvider>
+              <ReduxProvider>
+                <MuiThemeProvider>
+                  <AuthProvider>
+                    {children}
+                    <ClientWrapper />
+                    <PopupRenderer />
+                  </AuthProvider>
+                </MuiThemeProvider>
+              </ReduxProvider>
+            </DndProvider>
+          </ErrorBoundary>
+          <Analytics />
+          <SpeedInsights />
+        </div>
       </body>
     </html>
   );

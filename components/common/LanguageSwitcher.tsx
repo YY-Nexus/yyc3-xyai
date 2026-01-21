@@ -15,7 +15,7 @@ export default function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale() as Locale;
-  const t = useTranslations('language');
+  const t = useTranslations('language') as any;
 
   const [isOpen, setIsOpen] = useState(false);
 

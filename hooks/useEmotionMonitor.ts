@@ -21,8 +21,8 @@ import {
   EmotionEvent,
   EmotionalState,
   EmotionAlert,
-  EmotionType,
 } from '@/lib/ai/emotion-monitor';
+import { EmotionType, EmotionInsight } from '@/types/emotion';
 import { useChildren } from './useChildren';
 
 export interface UseEmotionMonitorOptions {
@@ -30,14 +30,6 @@ export interface UseEmotionMonitorOptions {
   autoTrackBehavior?: boolean;
   alertThreshold?: number;
   enableRealTimeResponse?: boolean;
-}
-
-export interface EmotionInsight {
-  type: 'pattern' | 'trend' | 'recommendation';
-  message: string;
-  severity: 'info' | 'warning' | 'success';
-  timestamp: Date;
-  actionable: boolean;
 }
 
 export function useEmotionMonitor(options: UseEmotionMonitorOptions = {}) {

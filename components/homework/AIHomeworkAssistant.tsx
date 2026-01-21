@@ -41,15 +41,14 @@ export default function AIHomeworkAssistant({
   const [currentProblem, setCurrentProblem] = useState('');
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const { sendMessage, isProcessing: aiProcessing } = useAIXiaoyu();
+  const { sendMessage, isProcessing: aiProcessing, messages } = useAIXiaoyu();
 
   // 根据科目生成AI辅导建议
   const generateAIGuide = async () => {
     setIsProcessing(true);
     try {
       const prompt = `请为${homework.subject}作业"${homework.title}"提供详细的辅导建议。作业描述：${homework.description}。请用简单易懂的语言，分步骤说明解题方法，适合小学生理解。`;
-      const response = await sendMessage(prompt);
-      setAiSuggestion(response.content);
+      await sendMessage(prompt);
     } catch (error) {
       console.error('生成AI辅导失败:', error);
       setAiSuggestion('抱歉，小语暂时无法提供辅导建议，请稍后再试。');
@@ -65,8 +64,7 @@ export default function AIHomeworkAssistant({
     setIsProcessing(true);
     try {
       const prompt = `请分析这道${homework.subject}题目：${currentProblem}。请提供：1. 题目类型分析 2. 解题思路 3. 关键知识点 4. 可能的易错点。请用简单语言解释。`;
-      const response = await sendMessage(prompt);
-      setAiSuggestion(response.content);
+      await sendMessage(prompt);
     } catch (error) {
       console.error('分析题目失败:', error);
       setAiSuggestion('分析失败，请检查题目输入是否正确。');
@@ -80,6 +78,16 @@ export default function AIHomeworkAssistant({
       generateAIGuide();
     }
   }, [isOpen, activeTab]);
+
+  // 监听messages变化，获取最新的AI响应
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        setAiSuggestion(lastMessage.content);
+      }
+    }
+  }, [messages]);
 
   const handleCompleteHomework = (progress: number) => {
     onComplete?.(progress);

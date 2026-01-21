@@ -13,6 +13,38 @@ import { Logger } from '@/config/logger';
 
 const logger = Logger.getInstance();
 
+interface GrowthRecordRow {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string;
+  media_urls: string[] | null;
+  tags: string[] | null;
+  location: string | null;
+  is_public: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+interface GrowthRecordWithChildName extends GrowthRecordRow {
+  child_name: string;
+}
+
+interface ChildRow {
+  id: string;
+  name: string;
+}
+
+interface MonthlyStatRow {
+  month: string;
+  records_count: string;
+}
+
+interface TagStatRow {
+  tag: string;
+  usage_count: string;
+}
+
 // 输入验证schemas
 const createGrowthRecordSchema = z.object({
   childId: z.string().uuid('Invalid child ID'),
@@ -269,7 +301,7 @@ export const getGrowthRecords = catchAsync(
           id: child.id,
           name: child.name,
         },
-        growthRecords: result.rows.map(record => ({
+        growthRecords: result.rows.map((record: GrowthRecordRow) => ({
           id: record.id,
           title: record.title,
           description: record.description,
@@ -665,11 +697,11 @@ export const getGrowthStats = catchAsync(
               ? (parseInt(stats.total_records) / months).toFixed(2)
               : 0,
         },
-        monthlyStats: monthlyStatsResult.rows.map(stat => ({
+        monthlyStats: monthlyStatsResult.rows.map((stat: MonthlyStatRow) => ({
           month: stat.month,
           recordsCount: parseInt(stat.records_count),
         })),
-        topTags: tagsResult.rows.map(tag => ({
+        topTags: tagsResult.rows.map((tag: TagStatRow) => ({
           tag: tag.tag,
           usageCount: parseInt(tag.usage_count),
         })),
@@ -754,7 +786,7 @@ export const searchGrowthRecords = catchAsync(
           name: child.name,
         },
         query: (query as string).trim(),
-        growthRecords: result.rows.map(record => ({
+        growthRecords: result.rows.map((record: GrowthRecordRow) => ({
           id: record.id,
           title: record.title,
           description: record.description,

@@ -4,7 +4,7 @@
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
-import { info, warn, error, debug } from '@/lib/logger';
+import logger, { info, warn, debug } from '@/lib/logger';
 
 interface ErrorReport {
   error: {
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 记录错误到控制台
-    error('Error Report:', {
+    logger.error('Error Report:', undefined, {
       message: report.error.message,
       stack: report.error.stack,
       timestamp: report.timestamp,
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       message: 'Error reported successfully',
     });
   } catch (error) {
-    error('Error in error-report API:', error);
+    logger.error('Error in error-report API:', undefined, error);
     return NextResponse.json(
       { error: 'Failed to process error report', success: false },
       { status: 500 }
@@ -109,8 +109,8 @@ async function logErrorToExternalService(report: ErrorReport) {
       });
     }
   } catch (error) {
-    warn('Failed to send Slack notification:', error);
-  }
+      logger.warn('Failed to send Slack notification:', undefined, error);
+    }
 
   // 邮件通知示例
   if (process.env['ADMIN_EMAIL'] && isCriticalError(report)) {
@@ -160,7 +160,7 @@ export async function GET() {
       // 返回错误统计数据
     });
   } catch (error) {
-    error('Error in GET error-report:', error);
+    logger.error('Error in GET error-report:', undefined, error);
     return NextResponse.json(
       { error: 'Failed to get error statistics', success: false },
       { status: 500 }

@@ -87,6 +87,17 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
         },
       });
 
+      // 转换情感结果格式以匹配 store 的 EmotionResult 类型
+      const formattedEmotionResult = {
+        type: emotionResult.primary as any,
+        confidence: emotionResult.confidence,
+        timestamp: emotionResult.timestamp.toISOString(),
+        context: emotionResult.context,
+        details: {
+          intensity: emotionResult.intensity,
+        },
+      };
+
       // 保存成长记录
       dispatch(
         addGrowthRecord({
@@ -96,7 +107,7 @@ export default function GrowthDashboard({ child }: GrowthDashboardProps) {
           title: '情感互动记录',
           description: `${result.transcript} - 情感: ${emotionResult.primary}`,
           date: new Date().toISOString(),
-          emotion: emotionResult,
+          emotion: formattedEmotionResult as any,
           tags: ['情感分析', '语音互动'],
           isImportant: emotionResult.intensity > 0.7,
         })

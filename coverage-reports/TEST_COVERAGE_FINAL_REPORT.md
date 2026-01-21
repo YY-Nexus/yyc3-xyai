@@ -60,6 +60,7 @@
 **文件**: `jest.config.js`
 
 **改进内容**:
+
 ```javascript
 coverageThreshold: {
   global: {
@@ -86,6 +87,7 @@ coverageThreshold: {
 ```
 
 **优势**:
+
 - ✅ 设置了覆盖率阈值
 - ✅ 核心模块需要更高覆盖率
 - ✅ 不达标则构建失败
@@ -97,16 +99,19 @@ coverageThreshold: {
 **脚本**: `scripts/generate-tests.js`
 
 **功能**:
+
 - 自动生成 `lib/utils.ts` 的测试用例
 - 自动生成 `lib/character-manager.ts` 的测试用例
 - 覆盖常见功能点和边界情况
 
 **使用方法**:
+
 ```bash
 node scripts/generate-tests.js
 ```
 
 **优势**:
+
 - ✅ 自动化生成测试用例
 - ✅ 覆盖常见功能点
 - ✅ 包含边界情况测试
@@ -118,12 +123,14 @@ node scripts/generate-tests.js
 **文件**: `.github/workflows/test-coverage.yml`
 
 **功能**:
+
 - 自动运行测试
 - 生成覆盖率报告
 - 检查覆盖率阈值
 - 上传覆盖率到Codecov
 
 **优势**:
+
 - ✅ 自动化测试和覆盖率检查
 - ✅ 不达标则构建失败
 - ✅ 持续监控覆盖率
@@ -135,12 +142,14 @@ node scripts/generate-tests.js
 **文件**: `coverage-reports/TEST_COVERAGE_ANALYSIS.md`
 
 **内容**:
+
 - 测试执行情况
 - 覆盖率统计
 - 问题分析
 - 改进建议
 
 **优势**:
+
 - ✅ 详细的分析报告
 - ✅ 明确的改进建议
 - ✅ 可执行的行动计划
@@ -152,6 +161,7 @@ node scripts/generate-tests.js
 **文件**: `coverage-reports/TEST_COVERAGE_IMPROVEMENT_PLAN.md`
 
 **内容**:
+
 - 当前状态
 - 覆盖率目标
 - 已完成的改进
@@ -159,6 +169,7 @@ node scripts/generate-tests.js
 - 手动修复指南
 
 **优势**:
+
 - ✅ 明确的覆盖率目标
 - ✅ 详细的行动计划
 - ✅ 实用的修复指南
@@ -255,8 +266,8 @@ node scripts/generate-tests.js
 ### 项目信息
 
 - **项目名称**: 小语AI智能成长守护系统
-- **Git仓库**: https://github.com/YY-Nexus/yyc3-xyai.git
-- **管理员邮箱**: admin@0379.email
+- **Git仓库**: <https://github.com/YY-Nexus/yyc3-xyai.git>
+- **管理员邮箱**: <admin@0379.email>
 - **项目版本**: v2.0.0
 
 ---

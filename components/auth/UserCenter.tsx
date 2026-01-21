@@ -10,6 +10,8 @@ export default function UserCenter() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  const displayName = user ? (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.email?.split('@')[0] || '用户') : '';
+
   if (isLoading) {
     return (
       <div className='flex items-center gap-2 px-4 py-2 bg-white/50 rounded-full'>
@@ -48,10 +50,10 @@ export default function UserCenter() {
         whileHover={{ scale: 1.02 }}
       >
         <div className='w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-sm'>
-          {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
+          {displayName.charAt(0) || user.email?.charAt(0) || 'U'}
         </div>
         <span className='text-sm font-medium text-slate-700 max-w-[100px] truncate'>
-          {user.name || user.email?.split('@')[0]}
+          {displayName}
         </span>
         <i
           className={`ri-arrow-down-s-line transition-transform ${showDropdown ? 'rotate-180' : ''}`}
@@ -76,7 +78,7 @@ export default function UserCenter() {
             >
               <div className='p-4 border-b border-slate-100 bg-slate-50'>
                 <p className='font-medium text-slate-800'>
-                  {user.name || '用户'}
+                  {displayName}
                 </p>
                 <p className='text-xs text-slate-500 truncate'>{user.email}</p>
               </div>
@@ -95,7 +97,7 @@ export default function UserCenter() {
               <div className='p-2 border-t border-slate-100'>
                 <button
                   onClick={async () => {
-                    await signOut();
+                    await logout();
                     setShowDropdown(false);
                   }}
                   className='w-full flex items-center gap-3 px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition text-sm'

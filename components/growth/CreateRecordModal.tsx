@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MediaUploader } from './MediaUploader';
 import { TagSelector } from './TagSelector';
 import { GrowthRecord } from '@/lib/store';
+import { EmotionResult, EmotionType } from '@/types/emotion';
 
 interface AIAnalysisResult {
   analysis: string;
@@ -38,7 +39,7 @@ export default function CreateRecordModal({
   onSubmit,
 }: CreateRecordModalProps) {
   const [recordType, setRecordType] = useState<
-    'milestone' | 'observation' | 'emotion' | 'learning'
+    'milestone' | 'daily' | 'emotion' | 'learning'
   >('milestone');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -77,22 +78,46 @@ export default function CreateRecordModal({
   };
 
   const handleSubmit = async () => {
-    const mediaUrls: string[] = [];
+    const photos: string[] = [];
 
     for (const file of mediaFiles) {
-      mediaUrls.push(URL.createObjectURL(file));
+      photos.push(URL.createObjectURL(file));
+    }
+
+    let emotionResult: EmotionResult | undefined;
+
+    if (recordType === 'emotion' && emotion) {
+      const emotionMap: Record<string, EmotionType> = {
+        开心: EmotionType.HAPPINESS,
+        难过: EmotionType.SADNESS,
+        生气: EmotionType.ANGER,
+        兴奋: EmotionType.EXCITED,
+        平静: EmotionType.CALM,
+        紧张: EmotionType.ANXIOUS,
+      };
+
+      emotionResult = {
+        type: emotionMap[emotion] || EmotionType.NEUTRAL,
+        confidence: 0.8,
+        timestamp: new Date().toISOString(),
+        context: `用户选择情绪: ${emotion}`,
+        details: {
+          intensity: 0.7,
+        },
+      };
     }
 
     const record = {
       type: recordType,
       title: title || content.slice(0, 30),
-      content,
-      mediaUrls,
+      description: content,
+      media: {
+        photos,
+        videos: [],
+        audioNotes: [],
+      },
       tags,
-      emotion,
-      aiAnalysis: aiSuggestions?.analysis,
-      isMilestone: aiSuggestions?.isMilestone,
-      createdAt: new Date().toISOString(),
+      emotion: emotionResult,
     };
 
     onSubmit(record);
@@ -148,7 +173,7 @@ export default function CreateRecordModal({
                       color: 'yellow',
                     },
                     {
-                      id: 'observation',
+                      id: 'daily',
                       icon: 'ri-eye-line',
                       label: '观察日志',
                       color: 'purple',
@@ -177,7 +202,7 @@ export default function CreateRecordModal({
                         setRecordType(
                           type.id as
                             | 'milestone'
-                            | 'observation'
+                            | 'daily'
                             | 'emotion'
                             | 'learning'
                         )

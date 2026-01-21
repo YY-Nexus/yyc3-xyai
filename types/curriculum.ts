@@ -145,5 +145,5 @@ export function getDefaultSemester(): Semester {
 }
 
 export function getSubjectColor(subject: string): string {
-  return SUBJECT_COLORS[subject] || SUBJECT_COLORS['其他'];
+  return SUBJECT_COLORS[subject] || SUBJECT_COLORS['其他'] || '#6b7280';
 }

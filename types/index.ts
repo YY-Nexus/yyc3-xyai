@@ -50,15 +50,16 @@ export type {
   NotificationType as DatabaseNotificationType,
   RecommendationType as DatabaseRecommendationType,
   UploadType,
+  User,
   User as DatabaseUser,
   CreateUser,
   UpdateUser,
   Child,
   CreateChild,
   UpdateChild,
-  GrowthRecord as DatabaseGrowthRecord,
-  CreateGrowthRecord,
-  UpdateGrowthRecord,
+  DatabaseGrowthRecord,
+  CreateDatabaseGrowthRecord,
+  UpdateDatabaseGrowthRecord,
   AIConversation,
   CreateAIConversation,
   AIRoleConfig as DatabaseAIRoleConfig,
@@ -154,7 +155,7 @@ export type {
   TreemapData,
   HistogramData,
   ScatterData,
-  PerformanceMetrics,
+  SystemPerformanceMetrics,
   UserBehaviorMetrics,
   BusinessMetrics,
   GrowthMetrics,
@@ -190,9 +191,8 @@ export type {
   ConversationFilter,
   ConversationCreateInput,
   ConversationHistoryInput,
-  EmotionType,
-  EmotionAnalysis,
-  EmotionTrend,
+  EmotionAnalysis as InteractionEmotionAnalysis,
+  EmotionTrend as InteractionEmotionTrend,
   EmotionStats,
   CommentType,
   Comment,
@@ -219,6 +219,19 @@ export type {
   InteractionSearchQuery,
   InteractionSearchResult,
 } from './interaction';
+
+// ===== 情感类型 =====
+export type {
+  EmotionType,
+  EmotionInsight,
+  EmotionAnalysis,
+  EmotionResult,
+  EmotionPattern,
+  EmotionalPattern,
+  EmotionalMemory,
+  EmotionTrend,
+  EmotionCategory,
+} from './emotion';
 
 // ===== 成长类型 =====
 export type {
@@ -290,7 +303,7 @@ export type {
   AIHealthStatus as AIHealthStatusType,
   MemoryUsage as AIMemoryUsage,
   ResponseTimeMetrics,
-  PerformanceMetrics as AIPerformanceMetrics,
+  AIServicePerformanceMetrics,
   CoordinatedResponse,
   SupportingInsight,
   RoleInfo,
@@ -402,7 +415,7 @@ export type {
   PredictionInsights,
   StreamingPrediction,
   DataStream,
-  PerformanceMetrics,
+  ModelPerformanceMetrics,
   DriftAlert,
   Recommendation,
   RiskAssessment,
@@ -457,6 +470,17 @@ export type {
   BadgeStats,
   BadgeService,
 } from './ui';
+
+// ===== 作业类型 =====
+export type {
+  Homework,
+  HomeworkStatus,
+  HomeworkResult,
+  VoiceRecording,
+  HomeworkSubmission,
+  HomeworkFeedback,
+  HomeworkStats,
+} from './homework';
 
 // ===== 全局工具类型 =====
 export interface MockChild {

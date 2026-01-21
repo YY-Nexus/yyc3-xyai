@@ -112,7 +112,7 @@ const PredictionDashboard: React.FC<PredictionDashboardProps> = ({
       '30d': 30 * 24 * 60 * 60 * 1000,
     };
 
-    const cutoff = now - ranges[selectedTimeRange];
+    const cutoff = new Date(now - ranges[selectedTimeRange]);
     return predictions.filter(p => p.timestamp >= cutoff);
   }, [predictions, selectedTimeRange]);
 
@@ -568,9 +568,9 @@ const PredictionDashboard: React.FC<PredictionDashboardProps> = ({
                     alert.severity === 'high' ? 'destructive' : 'default'
                   }
                 >
-                  {alert.type}
+                  {alert.type || alert.alertType}
                 </Badge>
-                <span className='ml-2'>{alert.description}</span>
+                <span className='ml-2'>{alert.message}</span>
               </div>
             ))}
           </AlertDescription>

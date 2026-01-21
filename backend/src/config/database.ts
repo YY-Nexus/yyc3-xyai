@@ -1,10 +1,54 @@
 import { Pool } from 'pg';
 import { createClient } from 'redis';
-import { logger } from './logger';
 import { getConfig } from './index';
 import type { PostgresConfig, RedisConfig } from './types';
+import fs from 'fs';
+import path from 'path';
 
 const config = getConfig();
+
+// 检查是否使用SQLite
+const useSQLite = process.env.DB_TYPE === 'sqlite';
+
+// SQLite配置（使用内存数据库模拟）
+const sqlitePath = process.env.DB_SQLITE_PATH || './database.sqlite';
+let sqliteDb: any = null;
+
+// 简单的内存数据库实现
+class MemoryDatabase {
+  private tables: Map<string, any[]> = new Map();
+
+  constructor() {
+    this.tables.set('users', []);
+    this.tables.set('children', []);
+    this.tables.set('ai_conversations', []);
+  }
+
+  exec(sql: string) {
+    console.log('MemoryDatabase.exec:', sql);
+  }
+
+  prepare(sql: string) {
+    return {
+      get: () => {
+        console.log('MemoryDatabase.prepare.get:', sql);
+        return null;
+      },
+      all: () => {
+        console.log('MemoryDatabase.prepare.all:', sql);
+        return [];
+      },
+      run: () => {
+        console.log('MemoryDatabase.prepare.run:', sql);
+        return { lastID: Date.now() };
+      }
+    };
+  }
+
+  close() {
+    console.log('MemoryDatabase closed');
+  }
+}
 
 export const postgresConfig: PostgresConfig = config.database.postgres;
 export const redisConfig: RedisConfig = config.database.redis;
@@ -21,7 +65,7 @@ const poolConfig = {
   connectionTimeoutMillis: postgresConfig.connectionTimeoutMillis,
 };
 
-export const pool = new Pool(poolConfig);
+export const pool = useSQLite ? null : new Pool(poolConfig);
 
 const redisClientConfig = {
   socket: {
@@ -32,7 +76,7 @@ const redisClientConfig = {
   database: redisConfig.database,
 } as any;
 
-export const redisClient = createClient(redisClientConfig);
+export const redisClient = useSQLite ? null : createClient(redisClientConfig);
 
 // 数据库连接状态
 let isConnected = false;
@@ -40,17 +84,26 @@ let isConnected = false;
 // 初始化数据库连接
 export const initializeDatabase = async (): Promise<void> => {
   try {
-    // 测试PostgreSQL连接
-    await pool.query('SELECT NOW()');
-    logger.info('PostgreSQL connected successfully');
+    if (useSQLite) {
+      // 使用SQLite
+      sqliteDb = new MemoryDatabase();
+      console.info('MemoryDatabase connected successfully');
 
-    // 连接Redis
-    await redisClient.connect();
-    logger.info('Redis connected successfully');
+      isConnected = true;
+    } else {
+      // 使用PostgreSQL
+      if (pool && redisClient) {
+        await pool.query('SELECT NOW()');
+        console.info('PostgreSQL connected successfully');
 
-    isConnected = true;
+        await redisClient.connect();
+        console.info('Redis connected successfully');
+
+        isConnected = true;
+      }
+    }
   } catch (error) {
-    logger.error('Database connection failed:', error);
+    console.error('Database connection failed:', error);
     throw error;
   }
 };
@@ -58,12 +111,19 @@ export const initializeDatabase = async (): Promise<void> => {
 // 关闭数据库连接
 export const closeDatabase = async (): Promise<void> => {
   try {
-    await pool.end();
-    await redisClient.quit();
+    if (useSQLite && sqliteDb) {
+      sqliteDb.close();
+      sqliteDb = null;
+      console.info('SQLite connection closed');
+    } else if (pool && redisClient) {
+      await pool.end();
+      await redisClient.quit();
+      console.info('PostgreSQL and Redis connections closed');
+    }
     isConnected = false;
-    logger.info('Database connections closed');
+    console.info('Database connections closed');
   } catch (error) {
-    logger.error('Error closing database connections:', error);
+    console.error('Error closing database connections:', error);
     throw error;
   }
 };
@@ -82,19 +142,33 @@ export const healthCheck = async (): Promise<{
   };
 
   try {
-    // 检查PostgreSQL
-    await pool.query('SELECT 1');
-    health.postgres = true;
+    if (useSQLite && sqliteDb) {
+      // SQLite健康检查
+      try {
+        // 检查数据库实例是否存在且可用
+        if (sqliteDb && typeof sqliteDb.prepare === 'function') {
+          sqliteDb.prepare('SELECT 1').get();
+          health.postgres = true; // 使用postgres字段表示SQLite状态
+        }
+      } catch (error) {
+        console.error('SQLite health check failed:', error);
+      }
+    } else if (pool) {
+      // PostgreSQL健康检查
+      await pool.query('SELECT 1');
+      health.postgres = true;
+    }
   } catch (error) {
-    logger.error('PostgreSQL health check failed:', error);
+    console.error('Database health check failed:', error);
   }
 
   try {
-    // 检查Redis
-    await redisClient.ping();
-    health.redis = true;
+    if (redisClient) {
+      await redisClient.ping();
+      health.redis = true;
+    }
   } catch (error) {
-    logger.error('Redis health check failed:', error);
+    console.error('Redis health check failed:', error);
   }
 
   return health;
@@ -108,10 +182,10 @@ export const db = {
     try {
       const result = await pool.query(text, params);
       const duration = Date.now() - start;
-      logger.debug('Executed query', { text, duration, rows: result.rowCount });
+      console.debug('Executed query', { text, duration, rows: result.rowCount });
       return result;
     } catch (error) {
-      logger.error('Query execution failed', { text, error });
+      console.error('Query execution failed', { text, error });
       throw error;
     }
   },

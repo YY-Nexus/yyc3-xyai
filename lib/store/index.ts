@@ -28,10 +28,10 @@ import {
 import { storage } from './storage';
 import {
   EmotionResult,
+  EmotionType,
   EmotionalMemory,
-  InfantEmotionType as EmotionType,
-  AgeGroup,
-} from '@/lib/ai/emotion-engine';
+} from '@/types/emotion';
+import { AgeGroup } from '@/lib/ai/emotion-engine';
 import aiAssistantReducer, {
   AIAssistantState,
   AIMessage,
@@ -95,7 +95,7 @@ export interface AIAssistant {
 }
 
 // 成长记录
-export interface GrowthRecord {
+export interface StoreGrowthRecord {
   id: string;
   childId: string;
   type: 'milestone' | 'daily' | 'emotion' | 'learning';
@@ -123,7 +123,7 @@ export interface AppState {
   aiAssistant: AIAssistant;
 
   // 成长记录
-  growthRecords: GrowthRecord[];
+  growthRecords: StoreGrowthRecord[];
   emotionalMemories: EmotionalMemory[];
 
   // 应用设置
@@ -262,11 +262,9 @@ export const analyzeEmotion = createAsyncThunk(
   async (input: { text?: string; audio?: Blob; childId: string }) => {
     // TODO: 实现情感分析逻辑
     const mockResult: EmotionResult = {
-      primary: EmotionType.HAPPINESS,
+      type: EmotionType.HAPPINESS,
       confidence: 0.8,
-      intensity: 0.7,
-      ageGroup: AgeGroup.TODDLER,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
     };
     return mockResult;
   }
@@ -275,8 +273,8 @@ export const analyzeEmotion = createAsyncThunk(
 // 异步Action - 保存成长记录
 export const saveGrowthRecord = createAsyncThunk(
   'growth/saveRecord',
-  async (record: Omit<GrowthRecord, 'id'>) => {
-    const newRecord: GrowthRecord = {
+  async (record: Omit<StoreGrowthRecord, 'id'>) => {
+    const newRecord: StoreGrowthRecord = {
       ...record,
       id: Date.now().toString(),
     };
@@ -361,12 +359,12 @@ const appSlice = createSlice({
     },
 
     // 成长记录相关
-    addGrowthRecord: (state, action: PayloadAction<GrowthRecord>) => {
+    addGrowthRecord: (state, action: PayloadAction<StoreGrowthRecord>) => {
       state.growthRecords.unshift(action.payload);
     },
     updateGrowthRecord: (
       state,
-      action: PayloadAction<{ id: string; updates: Partial<GrowthRecord> }>
+      action: PayloadAction<{ id: string; updates: Partial<StoreGrowthRecord> }>
     ) => {
       const { id, updates } = action.payload;
       const recordIndex = state.growthRecords.findIndex(
@@ -469,7 +467,7 @@ const appSlice = createSlice({
       })
       .addCase(analyzeEmotion.fulfilled, (state, action) => {
         state.ui.isLoading = false;
-        state.aiAssistant.currentEmotion = action.payload.primary;
+        state.aiAssistant.currentEmotion = action.payload.type;
         state.aiAssistant.lastInteraction = new Date().toISOString();
       })
       .addCase(analyzeEmotion.rejected, state => {
@@ -594,8 +592,8 @@ export type AppDispatch = typeof store.dispatch;
 
 // 重新导出AI助手相关类型
 export type { AIAssistantState, AIMessage } from './slices/aiAssistantSlice';
+export type { StoreGrowthRecord as GrowthRecord };
 
-// 选择器
 export const selectCurrentUser = (state: RootState) => state.app.user;
 export const selectCurrentChild = (state: RootState) => state.app.currentChild;
 export const selectChildren = (state: RootState) => state.app.children;

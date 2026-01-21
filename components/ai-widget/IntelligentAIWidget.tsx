@@ -11,9 +11,7 @@ import React, {
   useMemo,
 } from 'react';
 import Image from 'next/image';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { TouchBackend } from 'react-dnd-touch-backend';
+import { useDrag, useDrop } from 'react-dnd';
 import { useSelector } from 'react-redux';
 import {
   MessageCircle,
@@ -29,6 +27,8 @@ import {
   Activity,
   AlertTriangle,
   CheckCircle,
+  Mic,
+  MicOff,
 } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -41,8 +41,28 @@ import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
+// AI组件
+import ModelSelector from './ModelSelector';
+import PerformanceMonitor from './PerformanceMonitor';
+
+// 语音交互组件
+import { VoiceInteraction } from '../voice/VoiceInteraction';
+
+// 样式文件
+import './IntelligentAIWidget.css';
+
+// 主题色Hook
+import { useThemeColor } from '@/hooks/useThemeColor';
+
+// 响应式Hook
+import { useResponsive, type Breakpoint } from '@/hooks/useResponsive';
+
+// 动画组件
+import { FadeIn, SlideIn, ScaleIn, BounceIn } from '../animations/Animations';
+
 // 图标组件
 import AgenticCore from '../../core/AgenticCore';
+import { AI_ROLES, selectRoleByContext, type AIRole } from '@/lib/ai_roles';
 import type {
   UserInput,
   AgentResponse,
@@ -51,6 +71,20 @@ import type {
 } from '../../core/AgenticCore';
 import { characterManager } from '@/lib/character-manager';
 import { selectCurrentUser } from '@/lib/store';
+
+// AI服务适配器
+import {
+  AIServiceManager,
+  OllamaServiceAdapter,
+  createAIServiceAdapter,
+  type AIServiceAdapter,
+  type ChatMessage,
+  type ChatOptions,
+  type ModelInfo,
+  type HealthStatus,
+  type ServiceMetrics,
+} from '@/services/ai/AIServiceAdapter';
+import { LocalAIGatewayAdapter } from '@/services/ai/LocalAIGatewayAdapter';
 
 // 拖拽类型定义
 export interface WidgetPosition {
@@ -82,6 +116,8 @@ interface WidgetProps {
   // 工作空间ID（预留）
   workspaceId?: string;
   initialPosition?: string;
+  initialRole?: AIRole;
+  onRoleChange?: (role: AIRole) => void;
   theme?: 'light' | 'dark' | 'auto';
   // 权限配置（预留）
   permissions?: string[];
@@ -90,6 +126,9 @@ interface WidgetProps {
   width?: number;
   height?: number;
   className?: string;
+  // AI服务配置
+  aiServiceType?: 'ollama' | 'local-gateway';
+  aiServiceBaseUrl?: string;
 }
 
 interface Message {
@@ -112,6 +151,8 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
   userId = 'default-user',
   workspaceId: _workspaceId = 'default-workspace',
   initialPosition = 'bottom-right',
+  initialRole,
+  onRoleChange,
   theme = 'auto',
   permissions: _permissions = ['basic'],
   onStateChange,
@@ -119,6 +160,8 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
   width = 400,
   height = 600,
   className = '',
+  aiServiceType = 'ollama',
+  aiServiceBaseUrl,
 }) => {
   // 获取当前用户信息
   const currentUser = useSelector(selectCurrentUser);
@@ -138,15 +181,34 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
     isResizing: false,
   }));
 
+  const [currentRole, setCurrentRole] = useState<AIRole>(
+    initialRole || 'companion'
+  );
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTasks, setActiveTasks] = useState<AgentTask[]>([]);
   const [systemStatus, setSystemStatus] = useState<SystemStatus | null>(null);
 
+  const [currentModel, setCurrentModel] = useState<string>('');
+  const [availableModels, setAvailableModels] = useState<ModelInfo[]>([]);
+  const [aiServiceHealth, setAiServiceHealth] = useState<HealthStatus | null>(
+    null
+  );
+  const [aiServiceMetrics, setAiServiceMetrics] =
+    useState<ServiceMetrics | null>(null);
+
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [voiceResponse, setVoiceResponse] = useState('');
+
+  const { themeColors } = useThemeColor(currentRole);
+  const responsive = useResponsive();
+
   const widgetRef = useRef<HTMLDivElement>(null);
   const agenticCoreRef = useRef<AgenticCore | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const addNotificationRef = useRef<
     | ((
         message: string,
@@ -154,12 +216,7 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
       ) => void)
     | null
   >(null);
-
-  // 检测设备类型（预留用于响应式布局优化）
-  const isTouchDevice = useMemo(() => {
-    if (typeof window === 'undefined') return false;
-    return 'ontouchstart' in window;
-  }, []);
+  const aiServiceManagerRef = useRef<AIServiceManager | null>(null);
 
   // 拖拽实现
   const [{ isDragging }, drag] = useDrag<
@@ -248,14 +305,14 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
   // 处理消息发送
   const handleSendMessage = useCallback(
     async (text: string) => {
-      if (!text.trim() || !agenticCoreRef.current) return;
+      if (!text.trim()) return;
 
       const userMessage: Message = {
         id: generateMessageId(),
         role: 'user',
         content: text,
         timestamp: Date.now(),
-        status: 'sent',
+        status: 'sending',
       };
 
       setMessages(prev => [...prev, userMessage]);
@@ -263,46 +320,101 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
       setIsProcessing(true);
 
       try {
-        const userInput: UserInput = {
-          text,
-          timestamp: Date.now(),
-          sessionId: state.sessionId,
-          userId,
-        };
+        // 优先使用AI服务适配器
+        if (
+          aiServiceManagerRef.current &&
+          state.connectionStatus === 'connected'
+        ) {
+          const adapter = aiServiceManagerRef.current.getAdapter();
+          const chatMessages: ChatMessage[] = [
+            {
+              role: 'system',
+              content: AI_ROLES[currentRole].systemPrompt,
+            },
+            ...messages.map(m => ({
+              role: m.role,
+              content: m.content,
+            })),
+            {
+              role: 'user',
+              content: text,
+            },
+          ];
 
-        const response: AgentResponse =
-          await agenticCoreRef.current.processInput(userInput);
+          const response = await adapter.chat(chatMessages, {
+            model: currentModel,
+            temperature: 0.7,
+            max_tokens: 2048,
+          });
 
-        const assistantMessage: Message = {
-          id: generateMessageId(),
-          role: 'assistant',
-          content: response.message,
-          timestamp: Date.now(),
-          metadata: {
-            taskId: response.taskId,
-            status: response.status,
-            estimatedTime: response.estimatedTime,
-          },
-        };
+          const assistantMessage: Message = {
+            id: generateMessageId(),
+            role: 'assistant',
+            content: response.message.content,
+            timestamp: Date.now(),
+            status: 'sent',
+            metadata: {
+              model: response.model,
+              usage: response.usage,
+              thinkingTime: response.thinking_time,
+              role: currentRole,
+            },
+          };
 
-        setMessages(prev => [...prev, assistantMessage]);
-
-        // 如果有替代方案，提供选择
-        if (response.alternatives && response.alternatives.length > 0) {
-          setTimeout(() => {
-            setMessages(prev => [
-              ...prev,
-              {
-                id: generateMessageId(),
-                role: 'assistant',
-                content: '您可以选择以下替代方案：',
-                timestamp: Date.now(),
-                metadata: {
-                  alternatives: response.alternatives,
-                },
+          setMessages(prev => [...prev, assistantMessage]);
+        } else if (agenticCoreRef.current) {
+          // 回退到AgenticCore
+          const userInput: UserInput = {
+            text: inputValue,
+            timestamp: Date.now(),
+            sessionId: state.sessionId,
+            userId,
+            context: {
+              source: 'web',
+              additionalData: {
+                role: currentRole,
+                roleConfig: AI_ROLES[currentRole],
               },
-            ]);
-          }, 500);
+            },
+          };
+
+          const response: AgentResponse =
+            await agenticCoreRef.current.processInput(userInput);
+
+          const assistantMessage: Message = {
+            id: generateMessageId(),
+            role: 'assistant',
+            content: response.message,
+            timestamp: Date.now(),
+            metadata: {
+              taskId: response.taskId,
+              status: response.status,
+              estimatedTime: response.estimatedTime,
+              role: currentRole,
+            },
+          };
+
+          setMessages(prev => [...prev, assistantMessage]);
+
+          // 如果有替代方案，提供选择
+          if (response.alternatives && response.alternatives.length > 0) {
+            setTimeout(() => {
+              setMessages(prev => [
+                ...prev,
+                {
+                  id: generateMessageId(),
+                  role: 'assistant',
+                  content: '您可以选择以下替代方案：',
+                  timestamp: Date.now(),
+                  metadata: {
+                    alternatives: response.alternatives,
+                  },
+                },
+              ]);
+            }, 500);
+          }
+        } else {
+          throw new Error('AI服务不可用');
         }
       } catch (error) {
         console.error('发送消息失败:', error);
@@ -318,7 +430,15 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
         setIsProcessing(false);
       }
     },
-    [agenticCoreRef, userId, state.sessionId]
+    [
+      agenticCoreRef,
+      userId,
+      state.sessionId,
+      currentRole,
+      messages,
+      currentModel,
+      state.connectionStatus,
+    ]
   );
 
   // 任务事件处理
@@ -413,6 +533,16 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
     }));
   }, []);
 
+  // 处理角色切换
+  const handleRoleChange = useCallback(
+    (newRole: AIRole) => {
+      setCurrentRole(newRole);
+      onRoleChange?.(newRole);
+      addNotificationRef.current?.(`已切换到角色: ${newRole}`, 'info');
+    },
+    [onRoleChange]
+  );
+
   // 关闭组件
   const handleClose = useCallback(() => {
     setState(prev => {
@@ -455,6 +585,7 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
   // 初始化Widget
   const initializeWidget = useCallback(async () => {
     let statusInterval: NodeJS.Timeout | null = null;
+    let healthCheckInterval: NodeJS.Timeout | null = null;
 
     try {
       // 创建Agent核心引擎实例
@@ -479,6 +610,32 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
         const status = agentCore.getSystemStatus();
         setSystemStatus(status);
       }, 5000);
+
+      // 初始化AI服务管理器
+      let aiAdapter: AIServiceAdapter;
+
+      if (aiServiceType === 'local-gateway') {
+        aiAdapter = new LocalAIGatewayAdapter({
+          baseUrl: aiServiceBaseUrl || 'http://localhost:8081',
+        });
+      } else {
+        aiAdapter = new OllamaServiceAdapter();
+      }
+
+      const aiServiceManager = new AIServiceManager(aiAdapter);
+      aiServiceManagerRef.current = aiServiceManager;
+
+      // 检查本地AI服务可用性
+      await checkAIServiceAvailability();
+
+      // 定期检查AI服务健康状态
+      healthCheckInterval = setInterval(async () => {
+        await checkAIServiceAvailability();
+        await updateAIServiceMetrics();
+      }, 10000); // 每10秒检查一次
+
+      // 加载可用模型列表
+      await loadAvailableModels();
     } catch (error) {
       console.error('Widget初始化失败:', error);
       onError?.(error as Error);
@@ -487,6 +644,12 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
     return () => {
       if (statusInterval) {
         clearInterval(statusInterval);
+      }
+      if (healthCheckInterval) {
+        clearInterval(healthCheckInterval);
+      }
+      if (aiServiceManagerRef.current) {
+        aiServiceManagerRef.current.cleanup();
       }
     };
   }, [
@@ -497,6 +660,118 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
     handleError,
     onError,
   ]);
+
+  // 检查AI服务可用性
+  const checkAIServiceAvailability = useCallback(async () => {
+    if (!aiServiceManagerRef.current) return;
+
+    try {
+      const health = await aiServiceManagerRef.current
+        .getAdapter()
+        .healthCheck();
+      setAiServiceHealth(health);
+
+      if (health.status === 'healthy') {
+        setState(prev => ({ ...prev, connectionStatus: 'connected' }));
+        const currentModel = aiServiceManagerRef.current
+          .getAdapter()
+          .getCurrentModel();
+        setCurrentModel(currentModel);
+      } else if (health.status === 'degraded') {
+        setState(prev => ({ ...prev, connectionStatus: 'reconnecting' }));
+      } else {
+        setState(prev => ({ ...prev, connectionStatus: 'disconnected' }));
+        addNotificationRef.current?.(
+          '本地AI服务不可用，请检查服务状态',
+          'warning'
+        );
+      }
+    } catch (error) {
+      console.error('AI服务检查失败:', error);
+      setState(prev => ({ ...prev, connectionStatus: 'disconnected' }));
+      setAiServiceHealth(null);
+    }
+  }, []);
+
+  // 更新AI服务指标
+  const updateAIServiceMetrics = useCallback(async () => {
+    if (!aiServiceManagerRef.current) return;
+
+    try {
+      const metrics = await aiServiceManagerRef.current
+        .getAdapter()
+        .getMetrics();
+      setAiServiceMetrics(metrics);
+    } catch (error) {
+      console.error('获取AI服务指标失败:', error);
+    }
+  }, []);
+
+  // 加载可用模型列表
+  const loadAvailableModels = useCallback(async () => {
+    if (!aiServiceManagerRef.current) return;
+
+    try {
+      const models = await aiServiceManagerRef.current
+        .getAdapter()
+        .listModels();
+      setAvailableModels(models);
+
+      if (models.length > 0 && !currentModel) {
+        setCurrentModel(models[0].name);
+      }
+    } catch (error) {
+      console.error('加载模型列表失败:', error);
+    }
+  }, [currentModel]);
+
+  // 切换AI模型
+  const handleModelChange = useCallback(
+    async (modelName: string) => {
+      if (!aiServiceManagerRef.current || modelName === currentModel) return;
+
+      try {
+        setIsProcessing(true);
+        await aiServiceManagerRef.current.getAdapter().switchModel(modelName);
+        setCurrentModel(modelName);
+        addNotificationRef.current?.(`已切换到模型: ${modelName}`, 'success');
+      } catch (error) {
+        console.error('切换模型失败:', error);
+        addNotificationRef.current?.(
+          `切换模型失败: ${(error as Error).message}`,
+          'error'
+        );
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [currentModel]
+  );
+
+  // 处理语音转录
+  const handleVoiceTranscript = useCallback(
+    (text: string, isFinal: boolean) => {
+      setVoiceTranscript(text);
+
+      if (isFinal && text.trim()) {
+        setInputValue(text);
+        setTimeout(() => {
+          handleSendMessage(text);
+        }, 500);
+      }
+    },
+    [handleSendMessage]
+  );
+
+  // 处理语音响应
+  const handleVoiceResponse = useCallback((text: string) => {
+    setVoiceResponse(text);
+  }, []);
+
+  // 处理语音错误
+  const handleVoiceError = useCallback((error: string) => {
+    addNotificationRef.current?.(`语音错误: ${error}`, 'error');
+  }, []);
 
   // 初始化
   useEffect(() => {
@@ -543,188 +818,253 @@ export const IntelligentAIWidget: React.FC<WidgetProps> = ({
   // 渲染主组件
   if (!state.isVisible) return null;
 
+  const getResponsiveWidth = (): number => {
+    switch (responsive.breakpoint) {
+      case 'xs':
+        return Math.min(window.innerWidth * 0.9, 600);
+      case 'sm':
+        return Math.min(window.innerWidth * 0.85, 600);
+      case 'md':
+        return Math.min(window.innerWidth * 0.75, 600);
+      case 'lg':
+      case 'xl':
+      case '2xl':
+      default:
+        return state.position.width;
+    }
+  };
+
+  const getResponsiveHeight = (): number => {
+    switch (responsive.breakpoint) {
+      case 'xs':
+        return Math.min(window.innerHeight * 0.6, 800);
+      case 'sm':
+        return Math.min(window.innerHeight * 0.65, 800);
+      case 'md':
+        return Math.min(window.innerHeight * 0.7, 800);
+      case 'lg':
+      case 'xl':
+      case '2xl':
+      default:
+        return state.position.height;
+    }
+  };
+
+  const getResponsivePosition = (): { x: number; y: number } => {
+    if (responsive.isMobile || responsive.isTablet) {
+      return {
+        x: (window.innerWidth - getResponsiveWidth()) / 2,
+        y: (window.innerHeight - getResponsiveHeight()) / 2,
+      };
+    }
+    return { x: state.position.x, y: state.position.y };
+  };
+
+  const responsivePosition = getResponsivePosition();
+  const responsiveWidth = getResponsiveWidth();
+  const responsiveHeight = getResponsiveHeight();
+
   return (
-    <DndProvider backend={isTouchDevice ? TouchBackend : HTML5Backend}>
+    <div
+      ref={setWidgetRef}
+      className={`ai-widget ${className} ${state.mode} ${state.isMinimized ? 'minimized' : ''} ${
+        state.isFullscreen ? 'fullscreen' : ''
+      } ${isDragging ? 'dragging' : ''} ${isOver ? 'over' : ''}`}
+      style={{
+        position: state.mode === 'floating' ? 'fixed' : 'relative',
+        left: state.mode === 'floating' ? `${responsivePosition.x}px` : 'auto',
+        top: state.mode === 'floating' ? `${responsivePosition.y}px` : 'auto',
+        width: state.isFullscreen ? '100%' : `${responsiveWidth}px`,
+        height: state.isMinimized
+          ? '60px'
+          : state.isFullscreen
+            ? '100%'
+            : `${responsiveHeight}px`,
+        zIndex: state.position.zIndex,
+        minWidth: state.isMinimized ? 'auto' : '280px',
+        minHeight: state.isMinimized ? 'auto' : '350px',
+        maxWidth: state.isFullscreen ? '100%' : '650px',
+        maxHeight: state.isFullscreen ? '100%' : '800px',
+      }}
+    >
+      {/* 头部 */}
       <div
-        ref={setWidgetRef}
-        className={`ai-widget ${className} ${state.mode} ${state.isMinimized ? 'minimized' : ''} ${
-          state.isFullscreen ? 'fullscreen' : ''
-        } ${isDragging ? 'dragging' : ''} ${isOver ? 'over' : ''}`}
-        style={{
-          position: state.mode === 'floating' ? 'fixed' : 'relative',
-          left: state.mode === 'floating' ? `${state.position.x}px` : 'auto',
-          top: state.mode === 'floating' ? `${state.position.y}px` : 'auto',
-          width: state.isFullscreen ? '100%' : `${state.position.width}px`,
-          height: state.isMinimized
-            ? '60px'
-            : state.isFullscreen
-              ? '100%'
-              : `${state.position.height}px`,
-          zIndex: state.position.zIndex,
-          minWidth: state.isMinimized ? 'auto' : '320px',
-          minHeight: state.isMinimized ? 'auto' : '400px',
-          maxWidth: state.isFullscreen ? '100%' : '600px',
-          maxHeight: state.isFullscreen ? '100%' : '800px',
-        }}
+        className='widget-header'
+        onMouseDown={state.mode === 'floating' ? undefined : undefined}
       >
-        {/* 头部 */}
-        <div
-          className='widget-header'
-          onMouseDown={state.mode === 'floating' ? undefined : undefined}
-        >
-          <div className='header-left'>
-            <div className='status-indicator'>
-              <div className={`status-dot ${state.connectionStatus}`} />
-              <span className='status-text'>
-                {state.connectionStatus === 'connected'
-                  ? '在线'
-                  : state.connectionStatus === 'reconnecting'
-                    ? '重连中'
-                    : '离线'}
-              </span>
-            </div>
-
-            {!state.isMinimized && (
-              <h3 className='widget-title flex items-center gap-2'>
-                <Image
-                  src={characterManager.getAIAvatarPath(userGender)}
-                  alt='AI助手头像'
-                  width={32}
-                  height={32}
-                  className='rounded-full border-2 border-white shadow-sm'
-                />
-                YYC³ AI助手
-                {activeTasks.length > 0 && (
-                  <Badge variant='secondary' className='ml-2'>
-                    {activeTasks.length}
-                  </Badge>
-                )}
-              </h3>
-            )}
+        <div className='header-left'>
+          <div className='status-indicator'>
+            <div className={`status-dot ${state.connectionStatus}`} />
+            <span className='status-text'>
+              {state.connectionStatus === 'connected'
+                ? '在线'
+                : state.connectionStatus === 'reconnecting'
+                  ? '重连中'
+                  : '离线'}
+            </span>
           </div>
 
-          <div className='header-right'>
-            {!state.isMinimized && (
-              <>
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => switchView('chat')}
-                  className={state.currentView === 'chat' ? 'active' : ''}
-                >
-                  <MessageCircle size={16} />
-                </Button>
-
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => switchView('dashboard')}
-                  className={state.currentView === 'dashboard' ? 'active' : ''}
-                >
-                  <BarChart3 size={16} />
-                </Button>
-
-                <Button
-                  variant='ghost'
-                  size='sm'
-                  onClick={() => switchView('tools')}
-                  className={state.currentView === 'tools' ? 'active' : ''}
-                >
-                  <Settings2 size={16} />
-                </Button>
-
-                <Separator orientation='vertical' className='mx-1' />
-              </>
-            )}
-
-            {state.mode === 'floating' && !state.isFullscreen && (
-              <Button variant='ghost' size='sm' onClick={toggleMinimize}>
-                {state.isMinimized ? (
-                  <Maximize2 size={16} />
-                ) : (
-                  <Minimize2 size={16} />
-                )}
-              </Button>
-            )}
-
-            <Button variant='ghost' size='sm' onClick={toggleFullscreen}>
-              {state.isFullscreen ? (
-                <Minimize2 size={16} />
-              ) : (
-                <Maximize2 size={16} />
+          {!state.isMinimized && (
+            <h3 className='widget-title flex items-center gap-2'>
+              <Image
+                src={characterManager.getAIAvatarPath(userGender)}
+                alt='AI助手头像'
+                width={32}
+                height={32}
+                className='rounded-full border-2 border-white shadow-sm'
+              />
+              YYC³ AI助手
+              {activeTasks.length > 0 && (
+                <Badge variant='secondary' className='ml-2'>
+                  {activeTasks.length}
+                </Badge>
               )}
-            </Button>
-
-            <Button variant='ghost' size='sm' onClick={handleClose}>
-              <X size={16} />
-            </Button>
-          </div>
+            </h3>
+          )}
         </div>
 
-        {/* 内容区域 */}
-        {!state.isMinimized && (
-          <div className='widget-content'>
-            {state.currentView === 'chat' && (
-              <ChatView
-                messages={messages}
-                inputValue={inputValue}
-                setInputValue={setInputValue}
-                onSendMessage={handleSendMessage}
-                isProcessing={isProcessing}
-                inputRef={messagesEndRef}
-              />
-            )}
+        <div className='header-right'>
+          {!state.isMinimized && (
+            <>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => switchView('chat')}
+                className={state.currentView === 'chat' ? 'active' : ''}
+              >
+                <MessageCircle size={16} />
+              </Button>
 
-            {state.currentView === 'dashboard' && (
-              <DashboardView
-                systemStatus={systemStatus}
-                activeTasks={activeTasks}
-                agenticCore={agenticCoreRef.current}
-              />
-            )}
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => switchView('dashboard')}
+                className={state.currentView === 'dashboard' ? 'active' : ''}
+              >
+                <BarChart3 size={16} />
+              </Button>
 
-            {state.currentView === 'tools' && (
-              <ToolsView
-                onToolSelected={tool => handleSendMessage(`使用工具: ${tool}`)}
-              />
-            )}
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => switchView('tools')}
+                className={state.currentView === 'tools' ? 'active' : ''}
+              >
+                <Settings2 size={16} />
+              </Button>
 
-            {state.currentView === 'insights' && (
-              <InsightsView
-                systemStatus={systemStatus}
-                completedTasks={
-                  agenticCoreRef.current?.getSystemStatus().completedTasks || 0
-                }
-              />
-            )}
+              <Separator orientation='vertical' className='mx-1' />
+            </>
+          )}
 
-            {state.currentView === 'settings' && (
-              <SettingsView theme={theme} onThemeChange={() => {}} />
-            )}
-          </div>
-        )}
+          {state.mode === 'floating' && !state.isFullscreen && (
+            <Button variant='ghost' size='sm' onClick={toggleMinimize}>
+              {state.isMinimized ? (
+                <Maximize2 size={16} />
+              ) : (
+                <Minimize2 size={16} />
+              )}
+            </Button>
+          )}
 
-        {/* 调整大小手柄 */}
-        {state.mode === 'floating' &&
-          !state.isMinimized &&
-          !state.isFullscreen && (
-            <ResizeHandles
-              onResizeStart={handleResizeStart}
-              onResize={handleResize}
-              onResizeEnd={handleResizeEnd}
+          <Button variant='ghost' size='sm' onClick={toggleFullscreen}>
+            {state.isFullscreen ? (
+              <Minimize2 size={16} />
+            ) : (
+              <Maximize2 size={16} />
+            )}
+          </Button>
+
+          <Button variant='ghost' size='sm' onClick={handleClose}>
+            <X size={16} />
+          </Button>
+        </div>
+      </div>
+
+      {/* 内容区域 */}
+      {!state.isMinimized && (
+        <div className='widget-content'>
+          {state.currentView === 'chat' && (
+            <ChatView
+              messages={messages}
+              inputValue={inputValue}
+              setInputValue={setInputValue}
+              onSendMessage={handleSendMessage}
+              isProcessing={isProcessing}
+              inputRef={messagesEndRef}
+              currentRole={currentRole}
+              onRoleChange={handleRoleChange}
+              currentModel={currentModel}
+              availableModels={availableModels}
+              onModelChange={handleModelChange}
+              aiService={aiServiceManagerRef.current?.getAdapter() || null}
+              aiServiceHealth={aiServiceHealth}
+              aiServiceMetrics={aiServiceMetrics}
+              voiceEnabled={voiceEnabled}
+              onVoiceEnabledChange={setVoiceEnabled}
+              onVoiceTranscript={handleVoiceTranscript}
+              onVoiceResponse={handleVoiceResponse}
+              onVoiceError={handleVoiceError}
+              voiceTranscript={voiceTranscript}
+              voiceResponse={voiceResponse}
             />
           )}
 
-        {/* 未读消息指示器 */}
-        {state.isMinimized && state.unreadCount > 0 && (
-          <div className='unread-indicator'>
-            <Badge variant='destructive' className='animate-pulse'>
-              {state.unreadCount}
-            </Badge>
-          </div>
+          {state.currentView === 'dashboard' && (
+            <DashboardView
+              systemStatus={systemStatus}
+              activeTasks={activeTasks}
+              agenticCore={agenticCoreRef.current}
+            />
+          )}
+
+          {state.currentView === 'tools' && (
+            <ToolsView
+              onToolSelected={tool => handleSendMessage(`使用工具: ${tool}`)}
+            />
+          )}
+
+          {state.currentView === 'insights' && (
+            <InsightsView
+              systemStatus={systemStatus}
+              completedTasks={
+                agenticCoreRef.current?.getSystemStatus().completedTasks || 0
+              }
+            />
+          )}
+
+          {state.currentView === 'settings' && (
+            <SettingsView
+              theme={theme}
+              onThemeChange={() => {}}
+              aiService={aiServiceManagerRef.current?.getAdapter() || null}
+              aiServiceHealth={aiServiceHealth}
+              aiServiceMetrics={aiServiceMetrics}
+            />
+          )}
+        </div>
+      )}
+
+      {/* 调整大小手柄 */}
+      {state.mode === 'floating' &&
+        !state.isMinimized &&
+        !state.isFullscreen && (
+          <ResizeHandles
+            onResizeStart={handleResizeStart}
+            onResize={handleResize}
+            onResizeEnd={handleResizeEnd}
+          />
         )}
-      </div>
-    </DndProvider>
+
+      {/* 未读消息指示器 */}
+      {state.isMinimized && state.unreadCount > 0 && (
+        <div className='unread-indicator'>
+          <Badge variant='destructive' className='animate-pulse'>
+            {state.unreadCount}
+          </Badge>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -736,6 +1076,21 @@ const ChatView: React.FC<{
   onSendMessage: (text: string) => void;
   isProcessing: boolean;
   inputRef: React.RefObject<HTMLDivElement | null>;
+  currentRole: AIRole;
+  onRoleChange: (role: AIRole) => void;
+  currentModel: string;
+  availableModels: ModelInfo[];
+  onModelChange: (modelName: string) => void;
+  aiService: AIServiceAdapter | null;
+  aiServiceHealth: HealthStatus | null;
+  aiServiceMetrics: ServiceMetrics | null;
+  voiceEnabled: boolean;
+  onVoiceEnabledChange: (enabled: boolean) => void;
+  onVoiceTranscript: (text: string, isFinal: boolean) => void;
+  onVoiceResponse: (text: string) => void;
+  onVoiceError: (error: string) => void;
+  voiceTranscript: string;
+  voiceResponse: string;
 }> = ({
   messages,
   inputValue,
@@ -743,6 +1098,21 @@ const ChatView: React.FC<{
   onSendMessage,
   isProcessing,
   inputRef,
+  currentRole,
+  onRoleChange,
+  currentModel,
+  availableModels,
+  onModelChange,
+  aiService,
+  aiServiceHealth,
+  aiServiceMetrics,
+  voiceEnabled,
+  onVoiceEnabledChange,
+  onVoiceTranscript,
+  onVoiceResponse,
+  onVoiceError,
+  voiceTranscript,
+  voiceResponse,
 }) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -753,49 +1123,118 @@ const ChatView: React.FC<{
 
   return (
     <div className='chat-view'>
+      <FadeIn delay={0.1} duration={0.3}>
+        <div className='role-selector'>
+          <Label className='text-xs text-gray-500'>AI角色:</Label>
+          <div className='flex gap-2 flex-wrap'>
+            {Object.entries(AI_ROLES).map(([key, role]) => (
+              <Button
+                key={key}
+                variant={currentRole === key ? 'default' : 'outline'}
+                size='sm'
+                onClick={() => onRoleChange(key as AIRole)}
+                className='text-xs'
+              >
+                {role.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </FadeIn>
+
+      {aiService && (
+        <FadeIn delay={0.2} duration={0.3}>
+          <ModelSelector
+            currentModel={currentModel}
+            availableModels={availableModels}
+            onModelChange={onModelChange}
+            aiService={aiService}
+            isLoading={isProcessing}
+          />
+        </FadeIn>
+      )}
+
       <ScrollArea className='messages-area' ref={inputRef}>
         <div className='messages-container'>
-          {messages.map(message => (
-            <div key={message.id} className={`message ${message.role}`}>
-              <div className='message-content'>{message.content}</div>
-              <div className='message-time'>
-                {new Date(message.timestamp).toLocaleTimeString()}
+          {messages.map((message, index) => (
+            <SlideIn
+              key={message.id}
+              delay={index * 0.05}
+              duration={0.3}
+              direction={message.role === 'user' ? 'right' : 'left'}
+            >
+              <div className={`message ${message.role}`}>
+                <div className='message-content'>{message.content}</div>
+                <div className='message-time'>
+                  {new Date(message.timestamp).toLocaleTimeString()}
+                </div>
               </div>
-            </div>
+            </SlideIn>
           ))}
 
           {isProcessing && (
-            <div className='message assistant'>
-              <div className='message-content'>
-                <div className='typing-indicator'>
-                  <span></span>
-                  <span></span>
-                  <span></span>
+            <FadeIn delay={0.1} duration={0.3}>
+              <div className='message assistant'>
+                <div className='message-content'>
+                  <div className='typing-indicator'>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </FadeIn>
           )}
         </div>
       </ScrollArea>
 
-      <div className='input-area'>
-        <Textarea
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder='输入您的问题...'
-          disabled={isProcessing}
-          rows={2}
-          className='flex-1 mr-2'
-        />
-        <Button
-          onClick={() => onSendMessage(inputValue)}
-          disabled={!inputValue.trim() || isProcessing}
-          className='send-button'
-        >
-          <MessageCircle size={16} />
-        </Button>
-      </div>
+      <FadeIn delay={0.3} duration={0.3}>
+        <div className='input-area'>
+          <div className='flex-1 flex flex-col gap-2'>
+            <Textarea
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder='输入您的问题...'
+              disabled={isProcessing}
+              rows={2}
+              className='flex-1 mr-2'
+            />
+
+            {voiceEnabled && (
+              <VoiceInteraction
+                onTranscript={onVoiceTranscript}
+                onResponse={onVoiceResponse}
+                onError={onVoiceError}
+                language='zh-CN'
+                autoPlayResponse={true}
+                continuousListening={true}
+                showSettings={true}
+                compact={true}
+              />
+            )}
+          </div>
+
+          <div className='flex flex-col gap-2'>
+            <Button
+              variant={voiceEnabled ? 'default' : 'outline'}
+              size='sm'
+              onClick={() => onVoiceEnabledChange(!voiceEnabled)}
+              title={voiceEnabled ? '关闭语音' : '开启语音'}
+            >
+              {voiceEnabled ? <Mic size={16} /> : <MicOff size={16} />}
+            </Button>
+
+            <Button
+              onClick={() => onSendMessage(inputValue)}
+              disabled={!inputValue.trim() || isProcessing}
+              className='send-button'
+            >
+              <MessageCircle size={16} />
+            </Button>
+          </div>
+        </div>
+      </FadeIn>
     </div>
   );
 };
@@ -1003,9 +1442,28 @@ const InsightsView: React.FC<{
 const SettingsView: React.FC<{
   theme: string;
   onThemeChange: () => void;
-}> = ({ theme, onThemeChange }) => {
+  aiService: AIServiceAdapter | null;
+  aiServiceHealth: HealthStatus | null;
+  aiServiceMetrics: ServiceMetrics | null;
+}> = ({
+  theme,
+  onThemeChange,
+  aiService,
+  aiServiceHealth,
+  aiServiceMetrics,
+}) => {
   return (
     <div className='settings-view'>
+      {aiService && (
+        <div className='mb-4'>
+          <PerformanceMonitor
+            aiService={aiService}
+            autoRefresh={true}
+            refreshInterval={5000}
+          />
+        </div>
+      )}
+
       <div className='setting-group'>
         <h4>界面设置</h4>
         <div className='setting-item'>
@@ -1056,6 +1514,47 @@ const SettingsView: React.FC<{
             <Switch />
           </div>
         </div>
+      </div>
+
+      <div className='setting-group'>
+        <h4>AI服务状态</h4>
+        <div className='setting-item'>
+          <div className='flex items-center justify-between'>
+            <Label>服务类型</Label>
+            <Badge variant='outline' className='text-xs'>
+              {aiService?.getType() || '无'}
+            </Badge>
+          </div>
+        </div>
+        {aiServiceHealth && (
+          <div className='setting-item'>
+            <div className='flex items-center justify-between'>
+              <Label>健康状态</Label>
+              <Badge
+                variant={
+                  aiServiceHealth.status === 'healthy' ? 'default' : 'secondary'
+                }
+                className='text-xs'
+              >
+                {aiServiceHealth.status === 'healthy'
+                  ? '健康'
+                  : aiServiceHealth.status === 'degraded'
+                    ? '降级'
+                    : '异常'}
+              </Badge>
+            </div>
+          </div>
+        )}
+        {aiServiceMetrics && (
+          <div className='setting-item'>
+            <div className='flex items-center justify-between'>
+              <Label>总请求数</Label>
+              <span className='text-sm font-medium'>
+                {aiServiceMetrics.total_requests}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

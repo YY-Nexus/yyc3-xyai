@@ -10,7 +10,7 @@
  */
 
 import type { NextRequest } from 'next/server';
-import type { Child, GrowthRecord, AIConversation } from './database';
+import type { Child, DatabaseGrowthRecord as GrowthRecord, AIConversation } from './database';
 import type { ApiResponse } from './common';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';

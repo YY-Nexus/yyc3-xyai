@@ -15,7 +15,7 @@ import type {
   ModelConstraints,
   ModelSelection,
   ModelFitAssessment,
-} from '@/types/prediction/common';
+} from '../../types/prediction/common';
 
 /**
  * 动态模型选择器

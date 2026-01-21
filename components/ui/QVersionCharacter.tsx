@@ -253,7 +253,7 @@ export function ChildQVersionAvatar({
   child,
   size = 'md',
 }: {
-  child: MockChild | null | undefined;
+  child: { id: string; name: string; gender: string } | null | undefined;
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }) {
   if (!child) return null;

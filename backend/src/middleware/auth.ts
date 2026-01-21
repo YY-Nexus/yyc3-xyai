@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { AuthenticatedRequest, User } from '@/types';
 import { createUnauthorizedError, createForbiddenError } from './errorHandler';
 import { db } from '@/config/database';
@@ -21,11 +21,13 @@ export const generateToken = (payload: JWTPayload): string => {
     throw new Error('JWT_SECRET environment variable is not defined');
   }
 
-  return jwt.sign(payload, secret, {
+  const options: SignOptions = {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     issuer: 'yyc3-ai-xiaoyu',
     audience: 'yyc3-ai-xiaoyu-users',
-  });
+  };
+
+  return jwt.sign(payload, secret, options);
 };
 
 // 生成刷新令牌
@@ -35,11 +37,13 @@ export const generateRefreshToken = (payload: JWTPayload): string => {
     throw new Error('JWT_SECRET environment variable is not defined');
   }
 
-  return jwt.sign(payload, secret, {
+  const options: SignOptions = {
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d',
     issuer: 'yyc3-ai-xiaoyu',
     audience: 'yyc3-ai-xiaoyu-users',
-  });
+  };
+
+  return jwt.sign(payload, secret, options);
 };
 
 // 验证JWT令牌

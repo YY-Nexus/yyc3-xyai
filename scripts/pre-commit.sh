@@ -37,5 +37,14 @@ if (typeCheckResult.exitCode !== 0) {
   process.exit(1)
 }
 
+// 运行代码质量检查
+console.log('\n🔍 Running code quality checks...')
+const codeQualityResult = await $`bun run code-quality-check`.nothrow()
+
+if (codeQualityResult.exitCode !== 0) {
+  console.error('\n❌ Code quality checks failed! Please fix the issues before committing.')
+  process.exit(1)
+}
+
 console.log('\n✅ All checks passed! Ready to commit.')
 process.exit(0)

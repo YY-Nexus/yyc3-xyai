@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 import { initializeDatabase, closeDatabase } from '@/config/database';
 import { log, Logger } from '@/config/logger';
 import { errorHandler } from '@/middleware/errorHandler';
-import { rateLimiter } from '@/middleware/rateLimiter';
+import { rateLimitMiddleware } from '@/middleware/rateLimiter';
 import { authMiddleware } from '@/middleware/auth';
 import apiRoutes from '@/routes';
 import { createServer } from 'http';
@@ -65,7 +65,7 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 // 速率限制
-app.use(rateLimiter);
+app.use(rateLimitMiddleware);
 
 // 健康检查端点
 app.get('/health', async (req, res) => {
@@ -186,7 +186,7 @@ const startServer = async () => {
     const server = createServer(app);
 
     // 启动服务器
-    server.listen(PORT, () => {
+    server.listen(PORT, HOST, () => {
       logger.info(`🚀 Server running on http://${HOST}:${PORT}`);
       logger.info(`📚 Environment: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`🔗 API Documentation: http://${HOST}:${PORT}/api`);

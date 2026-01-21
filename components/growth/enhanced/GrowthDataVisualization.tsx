@@ -899,8 +899,8 @@ export default function GrowthDataVisualization() {
                           cx='50%'
                           cy='50%'
                           labelLine={false}
-                          label={(entry: { name: string; value: number }) =>
-                            `${entry.name}: ${entry.value}%`
+                          label={(entry: { name?: string; value: number }) =>
+                            `${entry.name || ''}: ${entry.value}%`
                           }
                           outerRadius={100}
                           fill='#8884d8'

@@ -472,7 +472,7 @@ export interface ScatterData {
 /**
  * 性能指标
  */
-export interface PerformanceMetrics {
+export interface SystemPerformanceMetrics {
   responseTime: number;
   throughput: number;
   errorRate: number;

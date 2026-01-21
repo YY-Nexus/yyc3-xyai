@@ -27,7 +27,7 @@ export interface Child {
 }
 
 // 成长记录类型
-export interface GrowthRecord {
+export interface LocalStorageGrowthRecord {
   id: string;
   child_id: string;
   type: 'milestone' | 'observation' | 'emotion' | 'learning';
@@ -312,7 +312,7 @@ class LocalStorageDB {
     localStorage.setItem('yyc3_homework_tasks', JSON.stringify(mockHomework));
 
     // 创建模拟成长记录
-    const mockRecords: GrowthRecord[] = [
+    const mockRecords: LocalStorageGrowthRecord[] = [
       {
         id: 'record-001',
         child_id: 'child-001',

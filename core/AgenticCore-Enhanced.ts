@@ -393,11 +393,11 @@ export interface SystemStatus {
   averageExecutionTime: number;
   successRate: number;
   memoryUsage: NodeJS.MemoryUsage;
-  performanceMetrics: PerformanceMetrics;
+  performanceMetrics: AgenticCorePerformanceMetrics;
   learningProgress: LearningProgress;
 }
 
-export interface PerformanceMetrics {
+export interface AgenticCorePerformanceMetrics {
   cpuUsage: number;
   memoryUsage: number;
   responseTime: number;
@@ -1292,7 +1292,7 @@ export class AgenticCore extends EventEmitter {
   /**
    * 收集性能指标
    */
-  private collectPerformanceMetrics(): PerformanceMetrics {
+  private collectPerformanceMetrics(): AgenticCorePerformanceMetrics {
     // 兼容浏览器环境的内存使用率计算
     const memoryUsage =
       typeof process !== 'undefined' && process.memoryUsage

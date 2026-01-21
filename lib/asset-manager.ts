@@ -9,6 +9,8 @@
  * @license MIT
  */
 
+import { info, warn } from './logger';
+
 import {
   CharacterConfig,
   CharacterTheme,
@@ -72,10 +74,10 @@ export class AssetManager {
         const manifest: AssetManifest = await response.json();
         this.cache.manifest = manifest;
         this.cache.lastUpdated = Date.now();
-        console.log('✅ 资源清单加载成功');
+        info('✅ 资源清单加载成功', 'AssetManager');
       }
     } catch (error) {
-      console.warn('⚠️ 无法加载资源清单，使用默认配置:', error);
+      warn('⚠️ 无法加载资源清单，使用默认配置:', 'AssetManager', error);
       this.createFallbackManifest();
     }
   }
@@ -241,8 +243,9 @@ export class AssetManager {
     const preloadPromises = assetPaths.map(path => this.preloadImage(path));
     await Promise.allSettled(preloadPromises);
 
-    console.log(
-      `✅ 完成 ${character.name} 的资源预加载，共 ${assetPaths.length} 个文件`
+    info(
+      `✅ 完成 ${character.name} 的资源预加载，共 ${assetPaths.length} 个文件`,
+      'AssetManager'
     );
   }
 
@@ -263,7 +266,7 @@ export class AssetManager {
       };
 
       img.onerror = () => {
-        console.warn(`⚠️ 图片加载失败: ${path}`);
+        warn(`⚠️ 图片加载失败: ${path}`, 'AssetManager');
         resolve(); // 继续执行，不阻塞其他资源
       };
 

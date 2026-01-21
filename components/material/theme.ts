@@ -9,14 +9,6 @@
  */
 
 import { createTheme, responsiveFontSizes } from '@mui/material/styles';
-import { Roboto } from 'next/font/google';
-
-// 配置字体
-const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 // 创建主题
 let theme = createTheme({
@@ -45,7 +37,7 @@ let theme = createTheme({
     },
   },
   typography: {
-    fontFamily: roboto.style.fontFamily,
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
       fontSize: '2.5rem',
       fontWeight: 700,

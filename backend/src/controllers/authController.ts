@@ -508,7 +508,7 @@ export const getSessions = catchAsync(async (req: Request, res: Response) => {
   res.json({
     success: true,
     data: {
-      sessions: result.rows.map(session => ({
+      sessions: result.rows.map((session: any) => ({
         id: session.id,
         deviceInfo: session.device_info,
         ipAddress: session.ip_address,

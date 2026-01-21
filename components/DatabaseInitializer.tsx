@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { databaseManager } from '@/lib/db/database-manager';
 
 interface DatabaseStatus {
-  status: 'initializing' | 'connected' | 'error' | 'migrating';
+  status: 'initializing' | 'connected' | 'disconnected' | 'error' | 'migrating';
   type: string;
   details?: string;
 }

@@ -1,8 +1,12 @@
 /**
  * YYC³ 智能预测系统 - 日志记录器
+ * @description 提供统一的日志记录接口，支持多级别日志输出、上下文管理
+ * @author YYC³
+ * @version 2.0.0
+ * @created 2026-01-19
+ * @copyright Copyright (c) 2026 YYC³
+ * @license MIT
  */
-
-const isDevelopment = process.env.NODE_ENV === 'development';
 
 type LogLevel = 'error' | 'warn' | 'info' | 'debug';
 
@@ -57,15 +61,25 @@ class Logger {
       data,
     };
 
-    // 存储日志
     this.logs.push(logMessage);
 
-    // 开发环境下输出到控制台
-    if (isDevelopment) {
-      const consoleMethod = level === 'error' ? 'error' : 
-                          level === 'warn' ? 'warn' : 
-                          level === 'info' ? 'info' : 'debug';
-      console[consoleMethod](`[${level.toUpperCase()}]`, message, context, data);
+    const timestamp = new Date().toISOString();
+    const contextStr = context ? `[${context}]` : '';
+    const dataStr = data ? ` ${JSON.stringify(data)}` : '';
+
+    switch (level) {
+      case 'error':
+        console.error(`${timestamp} [ERROR]${contextStr} ${message}${dataStr}`);
+        break;
+      case 'warn':
+        console.warn(`${timestamp} [WARN]${contextStr} ${message}${dataStr}`);
+        break;
+      case 'info':
+        console.info(`${timestamp} [INFO]${contextStr} ${message}${dataStr}`);
+        break;
+      case 'debug':
+        console.debug(`${timestamp} [DEBUG]${contextStr} ${message}${dataStr}`);
+        break;
     }
   }
 
@@ -84,10 +98,8 @@ class Logger {
   }
 }
 
-// 创建单例实例
 const logger = new Logger();
 
-// 导出函数
 export const error = (message: string, context?: string, data?: unknown) => 
   logger.error(message, context, data);
 
@@ -100,5 +112,4 @@ export const info = (message: string, context?: string, data?: unknown) =>
 export const debug = (message: string, context?: string, data?: unknown) => 
   logger.debug(message, context, data);
 
-// 导出默认实例
 export default logger;

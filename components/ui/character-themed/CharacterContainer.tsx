@@ -15,7 +15,7 @@ export interface CharacterContainerProps {
   hover?: boolean;
   className?: string;
   onClick?: () => void;
-  as?: keyof JSX.IntrinsicElements;
+  as?: string;
 }
 
 export const CharacterContainer: React.FC<CharacterContainerProps> = ({
@@ -31,7 +31,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
   onClick,
   as: Component = 'div',
 }) => {
-  const { themeColors, selectedTheme } = useCharacterTheme();
+  const { themeColors } = useCharacterTheme();
 
   // Inject CSS styles
   useCharacterContainerStyles();
@@ -86,7 +86,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
 
       case 'glass':
         return {
-          background: `linear-gradient(135deg, ${themeColors.primaryColor}20, ${themeColors.secondaryColor}20)`,
+          background: `linear-gradient(135deg, ${themeColors.text}20, ${themeColors.border}20)`,
           backdropFilter: 'blur(10px)',
           border: `1px solid ${themeColors.border}40`,
           boxShadow: `0 8px 32px ${themeColors.glow}`,
@@ -94,7 +94,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
 
       case 'gradient':
         return {
-          background: themeColors.gradient,
+          background: themeColors.background,
           border: 'none',
           boxShadow: `0 8px 24px ${themeColors.glow}`,
         };
@@ -102,7 +102,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
       case 'outlined':
         return {
           backgroundColor: 'transparent',
-          border: `2px solid ${themeColors.primaryColor}`,
+          border: `2px solid ${themeColors.text}`,
           boxShadow: 'none',
         };
 
@@ -133,23 +133,23 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
         },
         transition: {
           duration: 0.3,
-          ease: 'easeOut',
+          ease: "easeOut" as const,
         },
         whileHover: hover
           ? {
               scale: 1.02,
-              boxShadow: `0 8px 32px ${themeColors?.glow}`,
+              boxShadow: `0 8px 32px ${themeColors?.text}`,
               transition: {
                 duration: 0.2,
-                ease: 'easeInOut',
+                ease: "easeInOut" as const,
               },
             }
-          : undefined,
+          : {},
         whileTap: onClick
           ? {
               scale: 0.98,
             }
-          : undefined,
+          : {},
       }
     : {};
 
@@ -166,7 +166,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
       <div
         className='absolute inset-0 opacity-10'
         style={{
-          background: `radial-gradient(circle at 20% 80%, ${themeColors?.primaryColor}40, transparent 50%)`,
+          background: `radial-gradient(circle at 20% 80%, ${themeColors?.text}40, transparent 50%)`,
           pointerEvents: 'none',
         }}
       />
@@ -199,7 +199,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
         <div
           className='absolute inset-0 rounded-xl pointer-events-none'
           style={{
-            background: `linear-gradient(45deg, ${themeColors?.primaryColor}10, ${themeColors?.secondaryColor}10)`,
+            background: `linear-gradient(45deg, ${themeColors?.text}10, ${themeColors?.text}10)`,
             opacity: hover ? 1 : 0,
             transition: 'opacity 0.3s ease',
           }}
@@ -215,7 +215,7 @@ export const CharacterContainer: React.FC<CharacterContainerProps> = ({
           className='absolute inset-0 rounded-xl pointer-events-none'
           style={{
             padding: '2px',
-            background: `linear-gradient(45deg, ${themeColors?.primaryColor}, ${themeColors?.secondaryColor}, ${themeColors?.primaryColor})`,
+            background: `linear-gradient(45deg, ${themeColors?.text}, ${themeColors?.text}, ${themeColors?.text})`,
             backgroundSize: '200% 200%',
             animation: 'gradient-border 3s ease infinite',
             mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',

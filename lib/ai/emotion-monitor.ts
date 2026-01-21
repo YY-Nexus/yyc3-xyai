@@ -3,10 +3,10 @@
  * 负责跨页面情感状态跟踪、实时分析和智能响应
  */
 
-import { InfantEmotionType as EmotionType } from './emotion-engine';
+import { EmotionType } from '@/types/emotion';
 
 // Re-export EmotionType for convenience
-export { EmotionType } from './emotion-engine';
+export { EmotionType } from '@/types/emotion';
 
 export interface EmotionEvent {
   id: string;
@@ -345,7 +345,7 @@ class EmotionMonitor {
       }
     }
 
-    return EmotionType.NEUTRAL || EmotionType.HAPPINESS; // 默认返回中性或开心
+    return EmotionType.NEUTRAL;
   }
 
   private calculateEmotionIntensity(
@@ -386,7 +386,7 @@ class EmotionMonitor {
   ): EmotionType | null {
     const behaviorEmotions: { [key: string]: EmotionType } = {
       长时间停留: EmotionType.CURIOSITY,
-      快速点击: EmotionType.EXCITEMENT,
+      快速点击: EmotionType.EXCITED,
       重复操作: EmotionType.ATTENTION,
       放弃操作: EmotionType.DISCOMFORT,
       寻求帮助: EmotionType.ATTENTION,
@@ -678,11 +678,6 @@ class EmotionMonitor {
   private generateEventId(): string {
     return `emotion_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
-}
-
-// 添加 NEUTRAL 情感类型（如果不存在）
-if (typeof EmotionType !== 'undefined' && !EmotionType.NEUTRAL) {
-  (EmotionType as Record<string, string>).NEUTRAL = 'NEUTRAL';
 }
 
 // 全局情感监测实例

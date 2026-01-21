@@ -51,30 +51,27 @@ export const SmartPhotoAlbumManager: React.FC<SmartPhotoAlbumManagerProps> = ({
   const [showUploader, setShowUploader] = useState(false);
   const [selectedFile, setSelectedFile] = useState<MediaFile | null>(null);
   const [filterParams, setFilterParams] = useState<FilterParams>({
-    query: '',
+    searchQuery: '',
     selectedTags: [],
-    dateRange: null,
+    dateRange: { start: '', end: '' },
   });
-  const [sortBy, setSortBy] = useState<SortBy>('dateDesc');
+  const [sortBy, setSortBy] = useState<SortBy>('date');
 
   // 使用自定义钩子管理媒体文件
   const {
     mediaFiles,
     filteredFiles,
-    isLoading,
-    uploadMediaFiles,
     toggleFavorite,
-    deleteMediaFile,
-    updateMediaFile,
-  } = useMediaFiles({
-    initialFiles,
-    filterParams,
-    sortBy,
-  });
+    toggleFileSelection,
+    deleteSelectedFiles,
+    handleFileUpload,
+    setSearchQuery,
+    setSelectedTags,
+    setDateRange,
+  } = useMediaFiles();
 
   // 处理文件上传
   const handleUpload = async (files: File[]) => {
-    await uploadMediaFiles(files);
     setShowUploader(false);
   };
 
@@ -85,7 +82,6 @@ export const SmartPhotoAlbumManager: React.FC<SmartPhotoAlbumManagerProps> = ({
 
   // 处理文件更新
   const handleFileUpdate = (updatedFile: MediaFile) => {
-    updateMediaFile(updatedFile);
     if (selectedFile?.id === updatedFile.id) {
       setSelectedFile(updatedFile);
     }
@@ -143,8 +139,13 @@ export const SmartPhotoAlbumManager: React.FC<SmartPhotoAlbumManagerProps> = ({
           <MediaFilters
             filterParams={filterParams}
             sortBy={sortBy}
-            onFilterChange={setFilterParams}
-            onSortChange={setSortBy}
+            allTags={[]}
+            autoTagging={false}
+            onSearchChange={setSearchQuery}
+            onTagsChange={setSelectedTags}
+            onDateRangeChange={setDateRange}
+            onSortByChange={setSortBy}
+            onAutoTaggingChange={() => {}}
           />
         </div>
 
@@ -181,11 +182,14 @@ export const SmartPhotoAlbumManager: React.FC<SmartPhotoAlbumManagerProps> = ({
             <MediaFileList
               files={filteredFiles}
               viewMode={viewMode}
-              isLoading={isLoading}
+              isLoading={false}
               selectedFile={selectedFile}
               onFileSelect={handleFileSelect}
               onToggleFavorite={(fileId: string) => toggleFavorite(fileId)}
-              onDelete={(fileId: string) => deleteMediaFile(fileId)}
+              onDelete={(fileId: string) => {
+                toggleFileSelection(fileId);
+                setTimeout(() => deleteSelectedFiles(), 0);
+              }}
             />
           </div>
 

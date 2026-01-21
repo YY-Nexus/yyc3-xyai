@@ -262,7 +262,7 @@ export function useCodeSplit<T>(
 
 // Lazy Component Wrapper
 export function LazyComponent<
-  T extends React.ComponentType<Record<string, unknown>>,
+  T extends React.ComponentType<any>,
 >({
   importFunction,
   fallback,
@@ -298,5 +298,5 @@ export function LazyComponent<
   }
 
   const Component = component;
-  return <Component {...props} />;
+  return <Component {...(props as any)} />;
 }

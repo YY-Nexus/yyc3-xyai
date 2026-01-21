@@ -9,7 +9,7 @@ type InputVariant = 'default' | 'filled' | 'outlined' | 'ghost';
 type InputSize = 'small' | 'medium' | 'large';
 type InputState = 'idle' | 'focus' | 'error' | 'success';
 
-export interface CharacterInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface CharacterInputProps {
   variant?: InputVariant;
   size?: InputSize;
   label?: string;
@@ -22,6 +22,10 @@ export interface CharacterInputProps extends React.InputHTMLAttributes<HTMLInput
   loading?: boolean;
   animate?: boolean;
   onStateChange?: (state: InputState) => void;
+  className?: string;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  [key: string]: any;
 }
 
 export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
@@ -107,7 +111,7 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
       },
     };
 
-    const currentSize = sizeClasses[size];
+    const currentSize = sizeClasses[size as keyof typeof sizeClasses];
 
     // 变体样式
     const getVariantStyles = () => {
@@ -119,18 +123,18 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
           : state === 'success'
             ? '#10b981'
             : state === 'focus'
-              ? themeColors.primaryColor
-              : themeColors.border;
+              ? themeColors.text
+              : themeColors.text;
 
       const backgroundColor =
-        variant === 'filled' ? themeColors.accent : 'transparent';
+        variant === 'filled' ? themeColors.text : 'transparent';
       const borderWidth = variant === 'ghost' ? '0' : '2px';
 
       return {
         borderColor,
         backgroundColor,
         borderWidth,
-        boxShadow: state === 'focus' ? `0 0 0 3px ${themeColors.glow}` : 'none',
+        boxShadow: state === 'focus' ? `0 0 0 3px ${themeColors.text}` : 'none',
       };
     };
 
@@ -140,11 +144,11 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
     const inputVariants = {
       idle: {
         scale: 1,
-        borderColor: variantStyles.borderColor,
+        borderColor: variantStyles.borderColor || '#ccc',
       },
       focus: {
         scale: 1.02,
-        borderColor: themeColors?.primaryColor,
+        borderColor: themeColors?.text || '#000',
       },
       error: {
         x: animate ? [-5, 5, -5, 5, 0] : 0,
@@ -217,10 +221,10 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
               color: themeColors?.text,
               ...variantStyles,
             }}
-            variants={animate ? inputVariants : undefined}
+            variants={inputVariants}
             animate={state}
             transition={{
-              type: 'spring',
+              type: "spring" as const,
               stiffness: 300,
               damping: 30,
             }}
@@ -248,17 +252,17 @@ export const CharacterInput = forwardRef<HTMLInputElement, CharacterInputProps>(
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              <div
+              <motion.div
                 className='w-4 h-4 border-2 border-t-2 border-t-transparent rounded-full'
                 style={{
-                  borderColor: themeColors?.primaryColor,
+                  borderColor: themeColors?.text,
                   borderTopColor: 'transparent',
                 }}
                 animate={{ rotate: 360 }}
                 transition={{
                   duration: 1,
                   repeat: Infinity,
-                  ease: 'linear',
+                  ease: "linear" as const,
                 }}
               />
             </motion.div>

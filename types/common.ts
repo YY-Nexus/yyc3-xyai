@@ -9,6 +9,8 @@
  * @license MIT
  */
 
+
+
 export interface Message {
   id: string | number;
   role: 'user' | 'assistant';
@@ -46,7 +48,12 @@ export interface User {
 }
 
 // 为 backend 添加类型
-export interface AuthenticatedRequest extends User {
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    role: string;
+  };
   token?: string;
   session?: string;
 }

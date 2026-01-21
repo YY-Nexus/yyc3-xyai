@@ -176,7 +176,7 @@ export interface ResponseTimeMetrics {
   p99: number;
 }
 
-export interface PerformanceMetrics {
+export interface AIServicePerformanceMetrics {
   total_requests: number;
   successful_requests: number;
   failed_requests: number;

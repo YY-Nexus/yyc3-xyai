@@ -65,7 +65,7 @@ export interface HealthStatus {
   };
 }
 
-export interface PerformanceMetrics {
+export interface OllamaServicePerformanceMetrics {
   total_requests: number;
   successful_requests: number;
   failed_requests: number;
@@ -84,20 +84,20 @@ export class OllamaService {
   private baseURL: string;
   private currentModel: string;
   private requestQueue: Map<string, AbortController> = new Map();
-  private metrics: PerformanceMetrics;
+  private metrics: OllamaServicePerformanceMetrics;
   private healthCache: HealthStatus | null = null;
   private lastHealthCheck: number = 0;
 
   constructor() {
-    this.baseURL = config.ollama?.baseUrl || 'http://localhost:11434';
-    this.currentModel = config.ollama?.defaultModel || 'llama3.1:8b';
+    this.baseURL = config.ai.ollama?.baseURL || 'http://localhost:11434';
+    this.currentModel = config.ai.ollama?.model || 'llama3.1:8b';
     this.metrics = this.initializeMetrics();
   }
 
   /**
    * 初始化性能指标
    */
-  private initializeMetrics(): PerformanceMetrics {
+  private initializeMetrics(): OllamaServicePerformanceMetrics {
     return {
       total_requests: 0,
       successful_requests: 0,
@@ -403,7 +403,7 @@ export class OllamaService {
   /**
    * 获取性能指标
    */
-  async getMetrics(): Promise<PerformanceMetrics> {
+  async getMetrics(): Promise<OllamaServicePerformanceMetrics> {
     // 更新实时指标
     await this.updateRealTimeMetrics();
     return { ...this.metrics };
@@ -427,7 +427,7 @@ export class OllamaService {
    */
   cleanup(): void {
     // 取消所有进行中的请求
-    for (const [requestId, controller] of this.requestQueue) {
+    for (const [requestId, controller] of Array.from(this.requestQueue.entries())) {
       controller.abort();
     }
     this.requestQueue.clear();

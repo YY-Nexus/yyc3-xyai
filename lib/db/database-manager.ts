@@ -1,5 +1,13 @@
-// 数据库管理器 - 统一管理数据库连接和数据迁移
-// 支持从localStorage迁移到SQLite，并提供数据访问的统一接口
+/**
+ * @file YYC³ 数据库管理器
+ * @description 统一管理数据库连接和数据迁移，支持从localStorage迁移到SQLite
+ * @module lib/db
+ * @author YYC³
+ * @version 2.0.0
+ * @created 2026-01-19
+ * @copyright Copyright (c) 2026 YYC³
+ * @license MIT
+ */
 
 import { getDatabase, SQLiteDatabase } from './sqlite-client';
 import {
@@ -9,6 +17,7 @@ import {
   type Assessment,
   type Milestone,
 } from './client';
+import { info, error } from '../logger';
 
 export interface DatabaseConfig {
   type: 'sqlite' | 'localStorage' | 'hybrid';
@@ -42,14 +51,14 @@ export class DatabaseManager {
         this.sqliteDB
           .seedMockData()
           .then(() => {
-            console.log('✅ 数据库初始化完成');
+            info('✅ 数据库初始化完成', 'DatabaseManager');
           })
           .catch(error => {
-            console.error('❌ 数据库初始化失败:', error);
+            error('❌ 数据库初始化失败:', 'DatabaseManager', error);
           });
       }
     } catch (error) {
-      console.error('❌ 数据库初始化错误:', error);
+      error('❌ 数据库初始化错误:', 'DatabaseManager', error);
       // 降级到localStorage
       this.config.type = 'localStorage';
     }
@@ -236,11 +245,11 @@ export class DatabaseManager {
         migrated.push({ table: 'homework_tasks', count: homework.length });
       }
 
-      console.log('✅ 数据迁移完成:', migrated);
+      info('✅ 数据迁移完成:', 'DatabaseManager', migrated);
       return { success: true, migrated };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '迁移失败';
-      console.error('❌ 数据迁移失败:', error);
+      error('❌ 数据迁移失败:', 'DatabaseManager', error);
       return { success: false, migrated: [], error: errorMsg };
     }
   }
@@ -271,7 +280,7 @@ export class DatabaseManager {
 
         const success = this.sqliteDB.backup(defaultPath);
         if (success) {
-          console.log(`✅ 数据库备份成功: ${defaultPath}`);
+          info(`✅ 数据库备份成功: ${defaultPath}`, 'DatabaseManager');
           return { success: true, path: defaultPath };
         } else {
           return { success: false, error: '备份失败' };
@@ -281,7 +290,7 @@ export class DatabaseManager {
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '备份失败';
-      console.error('❌ 数据库备份失败:', error);
+      error('❌ 数据库备份失败:', 'DatabaseManager', error);
       return { success: false, error: errorMsg };
     }
   }
@@ -318,7 +327,7 @@ export class DatabaseManager {
 
       return stats;
     } catch (error) {
-      console.error('❌ 获取数据库统计信息失败:', error);
+      error('❌ 获取数据库统计信息失败:', 'DatabaseManager', error);
       return {};
     }
   }
@@ -361,7 +370,7 @@ export class DatabaseManager {
       return { success: false, message: '不支持的数据库类型' };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '优化失败';
-      console.error('❌ 数据库优化失败:', error);
+      error('❌ 数据库优化失败:', 'DatabaseManager', error);
       return { success: false, message: errorMsg };
     }
   }
@@ -382,7 +391,7 @@ export class DatabaseManager {
       return { success: false, message: '不支持的数据库类型' };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '重置失败';
-      console.error('❌ 数据库重置失败:', error);
+      error('❌ 数据库重置失败:', 'DatabaseManager', error);
       return { success: false, message: errorMsg };
     }
   }

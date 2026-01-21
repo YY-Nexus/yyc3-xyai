@@ -2,7 +2,7 @@
 // 使用Bun内置的SQLite支持，提供高性能的数据持久化
 
 import { Database } from 'bun:sqlite';
-import type { Child, GrowthRecord, Assessment, Milestone } from './client';
+import type { Child, LocalStorageGrowthRecord, Assessment, Milestone } from './client';
 
 // 数据库表创建SQL
 const CREATE_TABLES_SQL = `
@@ -608,4 +608,4 @@ export function getDatabase(): SQLiteDatabase {
 export const db = getDatabase();
 
 // 类型导出
-export type { Child, GrowthRecord, Assessment, Milestone };
+export type { Child, LocalStorageGrowthRecord as GrowthRecord, Assessment, Milestone };

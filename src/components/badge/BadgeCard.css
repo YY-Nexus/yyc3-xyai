@@ -1,0 +1,422 @@
+.badge-card {
+  position: relative;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.badge-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--rarity-color, #9CA3AF);
+}
+
+.badge-card.earned {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-color: #4ade80;
+}
+
+.badge-card.earned:hover {
+  box-shadow: 0 8px 24px rgba(74, 222, 128, 0.2);
+}
+
+.badge-card.unearned {
+  opacity: 0.8;
+  filter: grayscale(0.3);
+}
+
+.badge-card.unearned:hover {
+  opacity: 1;
+  filter: grayscale(0);
+}
+
+.badge-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.badge-rarity {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.badge-special {
+  font-size: 18px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
+
+.badge-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.badge-icon-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+.badge-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.badge-icon.earned {
+  filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.3));
+}
+
+.badge-icon.sparkle {
+  animation: iconSparkle 3s ease-in-out infinite;
+}
+
+@keyframes iconSparkle {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 8px rgba(74, 222, 128, 0.3));
+  }
+  50% {
+    filter: brightness(1.2) drop-shadow(0 0 16px rgba(74, 222, 128, 0.5));
+  }
+}
+
+.badge-glow {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border-radius: 20px;
+  opacity: 0.3;
+  animation: glowPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+.badge-info {
+  text-align: center;
+  flex: 1;
+}
+
+.badge-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.badge-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.badge-progress {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.progress-bar {
+  position: relative;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
+  display: block;
+  text-align: right;
+}
+
+.unlock-button {
+  width: 100%;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+}
+
+.unlock-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.unlock-button:active {
+  transform: translateY(0);
+}
+
+.badge-earned-date {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.badge-hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  backdrop-filter: blur(4px);
+}
+
+.hidden-icon {
+  font-size: 48px;
+  color: #9CA3AF;
+  margin-bottom: 12px;
+  animation: hiddenPulse 2s ease-in-out infinite;
+}
+
+@keyframes hiddenPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+.hidden-description {
+  color: #d1d5db;
+  font-size: 14px;
+  text-align: center;
+  margin: 0;
+  padding: 0 20px;
+}
+
+.unlock-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 14px;
+  z-index: 10;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.unlock-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #4ade80;
+  border-radius: 50%;
+  animation: particleExplode 1s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes particleExplode {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+      calc(-50% + 60px * cos(var(--angle))),
+      calc(-50% + 60px * sin(var(--angle)))
+    ) scale(0);
+    opacity: 0;
+  }
+}
+
+.unlock-text {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4ade80;
+  text-align: center;
+  animation: textBounce 0.5s ease;
+}
+
+@keyframes textBounce {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .badge-card {
+    padding: 16px;
+  }
+
+  .badge-icon-container {
+    width: 100px;
+    height: 100px;
+  }
+
+  .badge-title {
+    font-size: 16px;
+  }
+
+  .badge-description {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .badge-card {
+    padding: 12px;
+  }
+
+  .badge-icon-container {
+    width: 80px;
+    height: 80px;
+  }
+
+  .badge-title {
+    font-size: 14px;
+  }
+
+  .badge-description {
+    font-size: 12px;
+  }
+}

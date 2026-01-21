@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEmotionMonitor } from '@/hooks/useEmotionMonitor';
-import { EmotionType } from '@/lib/ai/voice-interaction';
+import { EmotionType, EmotionInsight } from '@/types/emotion';
 
 interface EmotionMonitorProps {
   compact?: boolean;
@@ -19,25 +19,28 @@ interface EmotionMonitorProps {
 
 interface EmotionAlert {
   id: string;
-  severity: 'high' | 'medium' | 'low';
+  type: 'attention_needed' | 'positive_milestone' | 'emotional_concern';
+  severity: 'low' | 'medium' | 'high';
   message: string;
-  emotion: EmotionType;
-  timestamp: number;
-  suggestions?: string[];
-}
-
-interface EmotionInsight {
-  timestamp: number;
-  severity: 'success' | 'warning' | 'info';
-  type: 'trend' | 'pattern' | 'recommendation';
-  message: string;
+  suggestions: string[];
+  timestamp: Date;
+  acknowledged: boolean;
 }
 
 interface EmotionEvent {
   id: string;
+  timestamp: Date;
   emotion: EmotionType;
+  intensity: number;
   context: string;
-  timestamp: number;
+  source: 'user_input' | 'behavior' | 'system_trigger' | 'voice';
+  childId: string;
+  metadata?: {
+    page?: string;
+    action?: string;
+    duration?: number;
+    words?: string[];
+  };
 }
 
 interface DetailedReport {
@@ -67,9 +70,16 @@ const emotionEmojis: Record<string, string> = {
   comfort: '😌',
   hunger: '😋',
   discomfort: '😣',
+  pain: '😫',
   attention: '👀',
   colic: '😭',
   neutral: '😐',
+  happy: '😊',
+  sad: '😢',
+  angry: '😠',
+  excited: '🤩',
+  calm: '😌',
+  anxious: '😰',
 };
 
 const emotionColors: Record<string, string> = {
@@ -83,9 +93,16 @@ const emotionColors: Record<string, string> = {
   comfort: 'text-pink-500 bg-pink-50',
   hunger: 'text-amber-500 bg-amber-50',
   discomfort: 'text-gray-500 bg-gray-50',
+  pain: 'text-red-600 bg-red-50',
   attention: 'text-indigo-500 bg-indigo-50',
   colic: 'text-red-600 bg-red-50',
   neutral: 'text-gray-400 bg-gray-50',
+  happy: 'text-yellow-500 bg-yellow-50',
+  sad: 'text-blue-500 bg-blue-50',
+  angry: 'text-red-500 bg-red-50',
+  excited: 'text-pink-500 bg-pink-50',
+  calm: 'text-green-500 bg-green-50',
+  anxious: 'text-purple-500 bg-purple-50',
 };
 
 export default function EmotionMonitor({
@@ -198,7 +215,7 @@ export default function EmotionMonitor({
               className='mt-3 pt-3 border-t border-gray-100'
             >
               <EmotionAlerts
-                alerts={recentAlerts as any}
+                alerts={recentAlerts}
                 onClear={clearAlerts}
               />
               {showInsights && <EmotionInsights insights={emotionInsights} />}
@@ -305,7 +322,7 @@ export default function EmotionMonitor({
           animate={{ opacity: 1, y: 0 }}
           className='mb-6'
         >
-          <EmotionAlerts alerts={recentAlerts as any} onClear={clearAlerts} />
+          <EmotionAlerts alerts={recentAlerts} onClear={clearAlerts} />
         </motion.div>
       )}
 
@@ -326,7 +343,7 @@ export default function EmotionMonitor({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <EmotionHistory history={emotionHistory.slice(0, 5) as any} />
+          <EmotionHistory history={emotionHistory.slice(0, 5)} />
         </motion.div>
       )}
 
@@ -424,7 +441,7 @@ function EmotionInsights({ insights }: { insights: EmotionInsight[] }) {
       <div className='space-y-2'>
         {insights.map((insight, index) => (
           <motion.div
-            key={`${insight.timestamp}-${index}`}
+            key={`${insight.type}-${index}`}
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -571,9 +588,16 @@ function getEmotionName(emotion: EmotionType): string {
     comfort: '舒服',
     hunger: '饥饿',
     discomfort: '不舒服',
+    pain: '疼痛',
     attention: '需要关注',
     colic: '肠绞痛',
     neutral: '中性',
+    happy: '开心',
+    sad: '难过',
+    angry: '生气',
+    excited: '兴奋',
+    calm: '平静',
+    anxious: '焦虑',
   };
   return names[String(emotion).toLowerCase()] || '未知';
 }

@@ -561,6 +561,8 @@ function RecordsTab({ onOpenCreateModal }: RecordsTabProps) {
           </motion.div>
         ))}
       </div>
+
+      <Navigation />
     </motion.div>
   );
 }

@@ -53,7 +53,7 @@ export default function AICourseRecommendation({
   const [currentMessage, setCurrentMessage] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const { sendMessage } = useAIXiaoyu();
+  const { sendMessage, messages } = useAIXiaoyu();
   const { currentChild } = useChildren();
 
   useEffect(() => {
@@ -62,6 +62,18 @@ export default function AICourseRecommendation({
       generateLearningPath();
     }
   }, [isOpen, childId]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant') {
+        setChatMessages(prev => [
+          ...prev,
+          { role: 'assistant', content: lastMessage.content },
+        ]);
+      }
+    }
+  }, [messages]);
 
   const generateRecommendations = async () => {
     setIsGenerating(true);
@@ -73,15 +85,7 @@ export default function AICourseRecommendation({
 
       请以JSON格式返回，包含课程名称、描述、类别、难度、时长和标签。`;
 
-      const response = await sendMessage(prompt, {
-        role: '教育规划师',
-        context: '儿童课程推荐',
-        childProfile: {
-          name: childName,
-          age: childAge,
-          stage: getChildDevelopmentStage(childAge),
-        },
-      });
+      const response = await sendMessage(prompt, 'advisor');
 
       // 模拟解析推荐结果
       const mockRecommendations = {
@@ -166,15 +170,7 @@ export default function AICourseRecommendation({
 
       请提供阶段性学习计划，每个阶段包含目标、推荐课程和时长。`;
 
-      const response = await sendMessage(prompt, {
-        role: '学习规划师',
-        context: '个性化学习路径制定',
-        childProfile: {
-          name: childName,
-          age: childAge,
-          stage: getChildDevelopmentStage(childAge),
-        },
-      });
+      const response = await sendMessage(prompt, 'advisor');
 
       // 模拟学习路径数据
       const mockLearningPath: LearningPath[] = [
@@ -275,20 +271,12 @@ export default function AICourseRecommendation({
 
       请作为专业的教育顾问，提供个性化的建议和指导。考虑孩子的年龄特点、发展需求和个体差异。`;
 
-      const response = await sendMessage(prompt, {
-        role: '教育顾问',
-        context: '课程学习咨询',
-        childProfile: {
-          name: childName,
-          age: childAge,
-          stage: getChildDevelopmentStage(childAge),
-        },
-      });
-
       setChatMessages(prev => [
         ...prev,
-        { role: 'assistant', content: response.content },
+        { role: 'user', content: userMessage },
       ]);
+
+      await sendMessage(prompt, 'advisor');
     } catch (error) {
       setChatMessages(prev => [
         ...prev,
@@ -318,7 +306,7 @@ export default function AICourseRecommendation({
   };
 
   const getRecommendationIcon = (type: string) => {
-    const icons = {
+    const icons: Record<string, string> = {
       personality: 'ri-heart-line',
       developmental: 'ri-brain-line',
       interest: 'ri-star-line',
@@ -327,7 +315,7 @@ export default function AICourseRecommendation({
   };
 
   const getRecommendationColor = (type: string) => {
-    const colors = {
+    const colors: Record<string, string> = {
       personality: 'text-pink-500 bg-pink-50',
       developmental: 'text-blue-500 bg-blue-50',
       interest: 'text-purple-500 bg-purple-50',

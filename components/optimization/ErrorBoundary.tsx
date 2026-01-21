@@ -83,7 +83,6 @@ export class ErrorBoundary extends Component<
           },
           errorInfo: {
             componentStack: errorInfo.componentStack,
-            errorBoundaryStack: errorInfo.errorBoundaryStack,
           },
           userAgent: navigator.userAgent,
           url: window.location.href,

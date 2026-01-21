@@ -8,7 +8,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAccessibility } from '@/hooks/useAccessibility';
-// import { useTranslations } from 'next-intl'
 
 interface AccessibilityPanelProps {
   isOpen: boolean;
@@ -19,7 +18,7 @@ interface AccessibilityReport {
   enabledFeatures: string[];
   totalFeatures: number;
   fontSize: string;
-  timestamp: number;
+  timestamp: string;
 }
 
 export default function AccessibilityPanel({
@@ -34,7 +33,6 @@ export default function AccessibilityPanel({
   } = useAccessibility();
   const [report, setReport] = useState<AccessibilityReport | null>(null);
   const [showReport, setShowReport] = useState(false);
-  const _t = useTranslations('accessibility');
 
   // 监听键盘事件
   useEffect(() => {
