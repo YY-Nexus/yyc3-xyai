@@ -1,6 +1,8 @@
 // 数据库客户端封装
 // 目前使用localStorage模拟，待集成Supabase后替换
 
+import { v4 as uuidv4 } from 'uuid';
+
 export type StorageKey =
   | 'users'
   | 'children'
@@ -123,7 +125,7 @@ class LocalStorageDB {
     const collection = this.getCollection<T>(table);
     const newItem = {
       ...data,
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       created_at: new Date().toISOString(),
     } as T;
     collection.push(newItem);
@@ -139,7 +141,7 @@ class LocalStorageDB {
     const collection = this.getCollection<T>(table);
     const newItems = dataArray.map(data => ({
       ...data,
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       created_at: new Date().toISOString(),
     })) as T[];
     collection.push(...newItems);

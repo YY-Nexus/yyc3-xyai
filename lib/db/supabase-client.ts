@@ -1,6 +1,8 @@
 // Supabase数据库客户端封装
 // 为未来集成Supabase做准备，提供统一的数据访问接口
 
+import { v4 as uuidv4 } from 'uuid';
+
 import type {
   Child,
   GrowthRecord,
@@ -184,14 +186,14 @@ class MockAuthClient implements AuthClient {
     options?: SignUpOptions
   ): Promise<AuthResponse> {
     return Promise.resolve({
-      user: { id: crypto.randomUUID(), email },
+      user: { id: uuidv4(), email },
       session: { access_token: 'mock-token' },
     });
   }
 
   signIn(email: string, password: string): Promise<AuthResponse> {
     return Promise.resolve({
-      user: { id: crypto.randomUUID(), email },
+      user: { id: uuidv4(), email },
       session: { access_token: 'mock-token' },
     });
   }
@@ -330,7 +332,7 @@ class MockSupabaseClient implements DatabaseClient {
     const collection = this.getCollection<T>(table);
     const newItem = {
       ...data,
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       created_at: new Date().toISOString(),
     } as T;
     collection.push(newItem);
@@ -345,7 +347,7 @@ class MockSupabaseClient implements DatabaseClient {
     const collection = this.getCollection<T>(table);
     const newItems = dataArray.map(data => ({
       ...data,
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       created_at: new Date().toISOString(),
     })) as T[];
     collection.push(...newItems);

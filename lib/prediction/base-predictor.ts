@@ -12,12 +12,11 @@ import type {
   DataPoint,
 } from '../../types/prediction/common';
 
-// 导入crypto模块用于生成UUID
-import { randomUUID } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 
 export abstract class BasePredictor {
-  protected modelId: string = randomUUID();
+  protected modelId: string = uuidv4();
   protected isTrained: boolean = false;
   protected trainingHistory: TrainingResult[] = [];
   protected featureSet: Record<string, any> | null = null;

@@ -3,6 +3,7 @@
 
 import { Database } from 'bun:sqlite';
 import type { Child, LocalStorageGrowthRecord, Assessment, Milestone } from './client';
+import { v4 as uuidv4 } from 'uuid';
 
 // 数据库表创建SQL
 const CREATE_TABLES_SQL = `
@@ -226,7 +227,7 @@ export class SQLiteDatabase {
     data: Omit<T, 'id' | 'created_at'>
   ): Promise<T> {
     try {
-      const id = crypto.randomUUID();
+      const id = uuidv4();
       const created_at = new Date().toISOString();
       const item = { ...data, id, created_at } as T;
 
@@ -254,7 +255,7 @@ export class SQLiteDatabase {
     try {
       const items = dataArray.map(data => ({
         ...data,
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         created_at: new Date().toISOString(),
       })) as T[];
 
